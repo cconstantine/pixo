@@ -10,6 +10,7 @@ if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui")
     "by calling \"git submodule update --init --recursive\"")
 endif()
 
+###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
@@ -20,5 +21,32 @@ include_directories(ext/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 add_definitions(${NANOGUI_EXTRA_DEFS})
 
-add_executable(pixo main.cpp )
-target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS})
+###################### GLM     ###############################
+include_directories( ext/glm/ )
+
+###################### ASSIMP  ###############################
+add_subdirectory(ext/assimp)
+include_directories(ext/assimp/include/96+8555555555555)
+
+add_executable(pixo src/main.cpp )
+target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} assimp)
+
+
+###################### GLEW     ###############################
+# glew
+add_definitions(-DGLEW_STATIC)
+option(glew-cmake_BUILD_SHARED "" OFF)
+add_subdirectory(ext/glew)
+include_directories(ext/glew/include lib/glew/src)
+
+add_subdirectory(ext/glew/build/cmake)
+
+include_directories(
+	pixelpusher/
+	.
+	)
+add_executable(dome_lights main.cpp shader.cpp model.cpp mesh.cpp camera.cpp led_cluster.cpp renderer.cpp pixelpusher/pixel_pusher.cpp)
+
+target_link_libraries(dome_lights glfw glew ${OPENGL_LIBRARY} assimp ${LIBS})
+
+

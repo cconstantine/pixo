@@ -1,178 +1,139 @@
-/*
-    src/example3.cpp -- C++ version of an example application that shows
-    how to use nanogui in an application with an already created and managed
-    glfw context.
+// Include standard headers
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <vector>
 
-    NanoGUI was developed by Wenzel Jakob <wenzel.jakob@epfl.ch>.
-    The widget drawing code is based on the NanoVG demo application
-    by Mikko Mononen.
+// Include GLEW
+// #include <GL/glew.h>
 
-    All rights reserved. Use of this source code is governed by a
-    BSD-style license that can be found in the LICENSE.txt file.
-*/
-
-// GLFW
-//
-#if defined(NANOGUI_GLAD)
-    #if defined(NANOGUI_SHARED) && !defined(GLAD_GLAPI_EXPORT)
-        #define GLAD_GLAPI_EXPORT
-    #endif
-
-    #include <glad/glad.h>
-#else
-    #if defined(__APPLE__)
-        #define GLFW_INCLUDE_GLCOREARB
-    #else
-        #define GL_GLEXT_PROTOTYPES
-    #endif
-#endif
-
+// Include GLFW
 #include <GLFW/glfw3.h>
+GLFWwindow* window;
 
-#include <nanogui/nanogui.h>
-#include <iostream>
+// Include GLM
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+using namespace glm;
 
-using namespace nanogui;
 
-enum test_enum {
-    Item1 = 0,
-    Item2,
-    Item3
-};
+const int canvasSize = 400;
 
-bool bvar = true;
-int ivar = 12345678;
-double dvar = 3.1415926;
-float fvar = (float)dvar;
-std::string strval = "A string";
-test_enum enumval = Item2;
-Color colval(0.5f, 0.5f, 0.7f, 1.f);
+#include <shader.hpp>
+#include <camera.hpp>
+#include <model.hpp>
+#include <led_cluster.hpp>
+#include <renderer.hpp>
 
-Screen *screen = nullptr;
+int main( int argc, char** argv )
+{
+	// Initialise GLFW
+	if( !glfwInit() )
+	{
+		fprintf( stderr, "Failed to initialize GLFW\n" );
+		getchar();
+		return -1;
+	}
 
-int main(int /* argc */, char ** /* argv */) {
+	glfwWindowHint(GLFW_SAMPLES, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    glfwInit();
+	// Open a window and create its OpenGL context
+	window = glfwCreateWindow( 800, 800, "Dome Lights", NULL, NULL);
+	if( window == NULL ){
+		fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
+		getchar();
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
 
-    glfwSetTime(0);
 
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+  // Ensure we can capture the escape key being pressed below
+  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  // Options
+  //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-    glfwWindowHint(GLFW_SAMPLES, 0);
-    glfwWindowHint(GLFW_RED_BITS, 8);
-    glfwWindowHint(GLFW_GREEN_BITS, 8);
-    glfwWindowHint(GLFW_BLUE_BITS, 8);
-    glfwWindowHint(GLFW_ALPHA_BITS, 8);
-    glfwWindowHint(GLFW_STENCIL_BITS, 8);
-    glfwWindowHint(GLFW_DEPTH_BITS, 24);
-    glfwWindowHint(GLFW_RESIZABLE, GL_TRUE);
+  // Initialize GLEW
+  // glewExperimental = GL_TRUE; // Needed for core profile
+  // if (glewInit() != GLEW_OK) {
+  //   fprintf(stderr, "Failed to initialize GLEW\n");
+  //   getchar();
+  //   glfwTerminate();
+  //   return -1;
+  // }
 
-    // Create a GLFWwindow object
-    GLFWwindow* window = glfwCreateWindow(800, 800, "example3", nullptr, nullptr);
-    if (window == nullptr) {
-        std::cout << "Failed to create GLFW window" << std::endl;
-        glfwTerminate();
-        return -1;
+  // Setup some OpenGL options
+  glEnable(GL_DEPTH_TEST);
+
+  std::vector<uint8_t> frameBuffer;
+  int frameBytes =1000*10 * 3;
+  frameBuffer.resize(frameBytes);
+
+  //FrameBufferRender fb_screen(3, domeLeds.balls.numInstances());
+  FrameBufferRender fb_screen(1000, 10, &frameBuffer[0]);
+  ScreenRender screen_renderer(window);
+  Scene scene(&screen_renderer, &fb_screen);
+  
+  fprintf(stderr, "argc: %d\n", argc);
+  vector<Shader> patterns;
+  for(int i = 1;i < argc;i++) {
+    patterns.push_back(Shader("../shaders/pattern.frag", argv[i]));
+  }
+
+  Shader pattern = patterns[rand() % patterns.size()];
+
+
+  PatternRender pattern_render(canvasSize, canvasSize);
+  Texture texture = pattern_render.getTexture();
+
+  LedCluster domeLeds(texture);
+  screen_renderer.models.push_back(&domeLeds.balls);
+  fb_screen.models.push_back(&domeLeds.plane);
+  //screen_renderer.models.push_back(&domeLeds.plane);
+
+
+  Texture fb_texture = fb_screen.getTexture();
+
+  // Load models
+  Model screen("../models/screen.obj", texture);
+  screen.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
+  screen_renderer.models.push_back(&screen);
+
+  //Model panel("../models/panel.obj", fb_texture);
+  //panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
+  //screen_renderer.models.push_back(&panel);
+
+
+
+  while(!glfwWindowShouldClose(window)) {
+    glfwPollEvents();
+
+    // Render the pattern
+    pattern_render.render(pattern);
+
+    // Render the scene
+    scene.render();
+
+    domeLeds.setGamma(scene.getGamma());
+    bool next = scene.nextPattern();
+    if (next) {
+      pattern = patterns[rand() % patterns.size()];
     }
-    glfwMakeContextCurrent(window);
+    domeLeds.update(frameBuffer);
 
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
-    glViewport(0, 0, width, height);
-    glfwSwapInterval(0);
-    glfwSwapBuffers(window);
+		// Swap buffers
+		glfwSwapBuffers(window);
+	}
 
-    // Create a nanogui screen and pass the glfw pointer to initialize
-    screen = new Screen();
-    screen->initialize(window, true);
+	// Close OpenGL window and terminate GLFW
+	glfwTerminate();
 
-    // Create nanogui gui
-    bool enabled = true;
-    FormHelper *gui = new FormHelper(screen);
-    ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Form helper example");
-    gui->addGroup("Basic types");
-    gui->addVariable("bool", bvar)->setTooltip("Test tooltip.");
-    gui->addVariable("string", strval);
-
-    gui->addGroup("Validating fields");
-    gui->addVariable("int", ivar)->setSpinnable(true);
-    gui->addVariable("float", fvar)->setTooltip("Test.");
-    gui->addVariable("double", dvar)->setSpinnable(true);
-
-    gui->addGroup("Complex types");
-    gui->addVariable("Enumeration", enumval, enabled)->setItems({ "Item 1", "Item 2", "Item 3" });
-    gui->addVariable("Color", colval);
-
-    gui->addGroup("Other widgets");
-    gui->addButton("A button", []() { std::cout << "Button pressed." << std::endl; })->setTooltip("Testing a much longer tooltip, that will wrap around to new lines multiple times.");;
-
-    screen->setVisible(true);
-    screen->performLayout();
-    nanoguiWindow->center();
-
-
-    glfwSetCursorPosCallback(window,
-            [](GLFWwindow *, double x, double y) {
-            screen->cursorPosCallbackEvent(x, y);
-        }
-    );
-
-    glfwSetMouseButtonCallback(window,
-        [](GLFWwindow *, int button, int action, int modifiers) {
-            screen->mouseButtonCallbackEvent(button, action, modifiers);
-        }
-    );
-
-    glfwSetKeyCallback(window,
-        [](GLFWwindow *, int key, int scancode, int action, int mods) {
-            screen->keyCallbackEvent(key, scancode, action, mods);
-        }
-    );
-
-    glfwSetCharCallback(window,
-        [](GLFWwindow *, unsigned int codepoint) {
-            screen->charCallbackEvent(codepoint);
-        }
-    );
-
-    glfwSetDropCallback(window,
-        [](GLFWwindow *, int count, const char **filenames) {
-            screen->dropCallbackEvent(count, filenames);
-        }
-    );
-
-    glfwSetScrollCallback(window,
-        [](GLFWwindow *, double x, double y) {
-            screen->scrollCallbackEvent(x, y);
-       }
-    );
-
-    glfwSetFramebufferSizeCallback(window,
-        [](GLFWwindow *, int width, int height) {
-            screen->resizeCallbackEvent(width, height);
-        }
-    );
-
-    // Game loop
-    while (!glfwWindowShouldClose(window)) {
-        // Check if any events have been activated (key pressed, mouse moved etc.) and call corresponding response functions
-        glfwPollEvents();
-
-        glClearColor(0.2f, 0.25f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT);
-
-        // Draw nanogui
-        screen->drawContents();
-        screen->drawWidgets();
-
-        glfwSwapBuffers(window);
-    }
-
-    // Terminate GLFW, clearing any resources allocated by GLFW.
-    glfwTerminate();
-
-    return 0;
+	return 0;
 }
+
+
