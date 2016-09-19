@@ -39,14 +39,12 @@ option(glew-cmake_BUILD_SHARED "" OFF)
 add_subdirectory(ext/glew)
 include_directories(ext/glew/include lib/glew/src)
 
-add_subdirectory(ext/glew/build/cmake)
-
 include_directories(
 	pixelpusher/
 	.
 	)
 add_executable(dome_lights main.cpp shader.cpp model.cpp mesh.cpp camera.cpp led_cluster.cpp renderer.cpp pixelpusher/pixel_pusher.cpp)
 
-target_link_libraries(dome_lights glfw glew ${OPENGL_LIBRARY} assimp ${LIBS})
+target_link_libraries(dome_lights glfw libglew_static pthread ${OPENGL_LIBRARY} assimp ${LIBS})
 
 

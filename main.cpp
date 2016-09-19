@@ -5,7 +5,7 @@
 #include <vector>
 
 // Include GLEW
-// #include <GL/glew.h>
+#include <GL/glew.h>
 
 // Include GLFW
 #include <GLFW/glfw3.h>
@@ -59,13 +59,13 @@ int main( int argc, char** argv )
   //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // Initialize GLEW
-  // glewExperimental = GL_TRUE; // Needed for core profile
-  // if (glewInit() != GLEW_OK) {
-  //   fprintf(stderr, "Failed to initialize GLEW\n");
-  //   getchar();
-  //   glfwTerminate();
-  //   return -1;
-  // }
+  glewExperimental = GL_TRUE; // Needed for core profile
+  if (glewInit() != GLEW_OK) {
+    fprintf(stderr, "Failed to initialize GLEW\n");
+    getchar();
+    glfwTerminate();
+    return -1;
+  }
 
   // Setup some OpenGL options
   glEnable(GL_DEPTH_TEST);
