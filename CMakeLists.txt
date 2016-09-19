@@ -16,6 +16,9 @@ set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
 set(NANOGUI_INSTALL       OFF CACHE BOOL " " FORCE)
 
+# Disable warnings because assimp and nanogui have too many
+add_definitions(-w)
+
 add_subdirectory(ext/nanogui)
 include_directories(ext/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
@@ -43,8 +46,12 @@ include_directories(
 	pixelpusher/
 	.
 	)
+
+SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} " )
+
+
 add_executable(dome_lights main.cpp shader.cpp model.cpp mesh.cpp camera.cpp led_cluster.cpp renderer.cpp pixelpusher/pixel_pusher.cpp)
 
-target_link_libraries(dome_lights glfw libglew_static pthread ${OPENGL_LIBRARY} assimp ${LIBS})
+target_link_libraries(dome_lights nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread ${OPENGL_LIBRARY} assimp ${LIBS})
 
 

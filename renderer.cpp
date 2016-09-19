@@ -14,7 +14,7 @@ bool keys[1024];
 
 
 // Is called whenever a key is pressed/released via GLFW
-void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
+void Scene::key_callback(GLFWwindow* window, int key, int scancode, int action, int mode)
 {
   if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
       glfwSetWindowShouldClose(window, GL_TRUE);
@@ -28,14 +28,12 @@ void key_callback(GLFWwindow* window, int key, int scancode, int action, int mod
     
 }
 
-void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
   int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
   static GLfloat lastX = 400, lastY = 300;
   static bool firstMouse = true;
-
-  Scene* scene = (Scene*)glfwGetWindowUserPointer(window);
 
   if (state != GLFW_PRESS) {
     firstMouse = true;
@@ -54,10 +52,10 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
   lastX = xpos;
   lastY = ypos;
 
-  scene->perspective.ProcessMouseMovement(xoffset, yoffset);
+  this->perspective.ProcessMouseMovement(xoffset, yoffset);
 } 
 
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+void Scene::mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 {
 
   if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
@@ -66,41 +64,29 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
   }
 }
-void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+void Scene::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-  
-  Scene* scene = (Scene*)glfwGetWindowUserPointer(window);
-  scene->perspective.ProcessMouseScroll(yoffset);
+  this->perspective.ProcessMouseScroll(yoffset);
 }
 
 #pragma endregion
 
 
 Scene::Scene(ScreenRender* screen, FrameBufferRender* fb_render) :
-  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), fb_render(fb_render),
-  deltaTime(0.0f), lastFrame(0.0f), lastTime(glfwGetTime()), nbFrames(0), gamma(0.5), next(false)
-{
-  glfwSetWindowUserPointer(screen->window, this);
-
-  // Set the required callback functions
-  glfwSetKeyCallback(screen->window, key_callback);
-  glfwSetCursorPosCallback(screen->window, mouse_callback);
-  glfwSetScrollCallback(screen->window, scroll_callback);
-  glfwSetMouseButtonCallback(screen->window, mouse_button_callback);
-
-}
+  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), fb_render(fb_render), fps(0),
+  deltaTime(0.0f), lastFrame(0.0f), lastTime(glfwGetTime()), lastUpdate(glfwGetTime()), gamma(0.5), next(false)
+{ }
 
 void Scene::render() {
-    // Measure speed
-  double currentTime = glfwGetTime();
-  nbFrames++;
-  if ( currentTime - lastTime >= 1.0 ){
-    //if (nbFrames < 60) {
-      printf("%2.4f ms/fram ( %d fps)\n", 1000.0/double(nbFrames), nbFrames); 
-    //}
-    nbFrames = 0;
-    lastTime = currentTime;
+ double currentTime = glfwGetTime();
+  if ( currentTime - lastUpdate >= 0.1 ){
+    lastUpdate = currentTime;
+    if (currentTime - lastTime > 0) {
+      fps = (1 /  (currentTime - lastTime));
+    }
   }
+  lastTime = currentTime;
+
   Do_Movement();
   // Set frame time
   GLfloat currentFrame = glfwGetTime();
@@ -109,6 +95,11 @@ void Scene::render() {
   fb_render->render(perspective);
   screen->render(perspective);
 }
+
+float Scene::getFps() {
+  return fps;
+}
+
 
 float Scene::getGamma()
 {

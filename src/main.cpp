@@ -31,12 +31,6 @@
 
 #include <nanogui/nanogui.h>
 #include <iostream>
-#include <glm/vec3.hpp> // glm::vec3
-
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 using namespace nanogui;
 
@@ -57,11 +51,6 @@ Color colval(0.5f, 0.5f, 0.7f, 1.f);
 Screen *screen = nullptr;
 
 int main(int /* argc */, char ** /* argv */) {
-    glm::vec3 v = glm::vec3(0.1f, 0.1f, 0.1f);
-
-  Assimp::Importer importer;
-    const aiScene* scene = importer.ReadFile("foo", aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
-
     glfwInit();
 
     glfwSetTime(0);

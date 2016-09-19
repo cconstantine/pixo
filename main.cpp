@@ -4,6 +4,8 @@
 #include <unistd.h>
 #include <vector>
 
+#include <iostream>
+
 // Include GLEW
 #include <GL/glew.h>
 
@@ -25,6 +27,24 @@ const int canvasSize = 400;
 #include <model.hpp>
 #include <led_cluster.hpp>
 #include <renderer.hpp>
+#include <nanogui/nanogui.h>
+
+using namespace nanogui;
+Screen *screen = nullptr;
+Scene *scene = nullptr;
+
+enum test_enum {
+    Item1 = 0,
+    Item2,
+    Item3
+};
+bool bvar = true;
+int ivar = 12345678;
+double dvar = 3.1415926;
+float fvar = (float)dvar;
+std::string strval = "A string";
+test_enum enumval = Item2;
+Color colval(0.5f, 0.5f, 0.7f, 1.f);
 
 int main( int argc, char** argv )
 {
@@ -77,9 +97,8 @@ int main( int argc, char** argv )
   //FrameBufferRender fb_screen(3, domeLeds.balls.numInstances());
   FrameBufferRender fb_screen(1000, 10, &frameBuffer[0]);
   ScreenRender screen_renderer(window);
-  Scene scene(&screen_renderer, &fb_screen);
+  scene = new Scene(&screen_renderer, &fb_screen);
   
-  fprintf(stderr, "argc: %d\n", argc);
   vector<Shader> patterns;
   for(int i = 1;i < argc;i++) {
     patterns.push_back(Shader("../shaders/pattern.frag", argv[i]));
@@ -100,14 +119,88 @@ int main( int argc, char** argv )
   Texture fb_texture = fb_screen.getTexture();
 
   // Load models
-  Model screen("../models/screen.obj", texture);
-  screen.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
-  screen_renderer.models.push_back(&screen);
+  Model display("../models/screen.obj", texture);
+  display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
+  screen_renderer.models.push_back(&display);
 
   //Model panel("../models/panel.obj", fb_texture);
   //panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
   //screen_renderer.models.push_back(&panel);
 
+
+  // Create a nanogui screen and pass the glfw pointer to initialize
+  screen = new Screen();
+  screen->initialize(window, true);
+
+  // Create nanogui gui
+  bool enabled = true;
+  FormHelper *gui = new FormHelper(screen);
+  nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Status");
+
+  gui->addVariable<string>("fps",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      float fps = scene->getFps();
+      sprintf(ret, "%2.02f", fps);
+      return ret;
+    },
+    false)->setValue("00.00");
+
+  screen->setVisible(true);
+  screen->performLayout();
+
+
+  glfwSetCursorPosCallback(window,
+          [](GLFWwindow *window, double x, double y) {
+          if (!screen->cursorPosCallbackEvent(x, y)) {
+            scene->mouse_callback(window, x, y);
+          }
+      }
+  );
+
+  glfwSetMouseButtonCallback(window,
+      [](GLFWwindow *window, int button, int action, int modifiers) {
+          if (!screen->mouseButtonCallbackEvent(button, action, modifiers)) {
+            scene->mouse_button_callback(window, button, action, modifiers);
+          }
+      }
+  );
+
+  glfwSetKeyCallback(window,
+      [](GLFWwindow *window, int key, int scancode, int action, int mods) {
+          if (!screen->keyCallbackEvent(key, scancode, action, mods)) {
+            scene->key_callback(window, key, scancode, action, mods);
+          }
+      }
+  );
+
+  glfwSetCharCallback(window,
+      [](GLFWwindow *window, unsigned int codepoint) {
+          screen->charCallbackEvent(codepoint);
+      }
+  );
+
+  glfwSetDropCallback(window,
+      [](GLFWwindow *window, int count, const char **filenames) {
+          screen->dropCallbackEvent(count, filenames);
+      }
+  );
+
+  glfwSetScrollCallback(window,
+      [](GLFWwindow *window, double x, double y) {
+          if (!screen->scrollCallbackEvent(x, y)) {
+            scene->mouse_scroll_callback(window, x, y);
+
+          }
+     }
+  );
+
+  glfwSetFramebufferSizeCallback(window,
+      [](GLFWwindow *window, int width, int height) {
+          screen->resizeCallbackEvent(width, height);
+      }
+  );
 
 
   while(!glfwWindowShouldClose(window)) {
@@ -117,14 +210,19 @@ int main( int argc, char** argv )
     pattern_render.render(pattern);
 
     // Render the scene
-    scene.render();
+    scene->render();
 
-    domeLeds.setGamma(scene.getGamma());
-    bool next = scene.nextPattern();
+    domeLeds.setGamma(scene->getGamma());
+    bool next = scene->nextPattern();
     if (next) {
       pattern = patterns[rand() % patterns.size()];
     }
     domeLeds.update(frameBuffer);
+
+    gui->refresh();
+    // Draw nanogui
+    screen->drawContents();
+    screen->drawWidgets();
 
 		// Swap buffers
 		glfwSwapBuffers(window);
