@@ -29,7 +29,7 @@ include_directories( ext/glm/ )
 
 ###################### ASSIMP  ###############################
 add_subdirectory(ext/assimp)
-include_directories(ext/assimp/include/)
+include_directories(ext/assimp/include)
 
 add_executable(pixo src/main.cpp )
 target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} assimp)

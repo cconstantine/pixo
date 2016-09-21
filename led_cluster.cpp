@@ -16,8 +16,8 @@ LedCluster::LedCluster(const Texture& texture)
   model = importer.ReadFile("../models/dome.obj", aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
 
 
-  for(int i = 0;i < 5;i++) {
-    for(int j = 0;j < 7;j++) {
+  for(int i = 0;i < 1;i++) {
+    for(int j = 0;j < 1;j++) {
       glm::vec3 offset(i*7.0f, 0*7.0f, j*7.0f);
 
       std::string mac3("d8:80:39:66:4b:de");
@@ -168,13 +168,13 @@ void LedCluster::addStrip(int start, int end, int divisions, glm::vec3 offset) {
     glm::vec3 ballPosDelta = vertex_start  + vertex_delta  * (1.0f/divisions)*float(i);
     glm::vec2 texDelta     = texture_start + texture_delta * (1.0f/divisions)*float(i);
     
-    int count = plane.numInstances();
+    int count = 1;//plane.numInstances();
     int x = count % 1000;
     int y = count / 1000;
     glm::vec3 planePosDelta((float)x, (float)y, 0.0f);
 
-    balls.addInstance(ballPosDelta, texDelta, ballPosDelta);
-    plane.addInstance(planePosDelta, texDelta, ballPosDelta);
+    //balls.addInstance(ballPosDelta, texDelta, ballPosDelta);
+    //plane.addInstance(planePosDelta, texDelta, ballPosDelta);
   }
 }
 

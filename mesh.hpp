@@ -16,6 +16,8 @@ struct Vertex {
   glm::vec3 Normal;
   // TexCoords
   glm::vec2 TexCoords;
+  // Projection for led rendering
+  glm::vec3 proj;
 };
 
 struct Texture {
@@ -32,16 +34,14 @@ public:
   void Draw(Shader shader);
 
   /*  Render data  */
-  GLuint VAO, VBO, EBO, POS, TPOS, PROJ;
+  GLuint VAO, VBO, EBO;
 
   /*  Mesh Data  */
   vector<Vertex> vertices;
   vector<GLuint> indices;
   vector<Texture> textures;
 
-  vector<glm::mat4> instancePositionOffset;
-  vector<glm::vec2> instanceTextureOffset;
-  vector<glm::mat4> instanceProj;
+  vector<glm::vec3> instanceProj;
 
 private:
 

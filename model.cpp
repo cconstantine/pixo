@@ -40,17 +40,17 @@ Model::Model(const GLchar* path, const Texture& defaultTexture, const glm::vec2&
   this->loadModel(path);
 }
 
-void Model::addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta) {
-  for(GLuint i = 0; i < this->meshes.size(); i++) {
-    meshes[i].instancePositionOffset.push_back(glm::translate(glm::mat4(), posDelta ));
-    meshes[i].instanceTextureOffset.push_back( texDelta);
-    meshes[i].instanceProj.push_back(          glm::translate(glm::mat4(), projDelta ));
-  }
-}
+// void Model::addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta) {
+//   for(GLuint i = 0; i < this->meshes.size(); i++) {
+//     // meshes[i].instancePositionOffset.push_back(glm::translate(glm::mat4(), posDelta ));
+//     // meshes[i].instanceTextureOffset.push_back( texDelta);
+//     meshes[i].instanceProj.push_back(projDelta );
+//   }
+// }
 
-int Model::numInstances() {
-  return meshes[0].instancePositionOffset.size();
-}
+// int Model::numInstances() {
+//   return meshes[0].instanceProj.size();
+// }
 
 // Draws the model, and thus all its meshes
 void Model::Draw(Shader shader)
