@@ -82,7 +82,7 @@ void Scene::render() {
   if ( currentTime - lastUpdate >= 0.1 ){
     lastUpdate = currentTime;
     if (currentTime - lastTime > 0) {
-      fps = (1 /  (currentTime - lastTime));
+      fps = (fps + (1 /  (currentTime - lastTime))) / 2;
     }
   }
   lastTime = currentTime;

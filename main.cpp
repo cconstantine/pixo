@@ -91,11 +91,11 @@ int main( int argc, char** argv )
   glEnable(GL_DEPTH_TEST);
 
   std::vector<uint8_t> frameBuffer;
-  int frameBytes =1000*10 * 3;
+  int frameBytes =1000*1000 * 3;
   frameBuffer.resize(frameBytes);
 
   //FrameBufferRender fb_screen(3, domeLeds.balls.numInstances());
-  FrameBufferRender fb_screen(1000, 10, &frameBuffer[0]);
+  FrameBufferRender fb_screen(1000, 1000, &frameBuffer[0]);
   ScreenRender screen_renderer(window);
   scene = new Scene(&screen_renderer, &fb_screen);
   
@@ -123,9 +123,9 @@ int main( int argc, char** argv )
   display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
   screen_renderer.models.push_back(&display);
 
-  //Model panel("../models/panel.obj", fb_texture);
-  //panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
-  //screen_renderer.models.push_back(&panel);
+  Model panel("../models/panel.obj", fb_texture);
+  panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
+  screen_renderer.models.push_back(&panel);
 
 
   // Create a nanogui screen and pass the glfw pointer to initialize

@@ -15,8 +15,8 @@ public:
 
   void update(std::vector<uint8_t> &frameBuffer);
 
-  void addStrip(std::string &mac, int strip, int strip_offset, int start, int end, int divisions);
-  void addStrip(int start, int end, int divisions);
+  void addStrip(std::string &mac, int strip, int strip_offset, int start, int end, int divisions, glm::vec3 offset);
+  void addStrip(int start, int end, int divisions, glm::vec3 offset);
 
   void setGamma(float g);
 
