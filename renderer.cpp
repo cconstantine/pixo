@@ -93,8 +93,8 @@ void Scene::render() {
   GLfloat currentFrame = glfwGetTime();
   deltaTime = currentFrame - lastFrame;
   lastFrame = currentFrame;
-  fb_render->render(perspective);
 
+  fb_render->render(perspective);
   screen->render(perspective);
 
 }
@@ -123,7 +123,7 @@ void Scene::Do_Movement()
 {
     // Camera controls
     if(keys[GLFW_KEY_W])
-        perspective.ProcessKeyboard(FORWARD, deltaTime);
+        perspective.ProcessKeyboard(FORWARD, deltaTime*10);
     if(keys[GLFW_KEY_S])
         perspective.ProcessKeyboard(BACKWARD, deltaTime);
     if(keys[GLFW_KEY_A])
@@ -142,11 +142,17 @@ void Scene::Do_Movement()
     }
 }
 
-SceneRender::SceneRender() :
- shader("../shaders/model_loading.vs", "../shaders/model_loading.frag")
- {}
+SceneRender::SceneRender() {}
 
-void SceneRender::setupLights(IsoCamera& perspective) {
+ScreenRender::ScreenRender(GLFWwindow* window) :
+ window(window),
+ shader("../shaders/model_loading.vs", "../shaders/model_loading.frag")
+{
+  glfwGetFramebufferSize(window, &width, &height);
+
+}
+
+void ScreenRender::setupLights(IsoCamera& perspective) {
   {
     GLint lightPosLoc        = glGetUniformLocation(shader.Program, "spot_light.position");
     GLint lightSpotdirLoc    = glGetUniformLocation(shader.Program, "spot_light.direction");
@@ -166,13 +172,6 @@ void SceneRender::setupLights(IsoCamera& perspective) {
     glUniform1f(glGetUniformLocation(shader.Program, "point_light.linear"),    0.009);
     glUniform1f(glGetUniformLocation(shader.Program, "point_light.quadratic"), 0.232);
   }
-}
-
-ScreenRender::ScreenRender(GLFWwindow* window) :
- window(window)
-{
-  glfwGetFramebufferSize(window, &width, &height);
-
 }
 
 void ScreenRender::render(IsoCamera& perspective) {
@@ -209,7 +208,8 @@ void ScreenRender::render(IsoCamera& perspective) {
 FrameBufferRender::FrameBufferRender(int width, int height, uint8_t * dest) :
    width(width),
    height(height),
-   dest(dest)
+   dest(dest),
+   shader("../shaders/fb_model_loading.vs", "../shaders/model_loading.frag")
 {
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
   glGenFramebuffers(1, &FramebufferName);
@@ -248,6 +248,27 @@ FrameBufferRender::FrameBufferRender(int width, int height, uint8_t * dest) :
   active_pbo = 0;
 }
 
+void FrameBufferRender::setupLights(IsoCamera& perspective) {
+  {
+    GLint lightPosLoc        = glGetUniformLocation(shader.Program, "spot_light.position");
+    GLint lightSpotdirLoc    = glGetUniformLocation(shader.Program, "spot_light.direction");
+    GLint lightSpotCutOffLoc = glGetUniformLocation(shader.Program, "spot_light.cutOff");
+    glUniform3f(lightPosLoc,        perspective.Position.x, perspective.Position.y, perspective.Position.z);
+    glUniform3f(lightSpotdirLoc,    perspective.Front.x, perspective.Front.y, perspective.Front.z);
+    glUniform1f(lightSpotCutOffLoc, glm::cos(glm::radians(perspective.Zoom)));
+    glUniform1f(glGetUniformLocation(shader.Program, "spot_light.constant"),  1.0f);
+    glUniform1f(glGetUniformLocation(shader.Program, "spot_light.linear"),    0.19);
+    glUniform1f(glGetUniformLocation(shader.Program, "spot_light.quadratic"), 0.032);
+  }  {
+    GLint lightPosLoc        = glGetUniformLocation(shader.Program, "point_light.position");
+    GLint lightSpotColor     = glGetUniformLocation(shader.Program, "point_light.color");
+    glUniform3f(lightPosLoc,        perspective.Position.x, perspective.Position.y, perspective.Position.z);
+    glUniform3f(lightSpotColor,     0.2f, 0.4f, 0.5f);
+    glUniform1f(glGetUniformLocation(shader.Program, "point_light.constant"),  1.0f);
+    glUniform1f(glGetUniformLocation(shader.Program, "point_light.linear"),    0.009);
+    glUniform1f(glGetUniformLocation(shader.Program, "point_light.quadratic"), 0.232);
+  }
+}
 void FrameBufferRender::render(IsoCamera& perspective) {
 
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);

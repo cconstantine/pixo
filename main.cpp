@@ -71,7 +71,7 @@ int main( int argc, char** argv )
 
   // Setup some OpenGL options
   glEnable(GL_DEPTH_TEST);
-
+  //glPointSize(2);
   
   vector<Shader> patterns;
   for(int i = 1;i < argc;i++) {
@@ -93,13 +93,12 @@ int main( int argc, char** argv )
   int frameBytes =1000*rows * 3;
   frameBuffer.resize(frameBytes);
 
-  //FrameBufferRender fb_screen(3, domeLeds.balls.numInstances());
   FrameBufferRender fb_screen(1000, rows, &frameBuffer[0]);
   ScreenRender screen_renderer(window);
   screen_renderer.models.push_back(&domeLeds);
   scene = new Scene(&screen_renderer, &fb_screen);
 
-  fb_screen.models.push_back(&domeLeds.plane);
+  fb_screen.models.push_back(&domeLeds);
   //screen_renderer.models.push_back(&domeLeds.plane);
 
 
@@ -112,7 +111,7 @@ int main( int argc, char** argv )
 
   Model panel("../models/panel.obj", fb_texture);
   // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
-  screen_renderer.models.push_back(&panel);
+  //screen_renderer.models.push_back(&panel);
 
  
 

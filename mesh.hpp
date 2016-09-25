@@ -17,7 +17,7 @@ struct Vertex {
   // TexCoords
   glm::vec2 TexCoords;
   // Projection for led rendering
-  glm::vec3 proj;
+  glm::vec3 framebuffer_proj;
 };
 
 struct Texture {

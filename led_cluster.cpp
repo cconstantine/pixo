@@ -17,8 +17,10 @@ LedCluster::LedCluster(const Texture& texture)
   // processNode(model->mRootNode, model);
   this->loadModel("../models/dome.obj");
 
-  for(int i = -5;i < 5;i++) {
-    for(int j = -50;j < 50;j++) {
+  int rows = 3;
+  int cols = 3;
+  for(int i = -rows/2;i < rows - (rows/2) ;i++) {
+    for(int j = -cols/2;j < cols - (cols/2);j++) {
       glm::vec3 offset(i*7.0f, 0*7.0f, j*7.0f);
 
       std::string mac3("d8:80:39:66:4b:de");
@@ -102,6 +104,7 @@ LedCluster::LedCluster(const Texture& texture)
       addStrip(mac4, 6, 84,  32,  6, 84, offset);
     }
   }
+  leds.textures.push_back(texture);
   leds.setupMesh();
 
   // std::vector<Texture> textures;
@@ -236,7 +239,7 @@ void LedCluster::setGamma(float g) {
 }
 
 GLuint LedCluster::numLeds() {
-  return buffer_size / 3;
+  return leds.indices.size();
 }
 
 void LedCluster::update(std::vector<uint8_t> &frameBuffer) {
@@ -284,15 +287,16 @@ void LedCluster::addStrip(int start, int end, int divisions, glm::vec3 offset) {
     glm::vec3 ballPosDelta = vertex_start  + vertex_delta  * (1.0f/divisions)*float(i);
     glm::vec2 texDelta     = texture_start + texture_delta * (1.0f/divisions)*float(i);
     
-    int count = 1;//plane.numInstances();
+    int count = numLeds();
     int x = count % 1000;
     int y = count / 1000;
+    // fprintf(stderr, "x: %3d, y: %3d\n", x, y);
     glm::vec3 planePosDelta((float)x, (float)y, 0.0f);
 
     Vertex vertex;
     vertex.Position = ballPosDelta; 
     vertex.TexCoords = texDelta;
-    vertex.proj = ballPosDelta;
+    vertex.framebuffer_proj = planePosDelta;
 
     leds.vertices.push_back(vertex);
     leds.indices.push_back(leds.indices.size());

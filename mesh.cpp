@@ -71,19 +71,17 @@ void Mesh::setupMesh()
   // Vertex Positions
   glEnableVertexAttribArray(0); 
   glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)0);
-  glVertexAttribDivisor(0, 0);
+
   // Vertex Normals
   glEnableVertexAttribArray(1); 
   glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, Normal));
-  glVertexAttribDivisor(1, 0);
+
   // Vertex Texture Coords
   glEnableVertexAttribArray(2); 
-  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
-  // glVertexAttribDivisor(2, 0);
+  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
 
-  glEnableVertexAttribArray(4); 
-  glVertexAttribPointer(4, 4, GL_FLOAT, GL_FALSE, sizeof(glm::vec4), (GLvoid*)offsetof(Vertex, proj));
-  glVertexAttribDivisor(4, 1);
+  glEnableVertexAttribArray(3); 
+  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, framebuffer_proj));
 
   // Instance projection offset
 }
