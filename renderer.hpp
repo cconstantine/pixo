@@ -12,7 +12,7 @@
 
 class SceneRender {
 public:
-  std::vector<Model*> models;
+  std::vector<Drawable*> models;
 protected:
   SceneRender();
   Shader shader;

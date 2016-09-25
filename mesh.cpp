@@ -16,24 +16,24 @@ using namespace std;
 
 
 /*  Functions  */
+Mesh::Mesh(int drawType) : drawType(drawType) {}
+
 // Constructor
-Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures)
+Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, int drawType) : drawType(drawType)
 {
   this->vertices = vertices;
   this->indices = indices;
   this->textures = textures;
 
-  fprintf(stderr, "vertices: %d\n", (int)vertices.size());
-  fprintf(stderr, "indices: %d\n", (int)indices.size());
-  fprintf(stderr, "textures: %d\n", (int)textures.size());
+  // fprintf(stderr, "vertices: %d\n", (int)vertices.size());
+  // fprintf(stderr, "indices: %d\n", (int)indices.size());
+  // fprintf(stderr, "textures: %d\n", (int)textures.size());
   // Now that we have all the required data, set the vertex buffers and its attribute pointers.
-  this->setupMesh();
 }
 
 // Render the mesh
 void Mesh::Draw(Shader shader) 
 {
-
   // Bind appropriate textures
   for(GLuint i = 0; i < this->textures.size(); i++)
   {
@@ -47,7 +47,7 @@ void Mesh::Draw(Shader shader)
 
   // Draw mesh
   glBindVertexArray(this->VAO);
-  glDrawElements(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0);
+  glDrawElements(drawType, this->indices.size(), GL_UNSIGNED_INT, 0);
   glBindVertexArray(0);
 
 }

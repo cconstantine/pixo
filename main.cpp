@@ -72,14 +72,6 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   glEnable(GL_DEPTH_TEST);
 
-  std::vector<uint8_t> frameBuffer;
-  int frameBytes =1000*10 * 3;
-  frameBuffer.resize(frameBytes);
-
-  //FrameBufferRender fb_screen(3, domeLeds.balls.numInstances());
-  FrameBufferRender fb_screen(1000, 10, &frameBuffer[0]);
-  ScreenRender screen_renderer(window);
-  scene = new Scene(&screen_renderer, &fb_screen);
   
   vector<Shader> patterns;
   for(int i = 1;i < argc;i++) {
@@ -93,7 +85,20 @@ int main( int argc, char** argv )
   Texture texture = pattern_render.getTexture();
 
   LedCluster domeLeds(texture);
-  screen_renderer.models.push_back(&domeLeds.balls);
+
+
+  std::vector<uint8_t> frameBuffer;
+  int rows = domeLeds.numLeds() / 1000 + 1;
+
+  int frameBytes =1000*rows * 3;
+  frameBuffer.resize(frameBytes);
+
+  //FrameBufferRender fb_screen(3, domeLeds.balls.numInstances());
+  FrameBufferRender fb_screen(1000, rows, &frameBuffer[0]);
+  ScreenRender screen_renderer(window);
+  screen_renderer.models.push_back(&domeLeds);
+  scene = new Scene(&screen_renderer, &fb_screen);
+
   fb_screen.models.push_back(&domeLeds.plane);
   //screen_renderer.models.push_back(&domeLeds.plane);
 
@@ -109,6 +114,7 @@ int main( int argc, char** argv )
   // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
   screen_renderer.models.push_back(&panel);
 
+ 
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();
@@ -131,6 +137,7 @@ int main( int argc, char** argv )
 
   screen->setVisible(true);
   screen->performLayout();
+
 
 
   glfwSetCursorPosCallback(window,
@@ -183,16 +190,18 @@ int main( int argc, char** argv )
           screen->resizeCallbackEvent(width, height);
       }
   );
-
-
   while(!glfwWindowShouldClose(window)) {
+
     glfwPollEvents();
+
 
     // Render the pattern
     pattern_render.render(pattern);
 
+
     // Render the scene
     scene->render();
+
 
     domeLeds.setGamma(scene->getGamma());
     bool next = scene->nextPattern();
@@ -206,8 +215,8 @@ int main( int argc, char** argv )
     screen->drawContents();
     screen->drawWidgets();
 
-		// Swap buffers
 		glfwSwapBuffers(window);
+
 	}
 
 	// Close OpenGL window and terminate GLFW

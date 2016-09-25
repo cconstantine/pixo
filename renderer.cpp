@@ -78,6 +78,7 @@ Scene::Scene(ScreenRender* screen, FrameBufferRender* fb_render) :
 { }
 
 void Scene::render() {
+
  double currentTime = glfwGetTime();
   if ( currentTime - lastUpdate >= 0.1 ){
     lastUpdate = currentTime;
@@ -93,7 +94,9 @@ void Scene::render() {
   deltaTime = currentFrame - lastFrame;
   lastFrame = currentFrame;
   fb_render->render(perspective);
+
   screen->render(perspective);
+
 }
 
 float Scene::getFps() {
@@ -173,7 +176,10 @@ ScreenRender::ScreenRender(GLFWwindow* window) :
 }
 
 void ScreenRender::render(IsoCamera& perspective) {
+
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+
   glfwGetFramebufferSize(window, &width, &height);
 
   glViewport(0,0,width,height);
@@ -193,10 +199,11 @@ void ScreenRender::render(IsoCamera& perspective) {
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-  for(std::vector<Model*>::iterator i = models.begin();i != models.end();i++) {
+  for(std::vector<Drawable*>::iterator i = models.begin();i != models.end();i++) {
     Drawable* m = *i;
     m->Draw(shader);
   }
+
 }
 
 FrameBufferRender::FrameBufferRender(int width, int height, uint8_t * dest) :
@@ -260,7 +267,7 @@ void FrameBufferRender::render(IsoCamera& perspective) {
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-  for(std::vector<Model*>::iterator i = models.begin();i != models.end();i++) {
+  for(std::vector<Drawable*>::iterator i = models.begin();i != models.end();i++) {
     Drawable* m = *i;
     m->Draw(shader);
   }

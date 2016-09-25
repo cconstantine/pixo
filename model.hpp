@@ -36,7 +36,7 @@ public:
     // int numInstances();
 
 
-private:
+protected:
     /*  Model Data  */
     vector<Mesh> meshes;
     string directory;
@@ -51,7 +51,7 @@ private:
     // Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
     void processNode(aiNode* node, const aiScene* scene);
 
-    Mesh processMesh(aiMesh* mesh, const aiScene* scene);
+    virtual Mesh processMesh(aiMesh* mesh, const aiScene* scene);
 
     // Checks all material textures of a given type and loads the textures if they're not loaded yet.
     // The required info is returned as a Texture struct.

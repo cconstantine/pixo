@@ -27,9 +27,12 @@ struct Texture {
 
 class Mesh {
 public:
+  Mesh(int drawType);
   // Constructor
-  Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures);
+  Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, int drawType);
 
+  void setupMesh();
+  
   // Render the mesh
   void Draw(Shader shader);
 
@@ -43,9 +46,10 @@ public:
 
   vector<glm::vec3> instanceProj;
 
-private:
+  int drawType;
+
+protected:
 
   /*  Functions    */
   // Initializes all the buffer objects/arrays
-  void setupMesh();
 };
