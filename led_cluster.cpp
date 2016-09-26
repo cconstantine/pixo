@@ -6,18 +6,21 @@
 #include <assimp/postprocess.h>
 
 LedCluster::LedCluster(const Texture& texture)
-: balls("../models/ball.obj",  texture),
+: defaultTexture(texture), leds(GL_POINTS),
   plane("../models/plane.obj", texture),
   ds(7331), buffer_size(0), gamma(0.5)
 {
   setGamma(gamma);
-  Assimp::Importer importer;
+  // Assimp::Importer importer;
 
-  model = importer.ReadFile("../models/dome.obj", aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+  // model = importer.ReadFile("../models/dome.obj", aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+  // processNode(model->mRootNode, model);
+  this->loadModel("../models/dome.obj");
 
-
-  for(int i = 0;i < 5;i++) {
-    for(int j = 0;j < 7;j++) {
+  int rows = 3;
+  int cols = 3;
+  for(int i = -rows/2;i < rows - (rows/2) ;i++) {
+    for(int j = -cols/2;j < cols - (cols/2);j++) {
       glm::vec3 offset(i*7.0f, 0*7.0f, j*7.0f);
 
       std::string mac3("d8:80:39:66:4b:de");
@@ -99,11 +102,133 @@ LedCluster::LedCluster(const Texture& texture)
       addStrip(mac4, 5, 84,   5,  8, 82, offset);
       addStrip(mac4, 6,  0,   8, 32, 84, offset);
       addStrip(mac4, 6, 84,  32,  6, 84, offset);
-      }
+    }
   }
+  leds.textures.push_back(texture);
+  leds.setupMesh();
 
-  fprintf(stderr, "LEDS: %d\n", buffer_size / 3);
+  // std::vector<Texture> textures;
+  // textures.push_back(texture);
+
+  // std::vector<GLuint> indices;
+  // for(int i = 0;i < vertexes.size();i++) {
+  //   indices.push_back(i);
+  // }
+  // meshes.push_back( Mesh(vertexes, indices, textures, GL_POINTS) );
+
+ fprintf(stderr, "LEDS: %d\n", numLeds());
 }
+
+
+
+// Draws the model, and thus all its meshes
+void LedCluster::Draw(Shader shader)
+{
+  this->leds.Draw(shader); 
+  // for(GLuint i = 0; i < this->meshes.size(); i++) {
+  //   this->meshes[i].Draw(shader);
+  // }
+}
+
+/*  Functions   */
+// Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+void LedCluster::loadModel(string path)
+{
+  // fprintf(stderr, "LedCluster::loadModel -> Loading model at: %s\n", path.c_str());
+  // Read file via ASSIMP
+  Assimp::Importer importer;
+  const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+  // Check for errors
+  if(!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+  {
+    cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+    return;
+  }
+  // Retrieve the directory path of the filepath
+  this->directory = path.substr(0, path.find_last_of('/'));
+
+  // Process ASSIMP's root node recursively
+  this->processNode(scene->mRootNode, scene);
+
+  // for(int i = 0; i < meshes.size();i++) {
+  //     meshes[i].setupMesh();
+  // }
+}
+
+// Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
+void LedCluster::processNode(aiNode* node, const aiScene* scene)
+{
+  // fprintf(stderr, "LedCluster::processMesh: meshes: %d\n", node->mNumMeshes);
+    // Process each mesh located at the current node
+    for(GLuint i = 0; i < node->mNumMeshes; i++)
+    {
+        // The node object only contains indices to index the actual objects in the scene. 
+        // The scene contains all the data, node is just to keep stuff organized (like relations between nodes).
+        aiMesh* mesh = scene->mMeshes[node->mMeshes[i]]; 
+        this->meshes.push_back(this->processMesh(mesh, scene));     
+    }
+    // After we've processed all of the meshes (if any) we then recursively process each of the children nodes
+    for(GLuint i = 0; i < node->mNumChildren; i++)
+    {
+        this->processNode(node->mChildren[i], scene);
+    }
+
+}
+
+Mesh LedCluster::processMesh(aiMesh* mesh, const aiScene* scene)
+{
+  // fprintf(stderr, "LedCluster::processMesh\n");
+    // Data to fill
+    vector<Vertex> vertices;
+    vector<GLuint> indices;
+    vector<Texture> textures;
+    //fprintf(stderr, "verticies: %d\n", mesh->mNumVertices);
+    // Walk through each of the mesh's vertices
+    for(GLuint i = 0; i < mesh->mNumVertices; i++)
+    {
+        Vertex vertex;
+        glm::vec3 vector; // We declare a placeholder vector since assimp uses its own vector class that doesn't directly convert to glm's vec3 class so we transfer the data to this placeholder glm::vec3 first.
+        // Positions
+        vector.x = mesh->mVertices[i].x;
+        vector.y = mesh->mVertices[i].y;
+        vector.z = mesh->mVertices[i].z;
+        vertex.Position = vector;
+
+        if (mesh->HasNormals()) {
+          // Normals
+          vector.x = mesh->mNormals[i].x;
+          vector.y = mesh->mNormals[i].y;
+          vector.z = mesh->mNormals[i].z;
+          vertex.Normal = vector;
+        }
+        // Texture Coordinates
+        if(mesh->mTextureCoords[0]) // Does the mesh contain texture coordinates?
+        {
+            glm::vec2 vec;
+            // A vertex can contain up to 8 different texture coordinates. We thus make the assumption that we won't 
+            // use models where a vertex can have multiple texture coordinates so we always take the first set (0).
+            vec.x = mesh->mTextureCoords[0][i].x; 
+            vec.y = mesh->mTextureCoords[0][i].y;
+            vertex.TexCoords = vec;
+
+        }
+        else {
+            vertex.TexCoords = defaultTexCoords;
+        }
+        vertices.push_back(vertex);
+        indices.push_back(i);
+    }
+
+    textures.push_back(defaultTexture);
+    
+    // Return a mesh object created from the extracted mesh data
+    return Mesh(vertices, indices, textures, GL_POINTS);
+}
+
+
+
+
+
 
 void LedCluster::setGamma(float g) {
   gamma = g;
@@ -113,11 +238,12 @@ void LedCluster::setGamma(float g) {
   }
 }
 
+GLuint LedCluster::numLeds() {
+  return leds.indices.size();
+}
+
 void LedCluster::update(std::vector<uint8_t> &frameBuffer) {
-  uint8_t buff[frameBuffer.size()];
-  for(int i = 0;i < frameBuffer.size();i++) {
-    buff[i] = lut[frameBuffer[i]];
-  }
+
   for(auto i: strip_mappings) {
     std::string mac_address = i.first;
     std::vector<Strip> strips = i.second;
@@ -126,13 +252,15 @@ void LedCluster::update(std::vector<uint8_t> &frameBuffer) {
       std::shared_ptr<PixelPusher> pusher = ds.pushers[mac_address];
 
       for(auto strip: strips) {
-        pusher->update(strip.strip, &buff[strip.offset], strip.size, strip.strip_offset);
+        pusher->update(strip.strip, &frameBuffer[strip.offset], strip.size, strip.strip_offset);
       }
       pusher->send();
     }
 
   }
 }
+
+
 
 void LedCluster::addStrip(std::string &mac, int strip, int strip_offset, int start, int end, int divisions, glm::vec3 offset) {
   int byte_offset = buffer_size;
@@ -143,23 +271,14 @@ void LedCluster::addStrip(std::string &mac, int strip, int strip_offset, int sta
 }
 
 void LedCluster::addStrip(int start, int end, int divisions, glm::vec3 offset) {
-  glm::vec3 vertex_start = glm::vec3(
-    model->mMeshes[0]->mVertices[start].x,
-    model->mMeshes[0]->mVertices[start].y,
-    model->mMeshes[0]->mVertices[start].z) + offset;
-  glm::vec3 vertex_end = glm::vec3(
-    model->mMeshes[0]->mVertices[end].x,
-    model->mMeshes[0]->mVertices[end].y,
-    model->mMeshes[0]->mVertices[end].z);
-  glm::vec3 vertex_delta = vertex_end - vertex_start + offset;
+
+  glm::vec3 vertex_start = meshes[0].vertices[start].Position + offset;
+  glm::vec3 vertex_end =   meshes[0].vertices[end].Position + offset;
+  glm::vec3 vertex_delta = vertex_end - vertex_start ;
 
 
-  glm::vec2 texture_start = glm::vec2(
-    model->mMeshes[0]->mTextureCoords[0][start].x,
-    model->mMeshes[0]->mTextureCoords[0][start].y);
-  glm::vec2 texture_end   = glm::vec2(
-    model->mMeshes[0]->mTextureCoords[0][end].x,
-    model->mMeshes[0]->mTextureCoords[0][end].y);
+  glm::vec2 texture_start = meshes[0].vertices[start].TexCoords;
+  glm::vec2 texture_end   = meshes[0].vertices[end].TexCoords;
 
   glm::vec2 texture_delta = texture_end - texture_start;
 
@@ -168,13 +287,21 @@ void LedCluster::addStrip(int start, int end, int divisions, glm::vec3 offset) {
     glm::vec3 ballPosDelta = vertex_start  + vertex_delta  * (1.0f/divisions)*float(i);
     glm::vec2 texDelta     = texture_start + texture_delta * (1.0f/divisions)*float(i);
     
-    int count = plane.numInstances();
+    int count = numLeds();
     int x = count % 1000;
     int y = count / 1000;
+    // fprintf(stderr, "x: %3d, y: %3d\n", x, y);
     glm::vec3 planePosDelta((float)x, (float)y, 0.0f);
 
-    balls.addInstance(ballPosDelta, texDelta, ballPosDelta);
-    plane.addInstance(planePosDelta, texDelta, ballPosDelta);
+    Vertex vertex;
+    vertex.Position = ballPosDelta; 
+    vertex.TexCoords = texDelta;
+    vertex.framebuffer_proj = planePosDelta;
+
+    leds.vertices.push_back(vertex);
+    leds.indices.push_back(leds.indices.size());
+    //balls.addInstance(ballPosDelta, texDelta, ballPosDelta);
+    //plane.addInstance(planePosDelta, texDelta, ballPosDelta);
   }
 }
 

@@ -12,11 +12,9 @@
 
 class SceneRender {
 public:
-  std::vector<Model*> models;
+  std::vector<Drawable*> models;
 protected:
   SceneRender();
-  Shader shader;
-  void setupLights(IsoCamera& perspective);
 };
 
 class ScreenRender : public SceneRender {
@@ -28,6 +26,10 @@ public:
 
   GLFWwindow* window;
   int width, height;
+
+  Shader shader;
+  void setupLights(IsoCamera& perspective);
+
 };
 
 class FrameBufferRender : public SceneRender {
@@ -48,6 +50,11 @@ private:
   GLuint pbos[2];
   GLuint active_pbo;
   OrthoCamera camera;
+
+
+  Shader shader;
+  void setupLights(IsoCamera& perspective);
+
 };
 
 class PatternRender {

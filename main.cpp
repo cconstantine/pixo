@@ -33,18 +33,6 @@ using namespace nanogui;
 Screen *screen = nullptr;
 Scene *scene = nullptr;
 
-enum test_enum {
-    Item1 = 0,
-    Item2,
-    Item3
-};
-bool bvar = true;
-int ivar = 12345678;
-double dvar = 3.1415926;
-float fvar = (float)dvar;
-std::string strval = "A string";
-test_enum enumval = Item2;
-Color colval(0.5f, 0.5f, 0.7f, 1.f);
 
 int main( int argc, char** argv )
 {
@@ -55,12 +43,6 @@ int main( int argc, char** argv )
 		getchar();
 		return -1;
 	}
-
-	glfwWindowHint(GLFW_SAMPLES, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
 	// Open a window and create its OpenGL context
 	window = glfwCreateWindow( 800, 800, "Dome Lights", NULL, NULL);
@@ -89,15 +71,7 @@ int main( int argc, char** argv )
 
   // Setup some OpenGL options
   glEnable(GL_DEPTH_TEST);
-
-  std::vector<uint8_t> frameBuffer;
-  int frameBytes =1000*1000 * 3;
-  frameBuffer.resize(frameBytes);
-
-  //FrameBufferRender fb_screen(3, domeLeds.balls.numInstances());
-  FrameBufferRender fb_screen(1000, 1000, &frameBuffer[0]);
-  ScreenRender screen_renderer(window);
-  scene = new Scene(&screen_renderer, &fb_screen);
+  //glPointSize(2);
   
   vector<Shader> patterns;
   for(int i = 1;i < argc;i++) {
@@ -111,8 +85,20 @@ int main( int argc, char** argv )
   Texture texture = pattern_render.getTexture();
 
   LedCluster domeLeds(texture);
-  screen_renderer.models.push_back(&domeLeds.balls);
-  fb_screen.models.push_back(&domeLeds.plane);
+
+
+  std::vector<uint8_t> frameBuffer;
+  int rows = domeLeds.numLeds() / 1000 + 1;
+
+  int frameBytes =1000*rows * 3;
+  frameBuffer.resize(frameBytes);
+
+  FrameBufferRender fb_screen(1000, rows, &frameBuffer[0]);
+  ScreenRender screen_renderer(window);
+  screen_renderer.models.push_back(&domeLeds);
+  scene = new Scene(&screen_renderer, &fb_screen);
+
+  fb_screen.models.push_back(&domeLeds);
   //screen_renderer.models.push_back(&domeLeds.plane);
 
 
@@ -120,13 +106,14 @@ int main( int argc, char** argv )
 
   // Load models
   Model display("../models/screen.obj", texture);
-  display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
+  // display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
   screen_renderer.models.push_back(&display);
 
   Model panel("../models/panel.obj", fb_texture);
-  panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
-  screen_renderer.models.push_back(&panel);
+  // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
+  //screen_renderer.models.push_back(&panel);
 
+ 
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();
@@ -149,6 +136,7 @@ int main( int argc, char** argv )
 
   screen->setVisible(true);
   screen->performLayout();
+
 
 
   glfwSetCursorPosCallback(window,
@@ -201,16 +189,18 @@ int main( int argc, char** argv )
           screen->resizeCallbackEvent(width, height);
       }
   );
-
-
   while(!glfwWindowShouldClose(window)) {
+
     glfwPollEvents();
+
 
     // Render the pattern
     pattern_render.render(pattern);
 
+
     // Render the scene
     scene->render();
+
 
     domeLeds.setGamma(scene->getGamma());
     bool next = scene->nextPattern();
@@ -224,8 +214,8 @@ int main( int argc, char** argv )
     screen->drawContents();
     screen->drawWidgets();
 
-		// Swap buffers
 		glfwSwapBuffers(window);
+
 	}
 
 	// Close OpenGL window and terminate GLFW
