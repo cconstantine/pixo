@@ -26,7 +26,6 @@ public:
 
   void setGamma(float g);
 
-  Model plane;
 
   GLuint numLeds();
 

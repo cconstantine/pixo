@@ -235,7 +235,7 @@ FrameBufferRender::FrameBufferRender(int width, int height, uint8_t * dest) :
 
   // Always check that our framebuffer is ok
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-    fprintf(stderr, "Failed to init GL_FRAMEBUFFER\n");
+    fprintf(stderr, "Failed to init GL_FRAMEBUFFER: %d\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
     exit(1);
   }
 

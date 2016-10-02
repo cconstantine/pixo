@@ -6,8 +6,7 @@
 #include <assimp/postprocess.h>
 
 LedCluster::LedCluster(const Texture& texture)
-: defaultTexture(texture), leds(GL_POINTS),
-  plane("../models/plane.obj", texture),
+: defaultTexture(texture), leds(texture, GL_POINTS),
   ds(7331), buffer_size(0), gamma(0.5)
 {
   setGamma(gamma);
@@ -17,8 +16,8 @@ LedCluster::LedCluster(const Texture& texture)
   // processNode(model->mRootNode, model);
   this->loadModel("../models/dome.obj");
 
-  int rows = 3;
-  int cols = 3;
+  int rows = 9;
+  int cols = 9;
   for(int i = -rows/2;i < rows - (rows/2) ;i++) {
     for(int j = -cols/2;j < cols - (cols/2);j++) {
       glm::vec3 offset(i*7.0f, 0*7.0f, j*7.0f);
@@ -104,7 +103,6 @@ LedCluster::LedCluster(const Texture& texture)
       addStrip(mac4, 6, 84,  32,  6, 84, offset);
     }
   }
-  leds.textures.push_back(texture);
   leds.setupMesh();
 
   // std::vector<Texture> textures;
@@ -180,7 +178,6 @@ Mesh LedCluster::processMesh(aiMesh* mesh, const aiScene* scene)
   // fprintf(stderr, "LedCluster::processMesh\n");
     // Data to fill
     vector<Vertex> vertices;
-    vector<GLuint> indices;
     vector<Texture> textures;
     //fprintf(stderr, "verticies: %d\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
@@ -216,13 +213,12 @@ Mesh LedCluster::processMesh(aiMesh* mesh, const aiScene* scene)
             vertex.TexCoords = defaultTexCoords;
         }
         vertices.push_back(vertex);
-        indices.push_back(i);
     }
 
     textures.push_back(defaultTexture);
     
     // Return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, textures, GL_POINTS);
+    return Mesh(vertices, textures, GL_POINTS);
 }
 
 
@@ -239,7 +235,7 @@ void LedCluster::setGamma(float g) {
 }
 
 GLuint LedCluster::numLeds() {
-  return leds.indices.size();
+  return leds.numVertices();
 }
 
 void LedCluster::update(std::vector<uint8_t> &frameBuffer) {
@@ -272,13 +268,13 @@ void LedCluster::addStrip(std::string &mac, int strip, int strip_offset, int sta
 
 void LedCluster::addStrip(int start, int end, int divisions, glm::vec3 offset) {
 
-  glm::vec3 vertex_start = meshes[0].vertices[start].Position + offset;
-  glm::vec3 vertex_end =   meshes[0].vertices[end].Position + offset;
+  glm::vec3 vertex_start = meshes[0].getVertex(start).Position + offset;
+  glm::vec3 vertex_end =   meshes[0].getVertex(end).Position + offset;
   glm::vec3 vertex_delta = vertex_end - vertex_start ;
 
 
-  glm::vec2 texture_start = meshes[0].vertices[start].TexCoords;
-  glm::vec2 texture_end   = meshes[0].vertices[end].TexCoords;
+  glm::vec2 texture_start = meshes[0].getVertex(start).TexCoords;
+  glm::vec2 texture_end   = meshes[0].getVertex(end).TexCoords;
 
   glm::vec2 texture_delta = texture_end - texture_start;
 
@@ -298,10 +294,7 @@ void LedCluster::addStrip(int start, int end, int divisions, glm::vec3 offset) {
     vertex.TexCoords = texDelta;
     vertex.framebuffer_proj = planePosDelta;
 
-    leds.vertices.push_back(vertex);
-    leds.indices.push_back(leds.indices.size());
-    //balls.addInstance(ballPosDelta, texDelta, ballPosDelta);
-    //plane.addInstance(planePosDelta, texDelta, ballPosDelta);
+    leds.addVertex(vertex);
   }
 }
 

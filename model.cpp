@@ -48,6 +48,7 @@ void Model::Draw(Shader shader)
   }
 }
 
+
 /*  Functions   */
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string path)
@@ -98,9 +99,9 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
   // fprintf(stderr, "Model::processMesh\n");
     // Data to fill
-    vector<Vertex> vertices;
-    vector<GLuint> indices;
+    vector<Vertex>  vertices;
     vector<Texture> textures;
+    vector<Index>   indices;
     //fprintf(stderr, "verticies: %d\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
     for(GLuint i = 0; i < mesh->mNumVertices; i++)
@@ -136,19 +137,23 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         }
         vertices.push_back(vertex);
     }
+
     // Now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for(GLuint i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
         // Retrieve all indices of the face and store them in the indices vector
-        for(GLuint j = 0; j < face.mNumIndices; j++)
-            indices.push_back(face.mIndices[j]);
+        for(GLuint j = 0; j < face.mNumIndices; j++) {
+          Index idx;
+          idx.idx = face.mIndices[j];
+          indices.push_back(idx);
+        }
     }
 
     textures.push_back(defaultTexture);
     
     // Return a mesh object created from the extracted mesh data
-    return Mesh(vertices, indices, textures, GL_TRIANGLES);
+    return Mesh(vertices, textures, indices, GL_TRIANGLES);
 }
 
 

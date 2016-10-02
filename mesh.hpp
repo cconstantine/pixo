@@ -25,31 +25,38 @@ struct Texture {
   GLenum target;
 };
 
+struct Index {
+  GLuint idx;
+};
+
 class Mesh {
 public:
-  Mesh(int drawType);
+  Mesh(const Texture& textures, int drawType);
   // Constructor
-  Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures, int drawType);
+  Mesh(vector<Vertex> vertices, vector<Texture> textures, int drawType);
+  Mesh(vector<Vertex> vertices, vector<Texture> textures, vector<Index> indexes, int drawType);
 
   void setupMesh();
   
   // Render the mesh
   void Draw(Shader shader);
 
+  size_t numVertices();
+
+  Vertex getVertex(int idx);
+  void addVertex(const Vertex& vert);
+
+protected:
+
   /*  Render data  */
   GLuint VAO, VBO, EBO;
 
   /*  Mesh Data  */
   vector<Vertex> vertices;
-  vector<GLuint> indices;
   vector<Texture> textures;
-
-  vector<glm::vec3> instanceProj;
+  vector<Index> indices;
 
   int drawType;
-
-protected:
-
   /*  Functions    */
   // Initializes all the buffer objects/arrays
 };
