@@ -68,10 +68,6 @@ void Model::loadModel(string path)
 
   // Process ASSIMP's root node recursively
   this->processNode(scene->mRootNode, scene);
-
-    for(int i = 0; i < meshes.size();i++) {
-        meshes[i].setupMesh();
-    }
 }
 
 // Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).

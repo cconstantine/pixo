@@ -16,12 +16,13 @@ using namespace std;
 
 
 /*  Functions  */
-Mesh::Mesh(const Texture& texture, int drawType) : drawType(drawType) {
+Mesh::Mesh(const Texture& texture, int drawType) : drawType(drawType), dirtyMesh(true) {
   textures.push_back(texture);
 }
 
 // Constructor
-Mesh::Mesh(vector<Vertex> vertices, vector<Texture> textures, int drawType) : vertices(vertices), textures(textures), drawType(drawType)
+Mesh::Mesh(vector<Vertex> vertices, vector<Texture> textures, int drawType) : 
+  vertices(vertices), textures(textures), drawType(drawType), dirtyMesh(true)
 {
   // fprintf(stderr, "vertices: %d\n", (int)vertices.size());
   // fprintf(stderr, "indices: %d\n", (int)indices.size());
@@ -30,7 +31,7 @@ Mesh::Mesh(vector<Vertex> vertices, vector<Texture> textures, int drawType) : ve
 }
 
 Mesh::Mesh(vector<Vertex> vertices, vector<Texture> textures, vector<Index> indices, int drawType)  :
- vertices(vertices), textures(textures), indices(indices), drawType(drawType)
+ vertices(vertices), textures(textures), indices(indices), drawType(drawType), dirtyMesh(true)
 {
   // fprintf(stderr, "vertices: %d\n", (int)vertices.size());
   // fprintf(stderr, "indices: %d\n", (int)indices.size());
@@ -40,6 +41,10 @@ Mesh::Mesh(vector<Vertex> vertices, vector<Texture> textures, vector<Index> indi
 // Render the mesh
 void Mesh::Draw(Shader shader) 
 {
+  if (dirtyMesh) {
+    setupMesh();
+  }
+
   // Bind appropriate textures
   for(GLuint i = 0; i < this->textures.size(); i++)
   {
@@ -75,6 +80,7 @@ Vertex Mesh::getVertex(int idx)
 }
 
 void Mesh::addVertex(const Vertex& vert) {
+  dirtyMesh = true;
   vertices.push_back(vert);
 }
 
@@ -82,6 +88,7 @@ void Mesh::addVertex(const Vertex& vert) {
 // Initializes all the buffer objects/arrays
 void Mesh::setupMesh()
 {
+  dirtyMesh = false;
   // Create buffers/arrays
   glGenVertexArrays(1, &this->VAO);
   glBindVertexArray(this->VAO);

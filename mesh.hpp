@@ -36,7 +36,6 @@ public:
   Mesh(vector<Vertex> vertices, vector<Texture> textures, int drawType);
   Mesh(vector<Vertex> vertices, vector<Texture> textures, vector<Index> indexes, int drawType);
 
-  void setupMesh();
   
   // Render the mesh
   void Draw(Shader shader);
@@ -47,6 +46,7 @@ public:
   void addVertex(const Vertex& vert);
 
 protected:
+  void setupMesh();
 
   /*  Render data  */
   GLuint VAO, VBO, EBO;
@@ -57,6 +57,8 @@ protected:
   vector<Index> indices;
 
   int drawType;
+
+  bool dirtyMesh;
   /*  Functions    */
   // Initializes all the buffer objects/arrays
 };

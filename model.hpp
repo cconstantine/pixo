@@ -32,13 +32,10 @@ public:
     // Draws the model, and thus all its meshes
     virtual void Draw(Shader shader);
     
-    // void addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
-    // int numInstances();
 
-
+    vector<Mesh> meshes;
 protected:
     /*  Model Data  */
-    vector<Mesh> meshes;
     string directory;
     vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     Texture defaultTexture;
