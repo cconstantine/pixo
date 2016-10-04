@@ -209,7 +209,7 @@ FrameBufferRender::FrameBufferRender(int width, int height, uint8_t * dest) :
    width(width),
    height(height),
    dest(dest),
-   shader("../shaders/fb_model_loading.vs", "../shaders/model_loading.frag")
+   shader("../shaders/leds.vs", "../shaders/leds.frag")
 {
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
   glGenFramebuffers(1, &FramebufferName);
