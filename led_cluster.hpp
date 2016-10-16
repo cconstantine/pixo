@@ -39,8 +39,8 @@ private:
   glm::vec2 defaultTexCoords;
 
 
-  void addStrip(std::string &mac, int strip, int strip_offset, int start, int end, int divisions, glm::vec3 offset);
-  void addStrip(int start, int end, int divisions, glm::vec3 offset);
+  void addStrip(std::string &mac, int strip, glm::vec3 start, glm::vec3 end, int divisions);
+  void addStrip(glm::vec3 start, glm::vec3 end, int divisions);
 
   DiscoveryService ds;
 

@@ -16,91 +16,17 @@ LedCluster::LedCluster(const Texture& texture)
   // processNode(model->mRootNode, model);
   // this->loadModel("../models/dome.obj");
 
-  int rows = 9;
-  int cols = 9;
-  for(int i = -rows/2;i < rows - (rows/2) ;i++) {
-    for(int j = -cols/2;j < cols - (cols/2);j++) {
-      glm::vec3 offset(i*7.0f, 0*7.0f, j*7.0f);
+  float spacing = .3;
+  int per_side = 64;
+  for(int i = 0;i < per_side;i++) {
+    for(int j = 0;j < per_side;j++) {
+      glm::vec3 vertex_start(i*spacing, per_side*spacing, j*spacing);
+      glm::vec3 vertex_end(i*spacing,   0*spacing,        j*spacing);
 
-      std::string mac3("d8:80:39:66:4b:de");
-      addStrip(mac3, 0,  0,  28,  2, 84, offset);
-      addStrip(mac3, 0, 84,   2, 22, 82, offset);
-      addStrip(mac3, 1,  0,  28, 22, 84, offset);
-      addStrip(mac3, 1, 84,  22,  0, 72, offset);
-      addStrip(mac3, 2,  0,  28, 24, 84, offset);
-      addStrip(mac3, 2, 84,  24, 22, 82, offset);
-      addStrip(mac3, 3,  0,  28, 29, 84, offset);
-      addStrip(mac3, 3, 84,  29, 24, 82, offset);
-      addStrip(mac3, 4,  0,  28, 30, 84, offset);
-      addStrip(mac3, 4, 84,  30, 29, 82, offset);
-      addStrip(mac3, 5,  0,  28,  4, 84, offset);
-      addStrip(mac3, 5, 84,   4, 30, 82, offset);
-      addStrip(mac3, 6,  0,  30, 44, 84, offset);
-      addStrip(mac3, 6, 84,  44, 29, 84, offset);
 
-      std::string mac2("d8:80:39:66:48:44");
-      addStrip(mac2, 0,  0,  23, 22, 84, offset);
-      addStrip(mac2, 0, 84,  22, 16, 82, offset);
-      addStrip(mac2, 1,  0,  23, 16, 84, offset);
-      addStrip(mac2, 1, 84,  16,  0, 72, offset);
-      addStrip(mac2, 2,  0,  23, 18, 84, offset);
-      addStrip(mac2, 2, 84,  18, 16, 82, offset);
-      addStrip(mac2, 3,  0,  23, 25, 84, offset);
-      addStrip(mac2, 3, 84,  25, 18, 82, offset);
-      addStrip(mac2, 4,  0,  23, 26, 84, offset);
-      addStrip(mac2, 4, 84,  26, 25, 82, offset);
-      addStrip(mac2, 5,  0,  23, 24, 84, offset);
-      addStrip(mac2, 5, 84,  24, 26, 82, offset);
-      addStrip(mac2, 6,  0,  26, 41, 84, offset);
-      addStrip(mac2, 6, 84,  41, 25, 84, offset);
+      std::string mac("d8:80:39:66:4b:de");
 
-      std::string mac1("d8:80:39:65:f1:91");
-      addStrip(mac1, 0,  0,  17, 16, 84, offset);
-      addStrip(mac1, 0, 84,  16, 10, 82, offset);
-      addStrip(mac1, 1,  0,  17, 10, 84, offset);
-      addStrip(mac1, 1, 84,  10,  0, 72, offset);
-      addStrip(mac1, 2,  0,  17, 12, 84, offset);
-      addStrip(mac1, 2, 84,  12, 10, 82, offset);
-      addStrip(mac1, 3,  0,  17, 19, 84, offset);
-      addStrip(mac1, 3, 84,  19, 12, 82, offset);
-      addStrip(mac1, 4,  0,  17, 20, 84, offset);
-      addStrip(mac1, 4, 84,  20, 19, 82, offset);
-      addStrip(mac1, 5,  0,  17, 18, 84, offset);
-      addStrip(mac1, 5, 84,  18, 20, 82, offset);
-      addStrip(mac1, 6,  0,  20, 38, 84, offset);
-      addStrip(mac1, 6, 84,  38, 19, 84, offset);
-      
-      std::string mac5("d8:80:39:66:0d:7e");
-      addStrip(mac5, 0,  0,  11, 10, 84, offset);
-      addStrip(mac5, 0, 84,  10,  1, 82, offset);
-      addStrip(mac5, 1,  0,  11,  1, 84, offset);
-      addStrip(mac5, 1, 84,   1,  0, 72, offset);
-      addStrip(mac5, 2,  0,  11,  5, 84, offset);
-      addStrip(mac5, 2, 84,   5,  1, 82, offset);
-      addStrip(mac5, 3,  0,  11, 13, 84, offset);
-      addStrip(mac5, 3, 84,  13,  5, 82, offset);
-      addStrip(mac5, 4,  0,  11, 14, 84, offset);
-      addStrip(mac5, 4, 84,  14, 13, 82, offset);
-      addStrip(mac5, 5,  0,  11, 12, 84, offset);
-      addStrip(mac5, 5, 84,  12, 14, 82, offset);
-      addStrip(mac5, 6,  0,  14, 35, 84, offset);
-      addStrip(mac5, 6, 84,  35, 13, 84, offset);
-
-      std::string mac4("d8:80:39:66:29:c6");
-      addStrip(mac4, 0,  0,   3,  1, 84, offset);
-      addStrip(mac4, 0, 84,   1,  2, 82, offset);
-      addStrip(mac4, 1,  0,   3,  2, 84, offset);
-      addStrip(mac4, 1, 84,   2,  0, 72, offset);
-      addStrip(mac4, 2,  0,   3,  4, 84, offset);
-      addStrip(mac4, 2, 84,   4,  2, 82, offset);
-      addStrip(mac4, 3,  0,   3,  6, 84, offset);
-      addStrip(mac4, 3, 84,   6,  4, 82, offset);
-      addStrip(mac4, 4,  0,   3,  8, 84, offset);
-      addStrip(mac4, 4, 84,   8,  6, 82, offset);
-      addStrip(mac4, 5,  0,   3,  5, 84, offset);
-      addStrip(mac4, 5, 84,   5,  8, 82, offset);
-      addStrip(mac4, 6,  0,   8, 32, 84, offset);
-      addStrip(mac4, 6, 84,  32,  6, 84, offset);
+      addStrip(mac, i*j, vertex_start, vertex_end, per_side);
     }
   }
 
@@ -149,23 +75,21 @@ void LedCluster::update(std::vector<uint8_t> &frameBuffer) {
 
 
 
-void LedCluster::addStrip(std::string &mac, int strip, int strip_offset, int start, int end, int divisions, glm::vec3 offset) {
+void LedCluster::addStrip(std::string &mac, int strip, glm::vec3 vertex_start, glm::vec3 vertex_end, int divisions) {
   int byte_offset = buffer_size;
-  strip_mappings[mac].push_back(Strip(strip, strip_offset*3, byte_offset, divisions*3));
+  strip_mappings[mac].push_back(Strip(strip, 0, byte_offset, divisions*3));
   buffer_size += divisions*3;
 
-  addStrip(start, end, divisions, offset);
+  addStrip(vertex_start, vertex_end, divisions);
 }
 
-void LedCluster::addStrip(int start, int end, int divisions, glm::vec3 offset) {
+void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divisions) {
 
-  glm::vec3 vertex_start = model.meshes[0].getVertex(start).Position + offset;
-  glm::vec3 vertex_end =   model.meshes[0].getVertex(end).Position + offset;
   glm::vec3 vertex_delta = vertex_end - vertex_start ;
 
 
-  glm::vec2 texture_start = model.meshes[0].getVertex(start).TexCoords;
-  glm::vec2 texture_end   = model.meshes[0].getVertex(end).TexCoords;
+  glm::vec2 texture_start;// = model.meshes[0].getVertex(start).TexCoords;
+  glm::vec2 texture_end;//   = model.meshes[0].getVertex(end).TexCoords;
 
   glm::vec2 texture_delta = texture_end - texture_start;
 

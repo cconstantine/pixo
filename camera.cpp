@@ -91,12 +91,12 @@ void IsoCamera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean
 // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
 void IsoCamera::ProcessMouseScroll(GLfloat yoffset)
 {
-  if (this->Zoom >= 0.0f && this->Zoom <= 45.0f)
+  if (this->Zoom >= 0.0f && this->Zoom <= 450.0f)
     this->Zoom += yoffset;
   if (this->Zoom <= 0.0f)
     this->Zoom = 0.0f;
-  if (this->Zoom >= 45.0f)
-    this->Zoom = 45.0f;
+  if (this->Zoom >= 450.0f)
+    this->Zoom = 450.0f;
 }
 
 // Calculates the front vector from the Camera's (updated) Eular Angles

@@ -77,7 +77,7 @@ int main( int argc, char** argv )
 
   // Setup some OpenGL options
   glEnable(GL_DEPTH_TEST);
-  //glPointSize(2);
+  glPointSize(1);
   
   vector<Shader> patterns;
   for(int i = 1;i < argc;i++) {
