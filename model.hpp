@@ -10,16 +10,13 @@ using namespace std;
 
 #include <mesh.hpp>
 #include <shader.hpp>
+#include <drawable.hpp>
 
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Drawable {
-public:
-    virtual void Draw(Shader shader) = 0;
-};
 class Model : public Drawable
 {
 public:

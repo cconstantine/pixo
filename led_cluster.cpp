@@ -6,42 +6,31 @@
 #include <assimp/postprocess.h>
 
 LedCluster::LedCluster(const Texture& texture)
-: defaultTexture(texture), model("../models/dome.obj"), leds(texture, GL_POINTS),
+: leds_for_calc(texture, GL_POINTS), leds_for_display(GL_POINTS),
   ds(7331), buffer_size(0), gamma(0.5)
 {
   setGamma(gamma);
-  // Assimp::Importer importer;
 
-  // model = importer.ReadFile("../models/dome.obj", aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
-  // processNode(model->mRootNode, model);
-  // this->loadModel("../models/dome.obj");
 
   float spacing = .3;
-  int per_side = 64;
-  for(int i = 0;i < per_side;i++) {
-    for(int j = 0;j < per_side;j++) {
-      glm::vec3 vertex_start(i*spacing, per_side*spacing, j*spacing);
-      glm::vec3 vertex_end(i*spacing,   0*spacing,        j*spacing);
+
+  int width = 64;
+  int height = 64;
+  int depth = 64;
+  for(int i = 0;i < width;i++) {
+    for(int j = 0;j < depth;j++) {
+      glm::vec3 vertex_start(i*spacing, 0*spacing,      j*spacing);
+      glm::vec3 vertex_end(  i*spacing, height*spacing, j*spacing);
 
 
       std::string mac("d8:80:39:66:4b:de");
 
-      addStrip(mac, i*j, vertex_start, vertex_end, per_side);
+      addStrip(mac, i+(width*j), vertex_start, vertex_end, height);
     }
   }
 
   fprintf(stderr, "LEDS: %d\n", numLeds());
 }
-
-
-
-// Draws the model, and thus all its meshes
-void LedCluster::Draw(Shader shader)
-{
-  this->leds.Draw(shader);
-}
-
-
 
 void LedCluster::setGamma(float g) {
   gamma = g;
@@ -52,7 +41,7 @@ void LedCluster::setGamma(float g) {
 }
 
 GLuint LedCluster::numLeds() {
-  return leds.numVertices();
+  return leds_for_calc.numVertices();
 }
 
 void LedCluster::update(std::vector<uint8_t> &frameBuffer) {
@@ -101,15 +90,25 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
     int count = numLeds();
     int x = count % 1000;
     int y = count / 1000;
+    glm::vec3 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f);
+
+    Vertex vertex_calc;
+    vertex_calc.Position = ballPosDelta; 
+    vertex_calc.TexCoords = texDelta;
+    vertex_calc.framebuffer_proj = planePosDelta;
+
+    leds_for_calc.addVertex(vertex_calc);
+
     // fprintf(stderr, "x: %3d, y: %3d\n", x, y);
-    glm::vec3 planePosDelta((float)x, (float)y, 0.0f);
+    // fprintf(stderr, "x: %4.1f, y: %4.1f, z: %4.1f\n", ballPosDelta.x, ballPosDelta.y, ballPosDelta.z);
 
-    Vertex vertex;
-    vertex.Position = ballPosDelta; 
-    vertex.TexCoords = texDelta;
-    vertex.framebuffer_proj = planePosDelta;
 
-    leds.addVertex(vertex);
+    Vertex vertex_display;
+    vertex_display.Position = ballPosDelta;
+    vertex_display.TexCoords = glm::vec2((float)(x)/1000, (float)(y)/262);
+    vertex_display.framebuffer_proj = planePosDelta;
+
+    leds_for_display.addVertex(vertex_display);
   }
 }
 

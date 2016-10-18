@@ -29,6 +29,7 @@ public:
 
   Shader shader;
   void setupLights(IsoCamera& perspective);
+  OrthoCamera camera;
 
 };
 

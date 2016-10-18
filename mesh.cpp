@@ -15,12 +15,13 @@ using namespace std;
 #include <shader.hpp>
 
 
-/*  Functions  */
+// Constructor
+Mesh::Mesh(int drawType) : drawType(drawType), dirtyMesh(true) { }
+
 Mesh::Mesh(const Texture& texture, int drawType) : drawType(drawType), dirtyMesh(true) {
-  textures.push_back(texture);
+  addTexture(texture);
 }
 
-// Constructor
 Mesh::Mesh(vector<Vertex> vertices, vector<Texture> textures, int drawType) : 
   vertices(vertices), textures(textures), drawType(drawType), dirtyMesh(true)
 {
@@ -82,6 +83,11 @@ Vertex Mesh::getVertex(int idx)
 void Mesh::addVertex(const Vertex& vert) {
   dirtyMesh = true;
   vertices.push_back(vert);
+}
+
+void Mesh::addTexture(const Texture& texture) {
+  dirtyMesh = true;
+  textures.push_back(texture);
 }
 
 /*  Functions    */

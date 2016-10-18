@@ -95,20 +95,20 @@ int main( int argc, char** argv )
 
   std::vector<uint8_t> frameBuffer;
   int rows = domeLeds.numLeds() / 1000 + 1;
-
+  fprintf(stderr, "cols: 1000, rows: %d\n", rows);
   int frameBytes =1000*rows * 3;
   frameBuffer.resize(frameBytes);
 
   FrameBufferRender fb_screen(1000, rows, &frameBuffer[0]);
   ScreenRender screen_renderer(window);
-  screen_renderer.models.push_back(&domeLeds);
+  screen_renderer.models.push_back(&domeLeds.leds_for_display);
   scene = new Scene(&screen_renderer, &fb_screen);
 
-  fb_screen.models.push_back(&domeLeds);
-  //screen_renderer.models.push_back(&domeLeds.plane);
+  fb_screen.models.push_back(&domeLeds.leds_for_calc);
 
 
   Texture fb_texture = fb_screen.getTexture();
+  domeLeds.leds_for_display.addTexture(fb_texture);
 
   // Load models
   Model display("../models/screen.obj", texture);
@@ -117,7 +117,7 @@ int main( int argc, char** argv )
 
   Model panel("../models/panel.obj", fb_texture);
   // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
-  //screen_renderer.models.push_back(&panel);
+  screen_renderer.models.push_back(&panel);
 
  
 

@@ -9,10 +9,12 @@ out vec3 Position;
 
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 view_from;
+uniform mat4 projection_from;
 
 void main()
 {
     gl_Position = projection * view * vec4(framebuf_proj, 1.0f);
-    TexCoords = gl_Position.xy;
+    TexCoords = (projection_from * view_from * vec4(position, 1.0f)).xy;
     Position = position ;
 }

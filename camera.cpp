@@ -18,7 +18,7 @@ glm::mat4 OrthoCamera::GetViewMatrix() {
 }
 
 glm::mat4 OrthoCamera::GetProjectionMatrix(int width, int height) {
-  return glm::ortho(0.0f, (float)width, 0.0f, (float)height, -10.0f, 10.0f);
+  return glm::ortho(0.0f, (float)width, 0.0f, (float)height);
 }
 
 

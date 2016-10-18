@@ -125,11 +125,11 @@ void Scene::Do_Movement()
     if(keys[GLFW_KEY_W])
         perspective.ProcessKeyboard(FORWARD, deltaTime*10);
     if(keys[GLFW_KEY_S])
-        perspective.ProcessKeyboard(BACKWARD, deltaTime);
+        perspective.ProcessKeyboard(BACKWARD, deltaTime*10);
     if(keys[GLFW_KEY_A])
-        perspective.ProcessKeyboard(LEFT, deltaTime);
+        perspective.ProcessKeyboard(LEFT, deltaTime*10);
     if(keys[GLFW_KEY_D])
-        perspective.ProcessKeyboard(RIGHT, deltaTime);
+        perspective.ProcessKeyboard(RIGHT, deltaTime*10);
 
     for(int i = 48;i <= 57;i++) {
       if (keys[i]) {
@@ -287,6 +287,11 @@ void FrameBufferRender::render(IsoCamera& perspective) {
   glm::mat4 view = camera.GetViewMatrix();
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+  projection = perspective.GetProjectionMatrix(width, height);
+  view = perspective.GetViewMatrix();
+  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection_from"), 1, GL_FALSE, glm::value_ptr(projection));
+  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(view));
 
   for(std::vector<Drawable*>::iterator i = models.begin();i != models.end();i++) {
     Drawable* m = *i;

@@ -15,28 +15,24 @@ using namespace std;
 #include <pixelpusher/pixel_pusher.hpp>
 
 
-class LedCluster : public Drawable {
+class LedCluster {
 public:
   // Draws the model, and thus all its meshes
   LedCluster(const Texture& texture);
 
   void update(std::vector<uint8_t> &frameBuffer);
-  virtual void Draw(Shader shader);
 
 
   void setGamma(float g);
 
 
   GLuint numLeds();
+  /*  Model Data  */
+  Mesh leds_for_calc;;
+
+  Mesh leds_for_display;
 
 private:
-  /*  Model Data  */
-  Model model;
-  Mesh leds;
-  string directory;
-  vector<Texture> textures_loaded;  // Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
-  Texture defaultTexture;
-  glm::vec2 defaultTexCoords;
 
 
   void addStrip(std::string &mac, int strip, glm::vec3 start, glm::vec3 end, int divisions);
