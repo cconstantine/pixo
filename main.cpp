@@ -94,12 +94,13 @@ int main( int argc, char** argv )
 
 
   std::vector<uint8_t> frameBuffer;
-  int rows = domeLeds.numLeds() / 1000 + 1;
-  fprintf(stderr, "cols: 1000, rows: %d\n", rows);
-  int frameBytes =1000*rows * 3;
+  int rows = 3000;//domeLeds.numLeds() / 1000 + 1;
+  int cols = 3000;
+  fprintf(stderr, "cols: %d, rows: %d (total: %d)\n", cols, rows, rows*cols);
+  int frameBytes =cols*rows * 3;
   frameBuffer.resize(frameBytes);
 
-  FrameBufferRender fb_screen(1000, rows, &frameBuffer[0]);
+  FrameBufferRender fb_screen(cols, rows, &frameBuffer[0]);
   ScreenRender screen_renderer(window);
   screen_renderer.models.push_back(&domeLeds.leds_for_display);
   scene = new Scene(&screen_renderer, &fb_screen);

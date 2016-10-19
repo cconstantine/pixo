@@ -73,7 +73,7 @@ void Scene::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yof
 
 
 Scene::Scene(ScreenRender* screen, FrameBufferRender* fb_render) :
-  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), fb_render(fb_render), fps(0),
+  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), viewed_from(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), fb_render(fb_render), fps(0),
   deltaTime(0.0f), lastFrame(0.0f), lastTime(glfwGetTime()), lastUpdate(glfwGetTime()), gamma(0.5), next(false)
 { }
 
@@ -94,7 +94,7 @@ void Scene::render() {
   deltaTime = currentFrame - lastFrame;
   lastFrame = currentFrame;
 
-  fb_render->render(perspective);
+  fb_render->render(viewed_from);
   screen->render(perspective);
 
 }
@@ -122,15 +122,21 @@ bool Scene::nextPattern() {
 void Scene::Do_Movement()
 {
     // Camera controls
-    if(keys[GLFW_KEY_W])
-        perspective.ProcessKeyboard(FORWARD, deltaTime*10);
-    if(keys[GLFW_KEY_S])
-        perspective.ProcessKeyboard(BACKWARD, deltaTime*10);
-    if(keys[GLFW_KEY_A])
-        perspective.ProcessKeyboard(LEFT, deltaTime*10);
-    if(keys[GLFW_KEY_D])
-        perspective.ProcessKeyboard(RIGHT, deltaTime*10);
-
+    if(keys[GLFW_KEY_W]) {
+      perspective.ProcessKeyboard(FORWARD, deltaTime*10);
+    }
+    if(keys[GLFW_KEY_S]) {
+      perspective.ProcessKeyboard(BACKWARD, deltaTime*10);
+    }
+    if(keys[GLFW_KEY_A]) {
+      perspective.ProcessKeyboard(LEFT, deltaTime*10);
+    }
+    if(keys[GLFW_KEY_D]) {
+      perspective.ProcessKeyboard(RIGHT, deltaTime*10);
+    }
+    if(keys[GLFW_KEY_LEFT_SHIFT ]) {
+      viewed_from = perspective;
+    }
     for(int i = 48;i <= 57;i++) {
       if (keys[i]) {
         int val = i - 48;

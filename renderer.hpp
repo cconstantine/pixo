@@ -29,8 +29,6 @@ public:
 
   Shader shader;
   void setupLights(IsoCamera& perspective);
-  OrthoCamera camera;
-
 };
 
 class FrameBufferRender : public SceneRender {
@@ -82,7 +80,6 @@ public:
   void render();
 
   void Do_Movement();
-  IsoCamera perspective;
 
   float getGamma();
   bool nextPattern();
@@ -94,7 +91,8 @@ public:
 
   float getFps();
 private:
-
+  IsoCamera perspective;
+  IsoCamera viewed_from;
   ScreenRender* screen;
   FrameBufferRender* fb_render;
   

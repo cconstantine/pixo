@@ -15,6 +15,6 @@ uniform mat4 projection_from;
 void main()
 {
     gl_Position = projection * view * vec4(framebuf_proj, 1.0f);
-    TexCoords = (projection_from * view_from * vec4(position, 1.0f)).xy;
+    TexCoords = (projection_from * view_from * vec4(position, 1.0f)).xy / 100 + 0.5;
     Position = position ;
 }
