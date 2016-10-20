@@ -14,9 +14,9 @@ LedCluster::LedCluster(const Texture& texture)
 
   float spacing = .3;
 
-  int width = 64;
-  int height = 64;
-  int depth = 64;
+  int width = 10;
+  int height = 10;
+  int depth = 1;
   for(int i = 0;i < width;i++) {
     for(int j = 0;j < depth;j++) {
       glm::vec3 vertex_start(i*spacing, 0*spacing,      j*spacing);
