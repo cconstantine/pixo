@@ -118,7 +118,7 @@ int main( int argc, char** argv )
 
   Model panel("../models/panel.obj", fb_texture);
   // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
-  screen_renderer.models.push_back(&panel);
+  //screen_renderer.models.push_back(&panel);
 
  
 

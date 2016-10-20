@@ -32,9 +32,11 @@ uniform PointLight point_light;
 void main()
 {
 
+  // float distance    = length(point_light.position - Position);
+  // float attenuation = 1.0f / (point_light.constant + point_light.linear * distance + point_light.quadratic * (distance * distance));   
 
-  color = texture(texture1, TexCoords);
-    color = vec4(1.0, 1.0, 1.0, 1.0);
+  color = texture(texture1, TexCoords);// * attenuation;
+  //color = vec4(1.0, 1.0, 1.0, 1.0);
 
   vec3 lightDir = normalize(spot_light.position - Position);
 
@@ -49,4 +51,6 @@ void main()
     color = vec4(1.0, 0.0, 0.0, 1.0);
 
   }
+  //color = vec4(Position.x/20, Position.y/20, Position.z/20, 0.0);
+  //color = vec4(1.0, 1.0, 1.0, 1.0);
 }
