@@ -94,8 +94,8 @@ int main( int argc, char** argv )
 
 
   std::vector<uint8_t> frameBuffer;
-  int rows = 3000;//domeLeds.numLeds() / 1000 + 1;
-  int cols = 3000;
+  int rows = 512;//domeLeds.numLeds() / 1000 + 1;
+  int cols = 512;
   fprintf(stderr, "cols: %d, rows: %d (total: %d)\n", cols, rows, rows*cols);
   int frameBytes =cols*rows * 3;
   frameBuffer.resize(frameBytes);
