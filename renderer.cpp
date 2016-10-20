@@ -133,7 +133,8 @@ void Scene::Do_Movement()
     }
     if(keys[GLFW_KEY_D]) {
       perspective.ProcessKeyboard(RIGHT, deltaTime*10);
-    }
+    }      viewed_from = perspective;
+
     if(keys[GLFW_KEY_LEFT_SHIFT ]) {
       viewed_from = perspective;
     }
@@ -312,6 +313,7 @@ void FrameBufferRender::render(IsoCamera& perspective) {
   GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
   if(src)
   {
+    //send to physical leds
     memcpy(dest, src, 3*width*height);
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
   }
