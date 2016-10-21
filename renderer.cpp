@@ -133,8 +133,8 @@ void Scene::Do_Movement()
     }
     if(keys[GLFW_KEY_D]) {
       perspective.ProcessKeyboard(RIGHT, deltaTime*10);
-    }      viewed_from = perspective;
-
+    }
+    
     if(keys[GLFW_KEY_LEFT_SHIFT ]) {
       viewed_from = perspective;
     }

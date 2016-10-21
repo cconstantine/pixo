@@ -14,9 +14,9 @@ LedCluster::LedCluster(const Texture& texture)
 
   float spacing = .3;
 
-  int width = 64;
-  int height = 64;
-  int depth = 64;
+  int width = 32;
+  int height = 32;
+  int depth = 32;
   for(int i = 0;i < width;i++) {
     for(int j = 0;j < depth;j++) {
       glm::vec3 vertex_start(i*spacing, 0*spacing,      j*spacing);
@@ -88,8 +88,8 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
     glm::vec2 texDelta     = texture_start + texture_delta * (1.0f/divisions)*float(i);
     
     int count = numLeds();
-    int x = count % 512;
-    int y = count / 512;
+    int x = count % 256;
+    int y = count / 256;
     glm::vec3 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f);
 
     Vertex vertex_calc;
@@ -105,7 +105,7 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
 
     Vertex vertex_display;
     vertex_display.Position = ballPosDelta;
-    vertex_display.TexCoords = glm::vec2(((float)x + 0.5) / 512, ((float)y + 0.5) / 512);
+    vertex_display.TexCoords = glm::vec2(((float)x + 0.5) / 256, ((float)y + 0.5) / 256);
     vertex_display.framebuffer_proj = planePosDelta;
 
     leds_for_display.addVertex(vertex_display);
