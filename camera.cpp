@@ -49,7 +49,7 @@ glm::mat4 IsoCamera::GetViewMatrix()
 }
 
 glm::mat4 IsoCamera::GetProjectionMatrix(int width, int height) {
-  return glm::perspective(45.f, (float)width/(float)height, 0.1f, 50.0f);
+  return glm::perspective(45.f, (float)width/(float)height, 0.1f, 1000.0f);
 }
 
 // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
@@ -91,12 +91,12 @@ void IsoCamera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean
 // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
 void IsoCamera::ProcessMouseScroll(GLfloat yoffset)
 {
-  if (this->Zoom >= 0.0f && this->Zoom <= 450.0f)
-    this->Zoom += yoffset;
+  if (this->Zoom >= 0.0f && this->Zoom <= 90.0f)
+    this->Zoom += yoffset * 0.15;
   if (this->Zoom <= 0.0f)
     this->Zoom = 0.0f;
-  if (this->Zoom >= 450.0f)
-    this->Zoom = 450.0f;
+  if (this->Zoom >= 90.0f)
+    this->Zoom = 90.0f;
 }
 
 // Calculates the front vector from the Camera's (updated) Eular Angles

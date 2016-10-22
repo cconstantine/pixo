@@ -10,11 +10,11 @@ out vec3 Position;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 view_from;
-uniform mat4 projection_from;
+uniform mat4 proj_from;
 
 void main()
 {
-    gl_Position = projection * view * vec4(framebuf_proj, 1.0f);
-    TexCoords = (projection_from * view_from * vec4(position, 1.0f)).xy / 20 + 0.5;
+    gl_Position = projection * view      * vec4(framebuf_proj, 1.0f);
+    TexCoords =  (proj_from  * view_from * vec4(position, 1.0f)).xy / (proj_from  * view_from * vec4(position, 1.0f)).z + 0.5;
     Position = position ;
 }

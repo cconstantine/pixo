@@ -134,7 +134,7 @@ void Scene::Do_Movement()
     if(keys[GLFW_KEY_D]) {
       perspective.ProcessKeyboard(RIGHT, deltaTime*10);
     }
-    
+
     if(keys[GLFW_KEY_LEFT_SHIFT ]) {
       viewed_from = perspective;
     }
@@ -295,10 +295,10 @@ void FrameBufferRender::render(IsoCamera& perspective) {
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
-  projection = perspective.GetProjectionMatrix(width, height);
-  view = perspective.GetViewMatrix();
-  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection_from"), 1, GL_FALSE, glm::value_ptr(projection));
-  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(view));
+  glm::mat4 led_projection = glm::perspective(perspective.Zoom, (float)width/(float)height, 0.1f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
+  glm::mat4 led_view = perspective.GetViewMatrix();
+  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
+  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));
 
   for(std::vector<Drawable*>::iterator i = models.begin();i != models.end();i++) {
     Drawable* m = *i;
