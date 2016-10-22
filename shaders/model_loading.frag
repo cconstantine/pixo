@@ -28,8 +28,7 @@ void main()
   vec3 lightDir = normalize(point_light.position - Position.xyz);
   float diff = max(dot(norm, lightDir), 0.0);
 
-  color = texture(texture1, TexCoords) * (attenuation + diff);
-  color.a = 1.0;
+  color = vec4((texture(texture1, TexCoords) * (attenuation*0.5 + diff)).xyz, 1.0);
 	//color = vec4(vec3(gl_FragCoord.z), 1.0f);
 
 }
