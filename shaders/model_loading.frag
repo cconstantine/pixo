@@ -1,7 +1,7 @@
 #version 330 core
 
 in vec2 TexCoords;
-in vec4 Normal;
+in vec3 Normal;
 in vec4 Position;
 
 out vec4 color;
@@ -24,7 +24,7 @@ void main()
   float distance    = length(point_light.position - Position.xyz);
   float attenuation = 1.0f / (point_light.constant + point_light.linear * distance + point_light.quadratic * (distance * distance));
 
-  vec3 norm = normalize(Normal.xyz);
+  vec3 norm = normalize(Normal);
   vec3 lightDir = normalize(point_light.position - Position.xyz);
   float diff = max(dot(norm, lightDir), 0.0);
 
