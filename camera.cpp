@@ -49,7 +49,7 @@ glm::mat4 IsoCamera::GetViewMatrix()
 }
 
 glm::mat4 IsoCamera::GetProjectionMatrix(int width, int height) {
-  return glm::perspective(45.f, (float)width/(float)height, 0.01f, 1000.0f);
+  return glm::perspective(45.f, (float)width/(float)height, 0.1f, 50.0f);
 }
 
 // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
