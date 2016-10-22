@@ -1,6 +1,7 @@
 #pragma once
 
 #include <mesh.hpp>
+#include <led_mesh.hpp>
 #include <shader.hpp>
 #include <model.hpp>
 
@@ -28,7 +29,7 @@ public:
 
   GLuint numLeds();
   /*  Model Data  */
-  Mesh leds_for_calc;;
+  LedMesh leds_for_calc;;
 
   Mesh leds_for_display;
 

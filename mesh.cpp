@@ -120,10 +120,7 @@ void Mesh::setupMesh()
 
   // Vertex Texture Coords
   glEnableVertexAttribArray(2); 
-  glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
-
-  glEnableVertexAttribArray(3); 
-  glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, framebuffer_proj));
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (GLvoid*)offsetof(Vertex, TexCoords));
 
   // Instance projection offset
 }

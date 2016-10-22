@@ -6,7 +6,7 @@
 #include <assimp/postprocess.h>
 
 LedCluster::LedCluster(const Texture& texture)
-: leds_for_calc(texture, GL_POINTS), leds_for_display(GL_POINTS),
+: leds_for_calc(texture), leds_for_display(GL_POINTS),
   ds(7331), buffer_size(0), gamma(0.5)
 {
   setGamma(gamma);
@@ -28,7 +28,7 @@ LedCluster::LedCluster(const Texture& texture)
       addStrip(mac, i+(width*j), vertex_start, vertex_end, height);
     }
   }
-
+  leds_for_calc.setupMesh();
   fprintf(stderr, "LEDS: %d\n", numLeds());
 }
 
@@ -92,7 +92,7 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
     int y = count / 256;
     glm::vec3 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f);
 
-    Vertex vertex_calc;
+    LedVertex vertex_calc;
     vertex_calc.Position = ballPosDelta; 
     vertex_calc.TexCoords = texDelta;
     vertex_calc.framebuffer_proj = planePosDelta;
@@ -106,7 +106,6 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
     Vertex vertex_display;
     vertex_display.Position = ballPosDelta;
     vertex_display.TexCoords = glm::vec2(((float)x + 0.5) / 256, ((float)y + 0.5) / 256);
-    vertex_display.framebuffer_proj = planePosDelta;
 
     leds_for_display.addVertex(vertex_display);
   }
