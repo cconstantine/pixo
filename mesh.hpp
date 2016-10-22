@@ -9,8 +9,6 @@ using namespace std;
 #include <assimp/scene.h>
 
 #include <shader.hpp>
-#include <drawable.hpp>
-
 struct Vertex {
   // Position
   glm::vec3 Position;
@@ -25,43 +23,28 @@ struct Texture {
   GLenum target;
 };
 
-struct Index {
-  GLuint idx;
-};
-
-class Mesh : public Drawable {
+class Mesh {
 public:
-  Mesh(int drawType);
-
-  Mesh(const Texture& textures, int drawType);
   // Constructor
-  Mesh(vector<Vertex> vertices, vector<Texture> textures, int drawType);
-  Mesh(vector<Vertex> vertices, vector<Texture> textures, vector<Index> indexes, int drawType);
+  Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures);
 
-  
   // Render the mesh
-  virtual void Draw(Shader shader);
-
-  size_t numVertices();
-
-  Vertex getVertex(int idx);
-  void addVertex(const Vertex& vert);
-  void addTexture(const Texture& texture);
-
-protected:
-  void setupMesh();
+  void Draw(Shader shader);
 
   /*  Render data  */
-  GLuint VAO, VBO, EBO;
+  GLuint VAO, VBO, EBO, POS, TPOS;
 
   /*  Mesh Data  */
   vector<Vertex> vertices;
+  vector<GLuint> indices;
   vector<Texture> textures;
-  vector<Index> indices;
 
-  int drawType;
+  vector<glm::mat4> instancePositionOffset;
+  vector<glm::vec2> instanceTextureOffset;
 
-  bool dirtyMesh;
+private:
+
   /*  Functions    */
   // Initializes all the buffer objects/arrays
+  void setupMesh();
 };

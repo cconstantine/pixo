@@ -5,8 +5,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-LedCluster::LedCluster(const Texture& texture)
-: leds_for_calc(texture), leds_for_display(GL_POINTS),
+LedCluster::LedCluster(const Texture& texture, const Texture& led_texture)
+: leds_for_calc(texture), leds_for_display("../models/cube.obj", led_texture),
   ds(7331), buffer_size(0), gamma(0.5)
 {
   setGamma(gamma);
@@ -102,12 +102,7 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
     // fprintf(stderr, "x: %3d, y: %3d\n", x, y);
     // fprintf(stderr, "x: %4.1f, y: %4.1f, z: %4.1f\n", ballPosDelta.x, ballPosDelta.y, ballPosDelta.z);
 
-
-    Vertex vertex_display;
-    vertex_display.Position = ballPosDelta;
-    vertex_display.TexCoords = glm::vec2(((float)x + 0.5) / 256, ((float)y + 0.5) / 256);
-
-    leds_for_display.addVertex(vertex_display);
+    leds_for_display.addInstance(ballPosDelta, glm::vec2(((float)x + 0.5) / 256, ((float)y + 0.5) / 256), glm::vec3());
   }
 }
 

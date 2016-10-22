@@ -76,7 +76,10 @@ int main( int argc, char** argv )
   }
 
   // Setup some OpenGL options
+  // Enable depth test
   glEnable(GL_DEPTH_TEST);
+  // Accept fragment if it closer to the camera than the former one
+  glDepthFunc(GL_GREATER);
   glPointSize(1);
   
   vector<Shader> patterns;
@@ -90,7 +93,6 @@ int main( int argc, char** argv )
   PatternRender pattern_render(canvasSize, canvasSize);
   Texture texture = pattern_render.getTexture();
 
-  LedCluster domeLeds(texture);
 
 
   std::vector<uint8_t> frameBuffer;
@@ -102,17 +104,18 @@ int main( int argc, char** argv )
 
   FrameBufferRender fb_screen(cols, rows, &frameBuffer[0]);
   ScreenRender screen_renderer(window);
-  screen_renderer.models.push_back(&domeLeds.leds_for_display);
   scene = new Scene(&screen_renderer, &fb_screen);
-
-  fb_screen.models.push_back(&domeLeds.leds_for_calc);
 
 
   Texture fb_texture = fb_screen.getTexture();
-  domeLeds.leds_for_display.addTexture(fb_texture);
-
+  LedCluster domeLeds(texture, fb_texture);
+  fb_screen.models.push_back(&domeLeds.leds_for_calc);
+  screen_renderer.models.push_back(&domeLeds.leds_for_display);
+  
   // Load models
   Model display("../models/screen.obj", texture);
+  display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
+
   // display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
   screen_renderer.models.push_back(&display);
 
@@ -120,7 +123,7 @@ int main( int argc, char** argv )
   // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
   //screen_renderer.models.push_back(&panel);
 
- 
+
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();
@@ -199,6 +202,8 @@ int main( int argc, char** argv )
   while(!glfwWindowShouldClose(window)) {
 
     glfwPollEvents();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 
 
     // Render the pattern

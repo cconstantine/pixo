@@ -40,6 +40,17 @@ Model::Model(const GLchar* path, const Texture& defaultTexture, const glm::vec2&
   this->loadModel(path);
 }
 
+void Model::addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta) {
+  for(GLuint i = 0; i < this->meshes.size(); i++) {
+    meshes[i].instancePositionOffset.push_back(glm::translate(glm::mat4(), posDelta ));
+    meshes[i].instanceTextureOffset.push_back( texDelta);
+  }
+}
+
+int Model::numInstances() {
+  return meshes[0].instancePositionOffset.size();
+}
+
 // Draws the model, and thus all its meshes
 void Model::Draw(Shader shader)
 {
@@ -48,12 +59,11 @@ void Model::Draw(Shader shader)
   }
 }
 
-
 /*  Functions   */
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string path)
 {
-  // fprintf(stderr, "Model::loadModel -> Loading model at: %s\n", path.c_str());
+  //fprintf(stderr, "Loading model at: %s\n", path.c_str());
   // Read file via ASSIMP
   Assimp::Importer importer;
   const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
@@ -73,7 +83,7 @@ void Model::loadModel(string path)
 // Processes a node in a recursive fashion. Processes each individual mesh located at the node and repeats this process on its children nodes (if any).
 void Model::processNode(aiNode* node, const aiScene* scene)
 {
-  // fprintf(stderr, "Model::processMesh: meshes: %d\n", node->mNumMeshes);
+  //fprintf(stderr, "meshes: %d\n", node->mNumMeshes);
     // Process each mesh located at the current node
     for(GLuint i = 0; i < node->mNumMeshes; i++)
     {
@@ -88,16 +98,14 @@ void Model::processNode(aiNode* node, const aiScene* scene)
         this->processNode(node->mChildren[i], scene);
     }
 
-
 }
 
 Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
 {
-  // fprintf(stderr, "Model::processMesh\n");
     // Data to fill
-    vector<Vertex>  vertices;
+    vector<Vertex> vertices;
+    vector<GLuint> indices;
     vector<Texture> textures;
-    vector<Index>   indices;
     //fprintf(stderr, "verticies: %d\n", mesh->mNumVertices);
     // Walk through each of the mesh's vertices
     for(GLuint i = 0; i < mesh->mNumVertices; i++)
@@ -133,23 +141,19 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
         }
         vertices.push_back(vertex);
     }
-
     // Now wak through each of the mesh's faces (a face is a mesh its triangle) and retrieve the corresponding vertex indices.
     for(GLuint i = 0; i < mesh->mNumFaces; i++)
     {
         aiFace face = mesh->mFaces[i];
         // Retrieve all indices of the face and store them in the indices vector
-        for(GLuint j = 0; j < face.mNumIndices; j++) {
-          Index idx;
-          idx.idx = face.mIndices[j];
-          indices.push_back(idx);
-        }
+        for(GLuint j = 0; j < face.mNumIndices; j++)
+            indices.push_back(face.mIndices[j]);
     }
 
     textures.push_back(defaultTexture);
     
     // Return a mesh object created from the extracted mesh data
-    return Mesh(vertices, textures, indices, GL_TRIANGLES);
+    return Mesh(vertices, indices, textures);
 }
 
 
