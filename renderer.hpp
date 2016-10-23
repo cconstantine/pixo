@@ -95,6 +95,8 @@ private:
   IsoCamera viewed_from;
   ScreenRender* screen;
   FrameBufferRender* fb_render;
+
+  Model flag;
   
   GLfloat deltaTime;
   GLfloat lastFrame;

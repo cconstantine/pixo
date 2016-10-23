@@ -17,7 +17,7 @@ using namespace std;
 
 /*  Functions  */
 // Constructor
-Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures)
+Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures) : dirty(true)
 {
   this->vertices = vertices;
   this->indices = indices;
@@ -27,7 +27,7 @@ Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> text
   //fprintf(stderr, "indices: %d\n", (int)indices.size());
   //fprintf(stderr, "textures: %d\n", (int)textures.size());
   // Now that we have all the required data, set the vertex buffers and its attribute pointers.
-  this->setupMesh();
+  setupMesh();
 }
 
 // Render the mesh
@@ -44,15 +44,11 @@ void Mesh::Draw(Shader shader)
     glUniform1i(glGetUniformLocation(shader.Program,  ss.str().c_str()), i);
     glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
   }
-
+  if (dirty) {
+    updateData();
+  }
   // Draw mesh
   glBindVertexArray(this->VAO);
-  glBindBuffer(GL_ARRAY_BUFFER, this->POS);
-  glBufferData(GL_ARRAY_BUFFER, instancePositionOffset.size() * sizeof(glm::mat4), &instancePositionOffset[0], GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ARRAY_BUFFER, this->TPOS);
-  glBufferData(GL_ARRAY_BUFFER, instanceTextureOffset.size() * sizeof(glm::vec2), &instanceTextureOffset[0], GL_STATIC_DRAW);
-
   glDrawElementsInstanced(GL_TRIANGLES, this->indices.size(), GL_UNSIGNED_INT, 0, instanceTextureOffset.size());
   glBindVertexArray(0);
 
@@ -122,6 +118,34 @@ void Mesh::setupMesh()
   glVertexAttribPointer(7, 4, GL_FLOAT, GL_FALSE, 4 * vec4Size, (GLvoid*)(3l * vec4Size));
   glVertexAttribDivisor(7, 1);
 
+}
 
-  // Instance projection offset
+void Mesh::updateData()
+{
+  dirty = false;
+  glBindVertexArray(this->VAO);
+
+  glBindBuffer(GL_ARRAY_BUFFER, this->POS);
+  glBufferData(GL_ARRAY_BUFFER, instancePositionOffset.size() * sizeof(glm::mat4), &instancePositionOffset[0], GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ARRAY_BUFFER, this->TPOS);
+  glBufferData(GL_ARRAY_BUFFER, instanceTextureOffset.size() * sizeof(glm::vec2), &instanceTextureOffset[0], GL_STATIC_DRAW);
+}
+
+void Mesh::moveInstance(int i, const glm::vec3& position) {
+  instancePositionOffset[i] = glm::translate(glm::mat4(), position );
+  dirty = true;
+}
+
+int Mesh::addInstance(const glm::vec3& position, const glm::vec2& textureCoords)
+{
+  dirty = true;
+  instancePositionOffset.push_back(glm::translate(glm::mat4(), position ));
+  instanceTextureOffset.push_back( textureCoords);
+  return numInstances() - 1;
+}
+
+int Mesh::numInstances()
+{
+  instancePositionOffset.size();
 }

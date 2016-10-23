@@ -7,14 +7,13 @@ layout (location = 3) in vec3 framebuf_proj;
 out vec2 TexCoords;
 out vec3 Position;
 
-uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 view_from;
 uniform mat4 proj_from;
 
 void main()
 {
-    gl_Position = projection * view      * vec4(framebuf_proj, 1.0f);
+    gl_Position = projection * vec4(framebuf_proj, 1.0f);
     TexCoords =  (proj_from  * view_from * vec4(position, 1.0f)).xy / (proj_from  * view_from * vec4(position, 1.0f)).z + 0.5;
     Position = position ;
 }

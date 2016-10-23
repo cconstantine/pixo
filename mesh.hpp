@@ -39,12 +39,19 @@ public:
   vector<GLuint> indices;
   vector<Texture> textures;
 
-  vector<glm::mat4> instancePositionOffset;
-  vector<glm::vec2> instanceTextureOffset;
+  int  addInstance(const glm::vec3& position, const glm::vec2& textureCoords);
+  void moveInstance(int instance, const glm::vec3& position);
 
+  int numInstances();
 private:
-
+  bool dirty;
   /*  Functions    */
   // Initializes all the buffer objects/arrays
   void setupMesh();
+
+  void updateData();
+
+
+  vector<glm::mat4> instancePositionOffset;
+  vector<glm::vec2> instanceTextureOffset;
 };

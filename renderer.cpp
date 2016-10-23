@@ -25,7 +25,6 @@ void Scene::key_callback(GLFWwindow* window, int key, int scancode, int action, 
   else if(action == GLFW_RELEASE) {
       keys[key] = false;
   }
-    
 }
 
 void Scene::mouse_callback(GLFWwindow* window, double xpos, double ypos)
@@ -74,8 +73,12 @@ void Scene::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yof
 
 Scene::Scene(ScreenRender* screen, FrameBufferRender* fb_render) :
   perspective(glm::vec3(0.0f, 1.0f, 2.8f)), viewed_from(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), fb_render(fb_render), fps(0),
-  deltaTime(0.0f), lastFrame(0.0f), lastTime(glfwGetTime()), lastUpdate(glfwGetTime()), gamma(0.5), next(false)
-{ }
+  deltaTime(0.0f), lastFrame(0.0f), lastTime(glfwGetTime()), lastUpdate(glfwGetTime()), gamma(0.5), next(false),
+  flag("../models/cube.obj")
+{
+  flag.addInstance(glm::vec3(), glm::vec2(), glm::vec3() );
+  screen->models.push_back(&flag);
+}
 
 void Scene::render() {
 
@@ -137,7 +140,21 @@ void Scene::Do_Movement()
 
     if(keys[GLFW_KEY_LEFT_SHIFT ]) {
       viewed_from = perspective;
+      flag.moveInstance(0, viewed_from.Position);
     }
+
+    if(keys[GLFW_KEY_LEFT_CONTROL]) {
+      glm::vec3 delta = viewed_from.Position - perspective.Position;
+      
+
+      if(glm::length(delta) > 1.0f) {
+        delta = glm::normalize(delta);
+      }
+      
+      delta = glm::vec3(delta.x / 10, delta.y / 10, delta.z / 10);
+      perspective.Position = perspective.Position + delta;
+    }
+    
     for(int i = 48;i <= 57;i++) {
       if (keys[i]) {
         int val = i - 48;
@@ -293,7 +310,6 @@ void FrameBufferRender::render(IsoCamera& perspective) {
   glm::mat4 projection = camera.GetProjectionMatrix(width, height);
   glm::mat4 view = camera.GetViewMatrix();
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
   glm::mat4 led_projection = glm::perspective(perspective.Zoom, (float)width/(float)height, 0.1f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
   glm::mat4 led_view = perspective.GetViewMatrix();

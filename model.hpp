@@ -29,7 +29,9 @@ public:
     // Draws the model, and thus all its meshes
     virtual void Draw(Shader shader);
     
-    void addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
+    int  addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
+    void moveInstance(int instance, const glm::vec3& position);
+
     int numInstances();
 
 
