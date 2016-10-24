@@ -32,7 +32,7 @@ const int canvasSize = 400;
 using namespace nanogui;
 Screen *screen = nullptr;
 Scene *scene = nullptr;
-
+Shader *pattern = nullptr;
 
 int main( int argc, char** argv )
 {
@@ -88,8 +88,7 @@ int main( int argc, char** argv )
     patterns.push_back(Shader("../shaders/pattern.frag", argv[i]));
   }
 
-  Shader pattern = patterns[rand() % patterns.size()];
-  fprintf(stderr, "Using: %s\n", pattern.fragmentPath.c_str());
+  pattern = &patterns[rand() % patterns.size()];
 
 
   PatternRender pattern_render(canvasSize, canvasSize);
@@ -115,13 +114,11 @@ int main( int argc, char** argv )
   screen_renderer.models.push_back(&domeLeds.leds_for_display);
   
   // Load models
-  Model display("../models/screen.obj", texture);
-  display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
+  //Model display("../models/screen.obj", texture);
+  //display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
+  //screen_renderer.models.push_back(&display);
 
-  // display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
-  screen_renderer.models.push_back(&display);
-
-  Model panel("../models/panel.obj", fb_texture);
+  //Model panel("../models/panel.obj", fb_texture);
   // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
   //screen_renderer.models.push_back(&panel);
 
@@ -146,8 +143,21 @@ int main( int argc, char** argv )
     },
     false)->setValue("00.00");
 
+  gui->addVariable<string>("Shader",
+    [&](string value) { value; },
+    [&]() -> string {
+      return &pattern->fragmentPath.c_str()[12];
+    },
+    false)->setValue("                 ");
+
+  ImageView *imageWidget = new ImageView(nanoguiWindow, texture.id);
+  imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
+  imageWidget->setFixedScale(true);
+  gui->addWidget("", imageWidget);
   screen->setVisible(true);
   screen->performLayout();
+
+  imageWidget->fit();
 
 
 
@@ -210,10 +220,11 @@ int main( int argc, char** argv )
     glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    screen->performLayout();
 
 
     // Render the pattern
-    pattern_render.render(pattern);
+    pattern_render.render(*pattern);
 
 
     // Render the scene
@@ -223,8 +234,7 @@ int main( int argc, char** argv )
     domeLeds.setGamma(scene->getGamma());
     bool next = scene->nextPattern();
     if (next) {
-      pattern = patterns[rand() % patterns.size()];
-      fprintf(stderr, "Using: %s\n", pattern.fragmentPath.c_str());
+      pattern = &patterns[rand() % patterns.size()];
     }
     domeLeds.update(frameBuffer);
 
