@@ -1,3 +1,5 @@
+#version 330 core
+out vec4 color_out;
 
 //---------------------------------------------------------------------------
 // Delphi / GLSL examples (Delphi/Windows)
@@ -137,7 +139,7 @@ void main(void){
     n=normalize(vec3(v4+v1-v3-v2,v3+v4-v1-v2,v2+v4-v3-v1));
     
     float b=dot(n,normalize(prp-p));
-    gl_FragColor=vec4((b*c+pow(b,8.0))*(1.0-f*.01),1.0);//simple phong LightPosition=CameraPosition
+    color_out=vec4((b*c+pow(b,8.0))*(1.0-f*.01),1.0);//simple phong LightPosition=CameraPosition
   }
-  else gl_FragColor=vec4(0,0,0,1); //background color
+  else color_out=vec4(0,0,0,1); //background color
 }

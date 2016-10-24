@@ -1,7 +1,11 @@
+#version 330 core
+out vec4 color_out;
+
 #ifdef GL_ES
 precision mediump float;
 #endif
 
+// http://glslsandbox.com/e#36084.0
 
 uniform float time;
 uniform vec2 mouse;
@@ -210,5 +214,5 @@ void main( void ) {
 	float color = color1+color2;
 
 	vec3 c = vec3( color, pow(max(color,0.),2.)*0.4, pow(max(color,0.),3.)*0.15 );
-	gl_FragColor = main2(c);
+	color_out = main2(c);
 }

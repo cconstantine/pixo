@@ -14,4 +14,7 @@ public:
 
     // Uses the current shader
     void Use();
+
+    std::string vertexPath;
+    std::string fragmentPath;
 };

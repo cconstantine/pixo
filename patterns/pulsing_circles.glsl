@@ -1,3 +1,6 @@
+#version 330 core
+out vec4 color_out;
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -8,7 +11,9 @@ precision mediump float;
 
 uniform float time;
 uniform vec2 mouse;
-varying vec2 surfacePosition;
+
+in vec2 surfacePosition;
+in vec2 surfaceSize;
 
 void main( void ) {
   #define t (time * 2.0)
@@ -22,6 +27,6 @@ void main( void ) {
   
   color = sin(color-dist);
 
-  gl_FragColor = vec4(color*vec3(cos(time+color+l),cos(color+time*2.5/l),cos(color+time*5.0)), 1.0 );
+  color_out = vec4(color*vec3(cos(time+color+l),cos(color+time*2.5/l),cos(color+time*5.0)), 1.0 );
 
 }

@@ -1,3 +1,7 @@
+#version 330 core
+out vec4 color_out;
+
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -109,5 +113,5 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
 
 void main( void ) 
 {
-	mainImage( gl_FragColor, gl_FragCoord.xy );
+	mainImage( color_out, gl_FragCoord.xy );
 }

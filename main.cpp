@@ -89,6 +89,7 @@ int main( int argc, char** argv )
   }
 
   Shader pattern = patterns[rand() % patterns.size()];
+  fprintf(stderr, "Using: %s\n", pattern.fragmentPath.c_str());
 
 
   PatternRender pattern_render(canvasSize, canvasSize);
@@ -223,6 +224,7 @@ int main( int argc, char** argv )
     bool next = scene->nextPattern();
     if (next) {
       pattern = patterns[rand() % patterns.size()];
+      fprintf(stderr, "Using: %s\n", pattern.fragmentPath.c_str());
     }
     domeLeds.update(frameBuffer);
 

@@ -1,3 +1,6 @@
+#version 330 core
+out vec4 color_out;
+
 // Corrente Continua - 1k intro (win32)
 // Zerothehero of Topopiccione
 // 25/jul/2012
@@ -43,6 +46,6 @@ void main( void )
     b += .5/(d*d);
     e += .127;
   }
-  gl_FragColor = vec4(log(-e+a+b-1.)/7.-0.2,log(-e-a-b-1.)/4.-0.2,log(e-a+b-1.)/3.-0.1,.3) ;
+  color_out = vec4(log(-e+a+b-1.)/7.-0.2,log(-e-a-b-1.)/4.-0.2,log(e-a+b-1.)/3.-0.1,.3) ;
 
 }

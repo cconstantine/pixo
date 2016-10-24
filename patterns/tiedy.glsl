@@ -1,3 +1,6 @@
+#version 330 core
+out vec4 color_out;
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -32,5 +35,5 @@ void main(void)
 	float g = enabler*test(vec2(cos(time*0.94), sin(time*0.97)), 1.5-sin(time*.8), position);
 	float b = enabler*test(vec2(sin(time*0.93), sin(time*0.99)), 1.5-sin(time*.7), position);
 	
-	gl_FragColor = vec4(r, g, b, 1.0);
+	color_out = vec4(r, g, b, 1.0);
 }

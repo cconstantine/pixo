@@ -1,9 +1,9 @@
 #version 330 core
+out vec4 color_out;
 
 // From http://mrdoob.com/lab/javascript/webgl/glsl/03/
 uniform float time;
 uniform vec2 resolution;
-out vec4 color_out;
 
 void main( void ) {
 

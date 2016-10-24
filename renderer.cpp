@@ -154,7 +154,7 @@ void Scene::Do_Movement()
       delta = glm::vec3(delta.x / 10, delta.y / 10, delta.z / 10);
       perspective.Position = perspective.Position + delta;
     }
-    
+
     for(int i = 48;i <= 57;i++) {
       if (keys[i]) {
         int val = i - 48;
@@ -400,6 +400,10 @@ void PatternRender::render(Shader& pattern) {
   GLuint resolution_id = glGetUniformLocation(pattern.Program, "resolution");
   GLuint mouse_id = glGetUniformLocation(pattern.Program, "mouse");
 
+  GLuint itime_id = glGetUniformLocation(pattern.Program, "iGlobalTime");
+  GLuint iresolution_id = glGetUniformLocation(pattern.Program, "iResolution");
+  GLuint imouse_id = glGetUniformLocation(pattern.Program, "iMouse");
+
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
   glViewport(0,0,width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
   
@@ -408,6 +412,10 @@ void PatternRender::render(Shader& pattern) {
   glUniform1f(time_id, glfwGetTime() );
   glUniform2f(resolution_id, width, height);
   glUniform2f(mouse_id, width/2, height/2);
+
+  glUniform1f(itime_id, glfwGetTime() );
+  glUniform2f(iresolution_id, width, height);
+  glUniform2f(imouse_id, width/2, height/2);
 
   // // Clear the screen
   glClear( GL_COLOR_BUFFER_BIT );
