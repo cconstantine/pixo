@@ -339,6 +339,8 @@ Texture FrameBufferRender::getTexture() {
   Texture t;
   t.id = renderedTexture;
   t.target = GL_TEXTURE_2D;
+  t.width = width;
+  t.height = height;
   return t;
 }
 

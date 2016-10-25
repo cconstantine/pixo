@@ -66,6 +66,10 @@ void Model::Draw(Shader shader)
   }
 }
 
+Texture Model::getDefaultTexture() {
+  return defaultTexture;
+}
+
 /*  Functions   */
 // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
 void Model::loadModel(string path)

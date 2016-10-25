@@ -34,7 +34,7 @@ public:
 
     int numInstances();
 
-
+    Texture getDefaultTexture();
 private:
     /*  Model Data  */
     vector<Mesh> meshes;

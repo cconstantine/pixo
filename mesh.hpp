@@ -21,6 +21,8 @@ struct Vertex {
 struct Texture {
   GLuint id;
   GLenum target;
+  int width;
+  int height;
 };
 
 class Mesh {

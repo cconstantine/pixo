@@ -20,7 +20,6 @@ GLFWwindow* window;
 using namespace glm;
 
 
-const int canvasSize = 400;
 
 #include <shader.hpp>
 #include <camera.hpp>
@@ -36,6 +35,11 @@ Shader *pattern = nullptr;
 
 int main( int argc, char** argv )
 {
+  
+  if(argc < 3) {
+    fprintf(stderr, "Usage: %s LEDS_PER_SIDE [pattern file]*\n", argv[0]);
+    exit(1);
+  }
 	// Initialise GLFW
 	if( !glfwInit() )
 	{
@@ -84,12 +88,19 @@ int main( int argc, char** argv )
   glPointSize(1);
   
   vector<Shader> patterns;
-  for(int i = 1;i < argc;i++) {
+  for(int i = 2;i < argc;i++) {
     patterns.push_back(Shader("../shaders/pattern.frag", argv[i]));
   }
 
   pattern = &patterns[rand() % patterns.size()];
+  const int leds_per_side = atoi(argv[1]);
+  const int canvasSize = sqrt(leds_per_side*leds_per_side*leds_per_side)*2;
 
+  int rows = pow(2, ceil(log(sqrt(pow(leds_per_side,3)))/log(2)));
+  int cols = rows;
+  fprintf(stderr, "Leds per side:     %3d  (total: %.0f )\n", leds_per_side, pow(leds_per_side, 3));
+  fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", cols, rows, rows*cols);
+  fprintf(stderr, "pattern canvas: %d x %d\n", canvasSize, canvasSize);
 
   PatternRender pattern_render(canvasSize, canvasSize);
   Texture texture = pattern_render.getTexture();
@@ -97,9 +108,6 @@ int main( int argc, char** argv )
 
 
   std::vector<uint8_t> frameBuffer;
-  int rows = 256;//domeLeds.numLeds() / 1000 + 1;
-  int cols = 256;
-  fprintf(stderr, "cols: %d, rows: %d (total: %d)\n", cols, rows, rows*cols);
   int frameBytes =cols*rows * 3;
   frameBuffer.resize(frameBytes);
 
@@ -109,7 +117,7 @@ int main( int argc, char** argv )
 
 
   Texture fb_texture = fb_screen.getTexture();
-  LedCluster domeLeds(texture, fb_texture);
+  LedCluster domeLeds(leds_per_side, texture, fb_texture);
   fb_screen.models.push_back(&domeLeds.leds_for_calc);
   screen_renderer.models.push_back(&domeLeds.leds_for_display);
   

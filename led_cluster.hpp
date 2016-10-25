@@ -19,7 +19,7 @@ using namespace std;
 class LedCluster {
 public:
   // Draws the model, and thus all its meshes
-  LedCluster(const Texture& pattern_texture, const Texture& led_texture);
+  LedCluster(int per_side, const Texture& pattern_texture, const Texture& led_texture);
 
   void update(std::vector<uint8_t> &frameBuffer);
 

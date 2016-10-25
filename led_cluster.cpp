@@ -5,7 +5,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-LedCluster::LedCluster(const Texture& texture, const Texture& led_texture)
+LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_texture)
 : leds_for_calc(texture), leds_for_display("../models/cube.obj", led_texture),
   ds(7331), buffer_size(0), gamma(0.5)
 {
@@ -14,9 +14,9 @@ LedCluster::LedCluster(const Texture& texture, const Texture& led_texture)
 
   float spacing = .3;
 
-  int width = 32;
-  int height = 32;
-  int depth = 32;
+  int width = per_size;
+  int height = per_size;
+  int depth = per_size;
   for(int i = 0;i < width;i++) {
     for(int j = 0;j < depth;j++) {
       glm::vec3 vertex_start(i*spacing, 0*spacing,      j*spacing);
@@ -76,20 +76,21 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
 
   glm::vec3 vertex_delta = vertex_end - vertex_start ;
 
-
   glm::vec2 texture_start;// = model.meshes[0].getVertex(start).TexCoords;
   glm::vec2 texture_end;//   = model.meshes[0].getVertex(end).TexCoords;
 
   glm::vec2 texture_delta = texture_end - texture_start;
 
+  int width = leds_for_display.getDefaultTexture().width;
+  int height = leds_for_display.getDefaultTexture().height;
 
   for(int i = 0;i < divisions;i++) {
     glm::vec3 ballPosDelta = vertex_start  + vertex_delta  * (1.0f/divisions)*float(i);
     glm::vec2 texDelta     = texture_start + texture_delta * (1.0f/divisions)*float(i);
     
     int count = numLeds();
-    int x = count % 256;
-    int y = count / 256;
+    int x = count % width;
+    int y = count / height;
     glm::vec3 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f);
 
     LedVertex vertex_calc;
@@ -102,7 +103,7 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
     // fprintf(stderr, "x: %3d, y: %3d\n", x, y);
     // fprintf(stderr, "x: %4.1f, y: %4.1f, z: %4.1f\n", ballPosDelta.x, ballPosDelta.y, ballPosDelta.z);
 
-    leds_for_display.addInstance(ballPosDelta, glm::vec2(((float)x + 0.5) / 256, ((float)y + 0.5) / 256), glm::vec3());
+    leds_for_display.addInstance(ballPosDelta, glm::vec2(((float)x + 0.5) / width, ((float)y + 0.5) / height), glm::vec3());
   }
 }
 
