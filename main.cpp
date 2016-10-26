@@ -26,6 +26,7 @@ using namespace glm;
 #include <model.hpp>
 #include <led_cluster.hpp>
 #include <renderer.hpp>
+#include <scene.hpp>
 #include <nanogui/nanogui.h>
 
 using namespace nanogui;
@@ -102,35 +103,17 @@ int main( int argc, char** argv )
   fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", cols, rows, rows*cols);
   fprintf(stderr, "pattern canvas: %d x %d\n", canvasSize, canvasSize);
 
-  PatternRender pattern_render(canvasSize, canvasSize);
-  Texture texture = pattern_render.getTexture();
+  Texture texture = Texture(canvasSize, canvasSize);
+  Texture fb_texture = Texture(cols, rows);
 
-
-
-  std::vector<uint8_t> frameBuffer;
-  int frameBytes =cols*rows * 3;
-  frameBuffer.resize(frameBytes);
-
-  FrameBufferRender fb_screen(cols, rows, &frameBuffer[0]);
+  PatternRender pattern_render(texture);
   ScreenRender screen_renderer(window);
-  scene = new Scene(&screen_renderer, &fb_screen);
 
 
-  Texture fb_texture = fb_screen.getTexture();
+
   LedCluster domeLeds(leds_per_side, texture, fb_texture);
-  fb_screen.models.push_back(&domeLeds.leds_for_calc);
-  screen_renderer.models.push_back(&domeLeds.leds_for_display);
-  
-  // Load models
-  //Model display("../models/screen.obj", texture);
-  //display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
-  //screen_renderer.models.push_back(&display);
 
-  //Model panel("../models/panel.obj", fb_texture);
-  // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
-  //screen_renderer.models.push_back(&panel);
-
-
+  scene = new Scene(&screen_renderer, &domeLeds);
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();
@@ -239,12 +222,12 @@ int main( int argc, char** argv )
     scene->render();
 
 
-    domeLeds.setGamma(scene->getGamma());
+    //domeLeds.setGamma(scene->getGamma());
     bool next = scene->nextPattern();
     if (next) {
       pattern = &patterns[rand() % patterns.size()];
     }
-    domeLeds.update(frameBuffer);
+    //domeLeds.update(frameBuffer);
 
     gui->refresh();
     // Draw nanogui

@@ -24,7 +24,6 @@ public:
     // Constructor, expects a filepath to a 3D model.
     Model(const GLchar* path);
     Model(const GLchar* path, const Texture& defaultTexture);
-    Model(const GLchar* path, const Texture& defaultTexture, const glm::vec2& defaultTexCoords);
 
     // Draws the model, and thus all its meshes
     virtual void Draw(Shader shader);
@@ -41,7 +40,6 @@ private:
     string directory;
     vector<Texture> textures_loaded;	// Stores all the textures loaded so far, optimization to make sure textures aren't loaded more than once.
     Texture defaultTexture;
-    glm::vec2 defaultTexCoords;
 
     /*  Functions   */
     // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.

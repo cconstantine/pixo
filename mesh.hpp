@@ -7,6 +7,7 @@ using namespace std;
 // GL Includes
 #include <glm/glm.hpp>
 #include <assimp/scene.h>
+#include <texture.hpp>
 
 #include <shader.hpp>
 struct Vertex {
@@ -16,13 +17,6 @@ struct Vertex {
   glm::vec3 Normal;
   // TexCoords
   glm::vec2 TexCoords;
-};
-
-struct Texture {
-  GLuint id;
-  GLenum target;
-  int width;
-  int height;
 };
 
 class Mesh {
