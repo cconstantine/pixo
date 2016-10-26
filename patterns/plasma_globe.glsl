@@ -39,7 +39,7 @@ float noise(in vec3 p)
 	f = f*f*(3.0-2.0*f);
 	
 	vec2 uv = (ip.xy+vec2(37.0,17.0)*ip.z) + f.xy;
-	vec2 rg = texture2D( backbuffer, (uv+ 0.5)/256.0, -100.0 ).yx;
+	vec2 rg = texture( backbuffer, (uv+ 0.5)/256.0, -100.0 ).yx;
         return (0.5);
 //	return mix(rg.x, rg.y, f.z);
 }

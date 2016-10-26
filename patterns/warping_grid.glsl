@@ -31,8 +31,8 @@ void main( void ) {
   vec2 texcoord = vec2(gl_FragCoord.xy/resolution);
   vec2 coord = ( gl_FragCoord.xy*2.0 - resolution ) / resolution.y;
 
-  vec4 prev =texture2D(backbuffer,texcoord *vec2(0.5));
-  vec4 prev1 =texture2D(backbuffer,texcoord*vec2(0.1));
+  vec4 prev =texture(backbuffer,texcoord *vec2(0.5));
+  vec4 prev1 =texture(backbuffer,texcoord*vec2(0.1));
   
   float x = fract(coord.x*2.0+sin(time+coord.y));
   float y = fract(coord.y*2.0+sin(time+coord.x));
