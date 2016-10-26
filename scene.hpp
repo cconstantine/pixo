@@ -5,10 +5,11 @@
 #include <model.hpp>
 #include <camera.hpp>
 #include <renderer.hpp>
+#include <led_cluster.hpp>
 
 class Scene {
 public:
-  Scene(ScreenRender* screen, FrameBufferRender* fb_render);
+  Scene(ScreenRender* screen, LedCluster* leds);
 
   void render();
 
@@ -27,7 +28,8 @@ private:
   IsoCamera perspective;
   IsoCamera viewed_from;
   ScreenRender* screen;
-  FrameBufferRender* fb_render;
+  
+  LedCluster* leds;
 
   Model flag;
   

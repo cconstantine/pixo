@@ -11,6 +11,8 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <renderer.hpp>
+
 using namespace std;
 
 #include <pixelpusher/pixel_pusher.hpp>
@@ -22,6 +24,8 @@ public:
   LedCluster(int per_side, const Texture& pattern_texture, const Texture& led_texture);
 
 
+  void render(const IsoCamera& viewed_from);
+
   GLuint numLeds();
   /*  Model Data  */
   LedMesh leds_for_calc;;
@@ -30,5 +34,5 @@ public:
 
 private:
   void addStrip(glm::vec3 start, glm::vec3 end, int divisions);
-
+  FrameBufferRender fb_render;
 };

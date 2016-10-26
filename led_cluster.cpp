@@ -6,7 +6,7 @@
 #include <assimp/postprocess.h>
 
 LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_texture)
-: leds_for_calc(texture), leds_for_display("../models/cube.obj", led_texture)
+: leds_for_calc(texture), leds_for_display("../models/cube.obj", led_texture), fb_render(led_texture)
 {
 
   float spacing = .3;
@@ -26,13 +26,20 @@ LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_
     }
   }
   leds_for_calc.setupMesh();
+  fb_render.models.push_back(&leds_for_calc);
   fprintf(stderr, "LEDS: %d\n", numLeds());
 }
 
 GLuint LedCluster::numLeds() {
+
   return leds_for_calc.numVertices();
 }
 
+
+void LedCluster::render(const IsoCamera& viewed_from) 
+{
+  fb_render.render(viewed_from);
+}
 
 void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divisions) {
 

@@ -64,13 +64,25 @@ void Scene::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yof
 #pragma endregion
 
 
-Scene::Scene(ScreenRender* screen, FrameBufferRender* fb_render) :
-  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), viewed_from(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), fb_render(fb_render), fps(0),
+Scene::Scene(ScreenRender* screen, LedCluster* leds) :
+  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), viewed_from(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), leds(leds), fps(0),
   deltaTime(0.0f), lastFrame(0.0f), lastTime(glfwGetTime()), lastUpdate(glfwGetTime()), gamma(0.5), next(false),
   flag("../models/cube.obj")
 {
   flag.addInstance(glm::vec3(), glm::vec2(), glm::vec3() );
   screen->models.push_back(&flag);
+  screen->models.push_back(leds->leds_for_display);
+
+    // Load models
+  //Model display("../models/screen.obj", texture);
+  //display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
+  //screen_renderer.models.push_back(&display);
+
+  // Model panel("../models/panel.obj", fb_texture);
+  // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
+  // screen_renderer.models.push_back(&panel);
+
+
 }
 
 void Scene::render() {
@@ -90,7 +102,7 @@ void Scene::render() {
   deltaTime = currentFrame - lastFrame;
   lastFrame = currentFrame;
 
-  fb_render->render(viewed_from);
+  leds->render(viewed_from);
   screen->render(perspective);
 
 }

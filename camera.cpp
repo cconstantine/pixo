@@ -43,12 +43,13 @@ IsoCamera::IsoCamera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfl
 }
 
 // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-glm::mat4 IsoCamera::GetViewMatrix()
+glm::mat4 IsoCamera::GetViewMatrix() const
 {
     return glm::lookAt(this->Position, this->Position + this->Front, this->Up);
 }
 
-glm::mat4 IsoCamera::GetProjectionMatrix(int width, int height) {
+glm::mat4 IsoCamera::GetProjectionMatrix(int width, int height) const
+{
   return glm::perspective(45.f, (float)width/(float)height, 0.1f, 1000.0f);
 }
 

@@ -112,7 +112,7 @@ FrameBufferRender::FrameBufferRender(const Texture& renderTo) :
   active_pbo = 0;
 }
 
-void FrameBufferRender::setupLights(IsoCamera& perspective) {
+void FrameBufferRender::setupLights(const IsoCamera& perspective) {
   {
     GLint lightPosLoc        = glGetUniformLocation(shader.Program, "spot_light.position");
     GLint lightSpotdirLoc    = glGetUniformLocation(shader.Program, "spot_light.direction");
@@ -133,7 +133,7 @@ void FrameBufferRender::setupLights(IsoCamera& perspective) {
     glUniform1f(glGetUniformLocation(shader.Program, "point_light.quadratic"), 0.232);
   }
 }
-void FrameBufferRender::render(IsoCamera& perspective) {
+void FrameBufferRender::render(const IsoCamera& perspective) {
 
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
   glViewport(0,0,width, height);
