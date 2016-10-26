@@ -229,20 +229,17 @@ void ScreenRender::render(IsoCamera& perspective) {
 
 }
 
-FrameBufferRender::FrameBufferRender(int width, int height, uint8_t * dest) :
+FrameBufferRender::FrameBufferRender(int width, int height) :
    width(width),
    height(height),
-   dest(dest),
-   shader("../shaders/leds.vs", "../shaders/leds.frag")
+   shader("../shaders/leds.vs", "../shaders/leds.frag"),
+   renderedTexture(width, height)
 {
+  frameBuffer.resize(width*height*3);
+
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
   glGenFramebuffers(1, &FramebufferName);
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
-
-  // The texture we're going to render to
-  glGenTextures(1, &renderedTexture);
-  glBindTexture(GL_TEXTURE_2D, renderedTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
 
   // Poor filtering
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -251,7 +248,7 @@ FrameBufferRender::FrameBufferRender(int width, int height, uint8_t * dest) :
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT); 
 
   // Set "renderedTexture" as our colour attachement #0
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture.id, 0);
 
   // Set the list of draw buffers.
   GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -330,21 +327,17 @@ void FrameBufferRender::render(IsoCamera& perspective) {
   if(src)
   {
     //send to physical leds
-    memcpy(dest, src, 3*width*height);
+    memcpy(&frameBuffer[0], src, frameBuffer.size());
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
   }
 }
 
 Texture FrameBufferRender::getTexture() {
-  Texture t;
-  t.id = renderedTexture;
-  t.target = GL_TEXTURE_2D;
-  t.width = width;
-  t.height = height;
-  return t;
+  return renderedTexture;
 }
 
-PatternRender::PatternRender(int width, int height) : width(width), height(height) {
+PatternRender::PatternRender(int width, int height) : width(width), height(height), renderedTexture(width, height)
+{
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
 
@@ -360,6 +353,7 @@ PatternRender::PatternRender(int width, int height) : width(width), height(heigh
    - 1.0,   1.0,
   };
   
+
   glGenBuffers(1, &vertexbuffer);
   glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
   glBufferData(GL_ARRAY_BUFFER, sizeof(g_vertex_buffer_data), g_vertex_buffer_data, GL_STATIC_DRAW);
@@ -368,16 +362,12 @@ PatternRender::PatternRender(int width, int height) : width(width), height(heigh
   glGenFramebuffers(1, &FramebufferName);
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
-  // The texture we're going to render to
-  glGenTextures(1, &renderedTexture);
-  glBindTexture(GL_TEXTURE_2D, renderedTexture);
-  glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
 
   // Poor filtering
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   // Set "renderedTexture" as our colour attachement #0
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture, 0);
+  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture.id, 0);
 
   // Set the list of draw buffers.
   GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -391,10 +381,7 @@ PatternRender::PatternRender(int width, int height) : width(width), height(heigh
 }
 
 Texture PatternRender::getTexture() {
-  Texture t;
-  t.id = renderedTexture;
-  t.target = GL_TEXTURE_2D;
-  return t;
+  return renderedTexture;
 }
 
 void PatternRender::render(Shader& pattern) {

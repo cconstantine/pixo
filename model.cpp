@@ -20,23 +20,14 @@ using namespace std;
 #include <mesh.hpp>
 
 // Constructor, expects a filepath to a 3D model.
-Model::Model(const GLchar* path)
+Model::Model(const GLchar* path ) : defaultTexture(Texture(1,1))
 {
   this->loadModel(path);
 }
 
 // Constructor, expects a filepath to a 3D model.
-Model::Model(const GLchar* path, const Texture& defaultTexture )
+Model::Model(const GLchar* path, const Texture& defaultTexture ) : defaultTexture(defaultTexture)
 {
-  this->defaultTexture = defaultTexture;
-  this->loadModel(path);
-}
-
-// Constructor, expects a filepath to a 3D model.
-Model::Model(const GLchar* path, const Texture& defaultTexture, const glm::vec2& defaultTexCoords )
-{
-  this->defaultTexture = defaultTexture;
-  this->defaultTexCoords = defaultTexCoords;
   this->loadModel(path);
 }
 
@@ -146,9 +137,6 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
             vec.y = mesh->mTextureCoords[0][i].y;
             vertex.TexCoords = vec;
 
-        }
-        else {
-            vertex.TexCoords = defaultTexCoords;
         }
         vertices.push_back(vertex);
     }

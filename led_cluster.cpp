@@ -6,11 +6,8 @@
 #include <assimp/postprocess.h>
 
 LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_texture)
-: leds_for_calc(texture), leds_for_display("../models/cube.obj", led_texture),
-  ds(7331), buffer_size(0), gamma(0.5)
+: leds_for_calc(texture), leds_for_display("../models/cube.obj", led_texture)
 {
-  setGamma(gamma);
-
 
   float spacing = .3;
 
@@ -25,52 +22,17 @@ LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_
 
       std::string mac("d8:80:39:66:4b:de");
 
-      addStrip(mac, i+(width*j), vertex_start, vertex_end, height);
+      addStrip(vertex_start, vertex_end, height);
     }
   }
   leds_for_calc.setupMesh();
   fprintf(stderr, "LEDS: %d\n", numLeds());
 }
 
-void LedCluster::setGamma(float g) {
-  gamma = g;
-
-  for(int i = 0;i < 256;i++) {
-    lut[i] = pow(i, gamma);
-  }
-}
-
 GLuint LedCluster::numLeds() {
   return leds_for_calc.numVertices();
 }
 
-void LedCluster::update(std::vector<uint8_t> &frameBuffer) {
-
-  for(auto i: strip_mappings) {
-    std::string mac_address = i.first;
-    std::vector<Strip> strips = i.second;
-
-    if(ds.pushers.find(mac_address) != ds.pushers.end()) {
-      std::shared_ptr<PixelPusher> pusher = ds.pushers[mac_address];
-
-      for(auto strip: strips) {
-        pusher->update(strip.strip, &frameBuffer[strip.offset], strip.size, strip.strip_offset);
-      }
-      pusher->send();
-    }
-
-  }
-}
-
-
-
-void LedCluster::addStrip(std::string &mac, int strip, glm::vec3 vertex_start, glm::vec3 vertex_end, int divisions) {
-  int byte_offset = buffer_size;
-  strip_mappings[mac].push_back(Strip(strip, 0, byte_offset, divisions*3));
-  buffer_size += divisions*3;
-
-  addStrip(vertex_start, vertex_end, divisions);
-}
 
 void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divisions) {
 
@@ -108,10 +70,10 @@ void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divi
 }
 
 
-LedCluster::Strip::Strip() :strip(0), strip_offset(0), offset(0), size(0) { }
+// LedCluster::Strip::Strip() :strip(0), strip_offset(0), offset(0), size(0) { }
 
-LedCluster::Strip::Strip(int strip, int strip_offset, int offset, int size) :
-  strip(strip), strip_offset(strip_offset), offset(offset), size(size) { }
+// LedCluster::Strip::Strip(int strip, int strip_offset, int offset, int size) :
+//   strip(strip), strip_offset(strip_offset), offset(offset), size(size) { }
 
-LedCluster::Strip::Strip(const Strip& copy) :
-  strip(copy.strip), strip_offset(copy.strip_offset), offset(copy.offset), size(copy.size) { }
+// LedCluster::Strip::Strip(const Strip& copy) :
+//   strip(copy.strip), strip_offset(copy.strip_offset), offset(copy.offset), size(copy.size) { }

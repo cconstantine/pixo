@@ -34,16 +34,15 @@ public:
 class FrameBufferRender : public SceneRender {
 
 public:
-  FrameBufferRender(int width, int height, uint8_t * dest);
+  FrameBufferRender(int width, int height);
 
   void render(IsoCamera& perspective);
 
   Texture getTexture();
 
 private:
-  unsigned char *dest;
   GLuint FramebufferName;
-  GLuint renderedTexture;
+  Texture renderedTexture;
   int width, height;
 
   GLuint pbos[2];
@@ -54,6 +53,7 @@ private:
   Shader shader;
   void setupLights(IsoCamera& perspective);
 
+  std::vector<uint8_t> frameBuffer;
 };
 
 class PatternRender {
@@ -68,7 +68,7 @@ private:
   GLuint vertexbuffer;
 
   GLuint FramebufferName;
-  GLuint renderedTexture;
+  Texture renderedTexture;
   int width, height;
 
 };

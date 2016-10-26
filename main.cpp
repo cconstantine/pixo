@@ -106,12 +106,7 @@ int main( int argc, char** argv )
   Texture texture = pattern_render.getTexture();
 
 
-
-  std::vector<uint8_t> frameBuffer;
-  int frameBytes =cols*rows * 3;
-  frameBuffer.resize(frameBytes);
-
-  FrameBufferRender fb_screen(cols, rows, &frameBuffer[0]);
+  FrameBufferRender fb_screen(cols, rows);
   ScreenRender screen_renderer(window);
   scene = new Scene(&screen_renderer, &fb_screen);
 
@@ -239,12 +234,12 @@ int main( int argc, char** argv )
     scene->render();
 
 
-    domeLeds.setGamma(scene->getGamma());
+    //domeLeds.setGamma(scene->getGamma());
     bool next = scene->nextPattern();
     if (next) {
       pattern = &patterns[rand() % patterns.size()];
     }
-    domeLeds.update(frameBuffer);
+    //domeLeds.update(frameBuffer);
 
     gui->refresh();
     // Draw nanogui
