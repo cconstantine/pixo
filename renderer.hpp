@@ -34,7 +34,7 @@ public:
 class FrameBufferRender : public SceneRender {
 
 public:
-  FrameBufferRender(int width, int height);
+  FrameBufferRender(const Texture& renderTo);
 
   void render(IsoCamera& perspective);
 

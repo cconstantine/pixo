@@ -229,11 +229,11 @@ void ScreenRender::render(IsoCamera& perspective) {
 
 }
 
-FrameBufferRender::FrameBufferRender(int width, int height) :
-   width(width),
-   height(height),
-   shader("../shaders/leds.vs", "../shaders/leds.frag"),
-   renderedTexture(width, height)
+FrameBufferRender::FrameBufferRender(const Texture& renderTo) :
+  renderedTexture(renderTo),
+   width(renderTo.width),
+   height(renderTo.height),
+   shader("../shaders/leds.vs", "../shaders/leds.frag")
 {
   frameBuffer.resize(width*height*3);
 

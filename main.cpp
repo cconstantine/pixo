@@ -104,14 +104,13 @@ int main( int argc, char** argv )
 
   PatternRender pattern_render(canvasSize, canvasSize);
   Texture texture = pattern_render.getTexture();
+  Texture fb_texture = Texture(cols, rows);
 
-
-  FrameBufferRender fb_screen(cols, rows);
+  FrameBufferRender fb_screen(fb_texture);
   ScreenRender screen_renderer(window);
   scene = new Scene(&screen_renderer, &fb_screen);
 
 
-  Texture fb_texture = fb_screen.getTexture();
   LedCluster domeLeds(leds_per_side, texture, fb_texture);
   fb_screen.models.push_back(&domeLeds.leds_for_calc);
   screen_renderer.models.push_back(&domeLeds.leds_for_display);
