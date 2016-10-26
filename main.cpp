@@ -26,6 +26,7 @@ using namespace glm;
 #include <model.hpp>
 #include <led_cluster.hpp>
 #include <renderer.hpp>
+#include <scene.hpp>
 #include <nanogui/nanogui.h>
 
 using namespace nanogui;
@@ -102,12 +103,13 @@ int main( int argc, char** argv )
   fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", cols, rows, rows*cols);
   fprintf(stderr, "pattern canvas: %d x %d\n", canvasSize, canvasSize);
 
-  PatternRender pattern_render(canvasSize, canvasSize);
-  Texture texture = pattern_render.getTexture();
+  Texture texture = Texture(canvasSize, canvasSize);
   Texture fb_texture = Texture(cols, rows);
 
+  PatternRender pattern_render(texture);
   FrameBufferRender fb_screen(fb_texture);
   ScreenRender screen_renderer(window);
+
   scene = new Scene(&screen_renderer, &fb_screen);
 
 
@@ -120,9 +122,9 @@ int main( int argc, char** argv )
   //display.addInstance(glm::vec3(), glm::vec2(1.0, 1.0), glm::vec3());
   //screen_renderer.models.push_back(&display);
 
-  //Model panel("../models/panel.obj", fb_texture);
+  // Model panel("../models/panel.obj", fb_texture);
   // panel.addInstance(glm::vec3(), glm::vec2(0.0, 0.0), glm::vec3());
-  //screen_renderer.models.push_back(&panel);
+  // screen_renderer.models.push_back(&panel);
 
 
 

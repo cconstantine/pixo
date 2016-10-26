@@ -50,7 +50,7 @@ include_directories(
 SET( CMAKE_CXX_FLAGS  "${CMAKE_CXX_FLAGS} " )
 
 
-add_executable(dome_lights main.cpp shader.cpp texture.cpp model.cpp mesh.cpp camera.cpp led_mesh.cpp led_cluster.cpp renderer.cpp pixelpusher/pixel_pusher.cpp)
+add_executable(dome_lights main.cpp shader.cpp scene.cpp texture.cpp model.cpp mesh.cpp camera.cpp led_mesh.cpp led_cluster.cpp renderer.cpp pixelpusher/pixel_pusher.cpp)
 
 target_link_libraries(dome_lights nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread ${OPENGL_LIBRARY} assimp ${LIBS})
 
