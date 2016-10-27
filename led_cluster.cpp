@@ -5,8 +5,11 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_texture)
-: leds_for_calc(texture), leds_for_display("../models/cube.obj", led_texture), fb_render(led_texture)
+LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_texture) :
+ leds_for_calc(texture),
+ leds_for_display("../models/cube.obj", led_texture),
+ fb_render(led_texture),
+ pattern_render(texture)
 {
 
   float spacing = .3;
@@ -36,10 +39,17 @@ GLuint LedCluster::numLeds() {
 }
 
 
-void LedCluster::render(const IsoCamera& viewed_from) 
+void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern) 
 {
+  pattern_render.render(pattern);
   fb_render.render(viewed_from);
 }
+
+const Texture& LedCluster::getPatternTexture()
+{
+  return pattern_render.getTexture();;
+}
+
 
 void LedCluster::addStrip(glm::vec3 vertex_start, glm::vec3 vertex_end, int divisions) {
 

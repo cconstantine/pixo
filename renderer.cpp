@@ -40,6 +40,8 @@ void ScreenRender::setupLights(IsoCamera& perspective) {
 }
 
 void ScreenRender::render(IsoCamera& perspective) {
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -134,6 +136,8 @@ void FrameBufferRender::setupLights(const IsoCamera& perspective) {
   }
 }
 void FrameBufferRender::render(const IsoCamera& perspective) {
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
   glViewport(0,0,width, height);
@@ -223,11 +227,11 @@ PatternRender::PatternRender(const Texture& renderTo) : width(renderTo.width), h
   }  
 }
 
-Texture PatternRender::getTexture() {
+const Texture& PatternRender::getTexture() {
   return renderedTexture;
 }
 
-void PatternRender::render(Shader& pattern) {
+void PatternRender::render(const Shader& pattern) {
   GLuint time_id = glGetUniformLocation(pattern.Program, "time");
   GLuint resolution_id = glGetUniformLocation(pattern.Program, "resolution");
   GLuint mouse_id = glGetUniformLocation(pattern.Program, "mouse");

@@ -60,9 +60,9 @@ class PatternRender {
 public:
   PatternRender(const Texture& renderTo);
 
-  void render(Shader& pattern);
+  void render(const Shader& pattern);
 
-  Texture getTexture();
+  const Texture& getTexture();
 private:
   GLuint VertexArrayID;
   GLuint vertexbuffer;

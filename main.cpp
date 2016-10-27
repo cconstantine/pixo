@@ -106,7 +106,6 @@ int main( int argc, char** argv )
   Texture texture = Texture(canvasSize, canvasSize);
   Texture fb_texture = Texture(cols, rows);
 
-  PatternRender pattern_render(texture);
   ScreenRender screen_renderer(window);
 
 
@@ -141,7 +140,7 @@ int main( int argc, char** argv )
     },
     false)->setValue("                 ");
 
-  ImageView *imageWidget = new ImageView(nanoguiWindow, texture.id);
+  ImageView *imageWidget = new ImageView(nanoguiWindow, domeLeds.getPatternTexture().id);
   imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
   imageWidget->setFixedScale(true);
   gui->addWidget("", imageWidget);
@@ -203,23 +202,11 @@ int main( int argc, char** argv )
       }
   );
   while(!glfwWindowShouldClose(window)) {
-
     glfwPollEvents();
-
-    glEnable(GL_DEPTH_TEST);
-    // Accept fragment if it closer to the camera than the former one
-    glDepthFunc(GL_LESS);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    screen->performLayout();
-
-
-    // Render the pattern
-    pattern_render.render(*pattern);
-
-
     // Render the scene
-    scene->render();
+    scene->render(*pattern);
 
 
     //domeLeds.setGamma(scene->getGamma());
@@ -231,6 +218,7 @@ int main( int argc, char** argv )
 
     gui->refresh();
     // Draw nanogui
+    screen->performLayout();
     screen->drawContents();
     screen->drawWidgets();
 

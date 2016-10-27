@@ -71,7 +71,7 @@ Scene::Scene(ScreenRender* screen, LedCluster* leds) :
 {
   flag.addInstance(glm::vec3(), glm::vec2(), glm::vec3() );
   screen->models.push_back(&flag);
-  screen->models.push_back(leds->leds_for_display);
+  screen->models.push_back(&leds->leds_for_display);
 
     // Load models
   //Model display("../models/screen.obj", texture);
@@ -85,7 +85,7 @@ Scene::Scene(ScreenRender* screen, LedCluster* leds) :
 
 }
 
-void Scene::render() {
+void Scene::render(const Shader& pattern) {
 
  double currentTime = glfwGetTime();
   if ( currentTime - lastUpdate >= 0.1 ){
@@ -102,7 +102,7 @@ void Scene::render() {
   deltaTime = currentFrame - lastFrame;
   lastFrame = currentFrame;
 
-  leds->render(viewed_from);
+  leds->render(viewed_from, pattern);
   screen->render(perspective);
 
 }

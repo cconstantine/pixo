@@ -13,7 +13,7 @@ public:
     Shader(const Shader& copy);
 
     // Uses the current shader
-    void Use();
+    void Use() const;
 
     std::string vertexPath;
     std::string fragmentPath;

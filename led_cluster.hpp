@@ -24,7 +24,9 @@ public:
   LedCluster(int per_side, const Texture& pattern_texture, const Texture& led_texture);
 
 
-  void render(const IsoCamera& viewed_from);
+  void render(const IsoCamera& viewed_from, const Shader& pattern);
+
+  const Texture& getPatternTexture();
 
   GLuint numLeds();
   /*  Model Data  */
@@ -32,7 +34,11 @@ public:
 
   Model leds_for_display;
 
+
+
 private:
   void addStrip(glm::vec3 start, glm::vec3 end, int divisions);
   FrameBufferRender fb_render;
+
+  PatternRender pattern_render;
 };

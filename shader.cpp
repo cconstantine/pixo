@@ -86,6 +86,6 @@ Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) : fragmentP
 }
 
 // Uses the current shader
-void Shader::Use() { 
+void Shader::Use() const { 
     glUseProgram(this->Program); 
 }

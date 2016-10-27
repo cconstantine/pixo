@@ -11,7 +11,7 @@ class Scene {
 public:
   Scene(ScreenRender* screen, LedCluster* leds);
 
-  void render();
+  void render(const Shader& pattern);
 
   void Do_Movement();
 
