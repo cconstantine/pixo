@@ -28,6 +28,7 @@ using namespace glm;
 #include <renderer.hpp>
 #include <scene.hpp>
 #include <nanogui/nanogui.h>
+#include <fade_candy.hpp>
 
 using namespace nanogui;
 Screen *screen = nullptr;
@@ -95,9 +96,12 @@ int main( int argc, char** argv )
 
   pattern = &patterns[rand() % patterns.size()];
   const int leds_per_side = atoi(argv[1]);
-  const int canvasSize = sqrt(leds_per_side*leds_per_side*leds_per_side)*2;
+  FadeCandy fc = FadeCandy("localhost", leds_per_side);
 
-  int rows = pow(2, ceil(log(sqrt(pow(leds_per_side,3)))/log(2)));
+
+  const int canvasSize = sqrt(fc.getLeds().size())*2;
+
+  int rows = pow(2, ceil(log(sqrt(fc.getLeds().size()))/log(2)));
   int cols = rows;
   fprintf(stderr, "Leds per side:     %3d  (total: %.0f )\n", leds_per_side, pow(leds_per_side, 3));
   fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", cols, rows, rows*cols);
@@ -105,12 +109,9 @@ int main( int argc, char** argv )
 
   Texture texture = Texture(canvasSize, canvasSize);
   Texture fb_texture = Texture(cols, rows);
+  LedCluster domeLeds(&fc, texture, fb_texture);
 
   ScreenRender screen_renderer(window);
-
-
-
-  LedCluster domeLeds(leds_per_side, texture, fb_texture);
 
   scene = new Scene(&screen_renderer, &domeLeds);
 

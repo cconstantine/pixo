@@ -16,12 +16,12 @@
 using namespace std;
 
 #include <pixelpusher/pixel_pusher.hpp>
-
+#include <fade_candy.hpp>
 
 class LedCluster {
 public:
   // Draws the model, and thus all its meshes
-  LedCluster(int per_side, const Texture& pattern_texture, const Texture& led_texture);
+  LedCluster(FadeCandy *fadecandy, const Texture& pattern_texture, const Texture& led_texture);
 
 
   void render(const IsoCamera& viewed_from, const Shader& pattern);
@@ -41,4 +41,6 @@ private:
   FrameBufferRender fb_render;
 
   PatternRender pattern_render;
+
+  FadeCandy *fadecandy;
 };

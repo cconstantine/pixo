@@ -183,6 +183,10 @@ Texture FrameBufferRender::getTexture() {
   return renderedTexture;
 }
 
+const std::vector<uint8_t>& FrameBufferRender::getFramebuffer() {
+  return frameBuffer;
+}
+
 PatternRender::PatternRender(const Texture& renderTo) : width(renderTo.width), height(renderTo.height), renderedTexture(renderTo)
 {
   glGenVertexArrays(1, &VertexArrayID);

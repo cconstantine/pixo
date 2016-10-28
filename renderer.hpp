@@ -39,6 +39,7 @@ public:
   void render(const IsoCamera& perspective);
 
   Texture getTexture();
+  const std::vector<uint8_t>& getFramebuffer();
 
 private:
   GLuint FramebufferName;

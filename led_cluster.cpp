@@ -5,29 +5,38 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
-LedCluster::LedCluster(int per_size, const Texture& texture, const Texture& led_texture) :
+LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture, const Texture& led_texture) :
  leds_for_calc(texture),
  leds_for_display("../models/cube.obj", led_texture),
  fb_render(led_texture),
- pattern_render(texture)
+ pattern_render(texture),
+ fadecandy(fadecandy)
 {
 
-  float spacing = .3;
+  int width = leds_for_display.getDefaultTexture().width;
+  int height = leds_for_display.getDefaultTexture().height;
 
-  int width = per_size;
-  int height = per_size;
-  int depth = per_size;
-  for(int i = 0;i < width;i++) {
-    for(int j = 0;j < depth;j++) {
-      glm::vec3 vertex_start(i*spacing, 0*spacing,      j*spacing);
-      glm::vec3 vertex_end(  i*spacing, height*spacing, j*spacing);
+  for(int i = 0;i < this->fadecandy->getLeds().size();i++) {
 
+    glm::vec3 ballPosDelta = this->fadecandy->getLeds()[i];
+    
+    int count = numLeds();
+    int x = count % width;
+    int y = count / height;
+    glm::vec3 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f);
 
-      std::string mac("d8:80:39:66:4b:de");
+    LedVertex vertex_calc;
+    vertex_calc.Position = ballPosDelta; 
+    vertex_calc.framebuffer_proj = planePosDelta;
 
-      addStrip(vertex_start, vertex_end, height);
-    }
+    leds_for_calc.addVertex(vertex_calc);
+
+    // fprintf(stderr, "x: %3d, y: %3d\n", x, y);
+    // fprintf(stderr, "x: %4.1f, y: %4.1f, z: %4.1f\n", ballPosDelta.x, ballPosDelta.y, ballPosDelta.z);
+
+    leds_for_display.addInstance(ballPosDelta, glm::vec2(((float)x + 0.5) / width, ((float)y + 0.5) / height), glm::vec3());
   }
+
   leds_for_calc.setupMesh();
   fb_render.models.push_back(&leds_for_calc);
   fprintf(stderr, "LEDS: %d\n", numLeds());
@@ -43,6 +52,7 @@ void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern)
 {
   pattern_render.render(pattern);
   fb_render.render(viewed_from);
+  fadecandy->update(fb_render.getFramebuffer());
 }
 
 const Texture& LedCluster::getPatternTexture()
