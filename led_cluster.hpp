@@ -43,4 +43,7 @@ private:
   PatternRender pattern_render;
 
   FadeCandy *fadecandy;
+
+  static size_t led_canvas_size(size_t leds);
+
 };

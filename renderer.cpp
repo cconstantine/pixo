@@ -78,8 +78,6 @@ FrameBufferRender::FrameBufferRender(const Texture& renderTo) :
    height(renderTo.height),
    shader("../shaders/leds.vs", "../shaders/leds.frag")
 {
-  frameBuffer.resize(width*height*3);
-
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
   glGenFramebuffers(1, &FramebufferName);
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
@@ -135,7 +133,7 @@ void FrameBufferRender::setupLights(const IsoCamera& perspective) {
     glUniform1f(glGetUniformLocation(shader.Program, "point_light.quadratic"), 0.232);
   }
 }
-void FrameBufferRender::render(const IsoCamera& perspective) {
+void FrameBufferRender::render(const IsoCamera& perspective, uint8_t* buffer, size_t size) {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
@@ -152,7 +150,6 @@ void FrameBufferRender::render(const IsoCamera& perspective) {
 
   // Transformation matrices
   glm::mat4 projection = camera.GetProjectionMatrix(width, height);
-  glm::mat4 view = camera.GetViewMatrix();
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
   glm::mat4 led_projection = glm::perspective(perspective.Zoom, (float)width/(float)height, 0.1f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
@@ -174,7 +171,7 @@ void FrameBufferRender::render(const IsoCamera& perspective) {
   if(src)
   {
     //send to physical leds
-    memcpy(&frameBuffer[0], src, frameBuffer.size());
+    memcpy(buffer, src, size);
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
   }
 }
@@ -183,9 +180,6 @@ Texture FrameBufferRender::getTexture() {
   return renderedTexture;
 }
 
-const std::vector<uint8_t>& FrameBufferRender::getFramebuffer() {
-  return frameBuffer;
-}
 
 PatternRender::PatternRender(const Texture& renderTo) : width(renderTo.width), height(renderTo.height), renderedTexture(renderTo)
 {

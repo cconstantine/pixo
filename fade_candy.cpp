@@ -1,7 +1,6 @@
 #include <fade_candy.hpp>
 
 
-
 FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
 {
   opc_client.resolve(hostname.c_str());
@@ -48,15 +47,12 @@ const std::vector<glm::vec3>& FadeCandy::getLeds()
   return leds;
 }
 
-void FadeCandy::update(const std::vector<uint8_t>& buffer)
+void FadeCandy::update()
 {
-  uint8_t *data = OPCClient::Header::view(framebuffer).data();
-
-  uint32_t to_copy = leds.size()*3;
-  if(to_copy > buffer.size()) {
-    to_copy = buffer.size();
-  }
-  
-  memcpy(data, &buffer[0], leds.size()*3);
   opc_client.write(framebuffer);
+}
+
+uint8_t* FadeCandy::getData()
+{
+  return (uint8_t*)OPCClient::Header::view(framebuffer).data();
 }

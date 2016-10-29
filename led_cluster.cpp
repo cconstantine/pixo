@@ -51,8 +51,8 @@ GLuint LedCluster::numLeds() {
 void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern) 
 {
   pattern_render.render(pattern);
-  fb_render.render(viewed_from);
-  fadecandy->update(fb_render.getFramebuffer());
+  fb_render.render(viewed_from, fadecandy->getData(), numLeds()*3);
+  fadecandy->update();
 }
 
 const Texture& LedCluster::getPatternTexture()
