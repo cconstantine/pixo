@@ -39,6 +39,7 @@ private:
   double lastTime;
   double lastUpdate;
   float fps;
+  unsigned int frames;
   float gamma;
   bool next;
 };

@@ -65,9 +65,9 @@ void Scene::mouse_scroll_callback(GLFWwindow* window, double xoffset, double yof
 
 
 Scene::Scene(ScreenRender* screen, LedCluster* leds) :
-  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), viewed_from(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), leds(leds), fps(0),
+  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), viewed_from(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), leds(leds),
   deltaTime(0.0f), lastFrame(0.0f), lastTime(glfwGetTime()), lastUpdate(glfwGetTime()), gamma(0.5), next(false),
-  flag("../models/cube.obj")
+  flag("../models/cube.obj"), fps(0),frames(0)
 {
   flag.addInstance(glm::vec3(), glm::vec2(), glm::vec3() );
   screen->models.push_back(&flag);
@@ -85,14 +85,17 @@ Scene::Scene(ScreenRender* screen, LedCluster* leds) :
 
 }
 
-void Scene::render(const Shader& pattern) {
+void Scene::render(const Shader& pattern)
+{
+  double currentTime = glfwGetTime();
+  ++frames;
 
- double currentTime = glfwGetTime();
-  if ( currentTime - lastUpdate >= 0.1 ){
+  float time_delta = currentTime - lastUpdate;
+  if ( time_delta >= 1.0 ){
     lastUpdate = currentTime;
-    if (currentTime - lastTime > 0) {
-      fps = (fps + (1 /  (currentTime - lastTime))) / 2;
-    }
+    float new_fps = frames * (1 / time_delta);
+    fps = (fps + 99*new_fps) / 100;
+    frames = 0;
   }
   lastTime = currentTime;
 
