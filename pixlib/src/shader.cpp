@@ -5,8 +5,6 @@
 #include <sstream>
 #include <iostream>
 
-#include <GL/glew.h>
-
 Shader::Shader(const Shader& copy) : Program(copy.Program), fragmentPath(copy.fragmentPath), vertexPath(copy.vertexPath)  { }
 
 Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) : fragmentPath(fragmentPath), vertexPath(vertexPath) {

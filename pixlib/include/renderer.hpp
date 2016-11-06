@@ -1,12 +1,12 @@
 #pragma once
 #include <vector>
 
-#include <GL/glew.h>
-#include <GLFW/glfw3.h>
+#include <opengl.h>
 
 #include <shader.hpp>
 #include <model.hpp>
 #include <camera.hpp>
+#include <chrono>
 
 
 
@@ -20,12 +20,9 @@ protected:
 class ScreenRender : public SceneRender {
 
 public:
-  ScreenRender(GLFWwindow* window);
+  ScreenRender();
 
-  void render(IsoCamera& perspective);
-
-  GLFWwindow* window;
-  int width, height;
+  void render(IsoCamera& perspective, int width, int height);
 
   Shader shader;
   void setupLights(IsoCamera& perspective);
@@ -68,5 +65,7 @@ private:
   GLuint FramebufferName;
   Texture renderedTexture;
   int width, height;
+
+  std::chrono::time_point<std::chrono::steady_clock> start;
 
 };

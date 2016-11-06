@@ -4,18 +4,11 @@
 #include <fstream>
 
 
-// Include GLEW
-#include <GL/glew.h>
-
 SceneRender::SceneRender() {}
 
-ScreenRender::ScreenRender(GLFWwindow* window) :
- window(window),
+ScreenRender::ScreenRender() :
  shader("../shaders/model_loading.vs", "../shaders/model_loading.frag")
-{
-  glfwGetFramebufferSize(window, &width, &height);
-
-}
+{ }
 
 void ScreenRender::setupLights(IsoCamera& perspective) {
   {
@@ -39,14 +32,12 @@ void ScreenRender::setupLights(IsoCamera& perspective) {
   }
 }
 
-void ScreenRender::render(IsoCamera& perspective) {
+void ScreenRender::render(IsoCamera& perspective, int width, int height) {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
-
+  glCullFace(GL_BACK);
   glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
-  glfwGetFramebufferSize(window, &width, &height);
 
   glViewport(0,0,width,height);
 
@@ -181,7 +172,11 @@ Texture FrameBufferRender::getTexture() {
 }
 
 
-PatternRender::PatternRender(const Texture& renderTo) : width(renderTo.width), height(renderTo.height), renderedTexture(renderTo)
+PatternRender::PatternRender(const Texture& renderTo) :
+ start(std::chrono::steady_clock::now()),
+ width(renderTo.width),
+ height(renderTo.height),
+ renderedTexture(renderTo)
 {
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
@@ -241,13 +236,15 @@ void PatternRender::render(const Shader& pattern) {
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
   glViewport(0,0,width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
   
+  std::chrono::duration<float> diff = std::chrono::steady_clock::now() - start;
+  float time_elapsed = diff.count();
   // Use our shader
   pattern.Use();
-  glUniform1f(time_id, glfwGetTime() );
+  glUniform1f(time_id, time_elapsed );
   glUniform2f(resolution_id, width, height);
   glUniform2f(mouse_id, width/2, height/2);
 
-  glUniform1f(itime_id, glfwGetTime() );
+  glUniform1f(itime_id, time_elapsed );
   glUniform2f(iresolution_id, width, height);
   glUniform2f(imouse_id, width/2, height/2);
 

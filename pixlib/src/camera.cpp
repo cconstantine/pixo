@@ -3,12 +3,6 @@
 // Std. Includes
 #include <vector>
 
-// GL Includes
-#include <GL/glew.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
-
 glm::mat4 OrthoCamera::GetViewMatrix() {
   return glm::mat4(
      1.000000, 0.000000, 0.000000, 0.000000,

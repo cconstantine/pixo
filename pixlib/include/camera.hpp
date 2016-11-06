@@ -4,7 +4,7 @@
 #include <vector>
 
 // GL Includes
-#include <GL/glew.h>
+#include <opengl.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
@@ -15,7 +15,10 @@ enum Camera_Movement {
   FORWARD,
   BACKWARD,
   LEFT,
-  RIGHT
+  RIGHT,
+  TOWARDS_VIEW,
+  MATCH_VIEW,
+  NEXT_PATTERN
 };
 
 // Default camera values

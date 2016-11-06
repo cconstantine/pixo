@@ -35,6 +35,12 @@ Screen *screen = nullptr;
 Scene *scene = nullptr;
 Shader *pattern = nullptr;
 
+
+static GLfloat lastX = 400, lastY = 300;
+static bool firstMouse = true;
+
+bool keys[1024];
+
 int main( int argc, char** argv )
 {
   
@@ -111,7 +117,7 @@ int main( int argc, char** argv )
   Texture fb_texture = Texture(cols, rows);
   LedCluster domeLeds(&fc, texture, fb_texture);
 
-  ScreenRender screen_renderer(window);
+  ScreenRender screen_renderer;
 
   scene = new Scene(&screen_renderer, &domeLeds);
 
@@ -155,7 +161,25 @@ int main( int argc, char** argv )
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {
-            scene->mouse_callback(window, x, y);
+            int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+
+            if (state != GLFW_PRESS) {
+              firstMouse = true;
+            }
+            if(firstMouse)
+            {
+              lastX = x;
+              lastY = y;
+              firstMouse = false;
+            }
+
+            GLfloat xoffset = x - lastX;
+            GLfloat yoffset = lastY - y; 
+
+            lastX = x;
+            lastY = y;
+
+            scene->mouse_callback(xoffset, yoffset);
           }
       }
   );
@@ -163,7 +187,12 @@ int main( int argc, char** argv )
   glfwSetMouseButtonCallback(window,
       [](GLFWwindow *window, int button, int action, int modifiers) {
           if (!screen->mouseButtonCallbackEvent(button, action, modifiers)) {
-            scene->mouse_button_callback(window, button, action, modifiers);
+
+            if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+              glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+            } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+              glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+            }
           }
       }
   );
@@ -171,7 +200,31 @@ int main( int argc, char** argv )
   glfwSetKeyCallback(window,
       [](GLFWwindow *window, int key, int scancode, int action, int mods) {
           if (!screen->keyCallbackEvent(key, scancode, action, mods)) {
-            scene->key_callback(window, key, scancode, action, mods);
+            if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+              glfwSetWindowShouldClose(window, GL_TRUE);
+
+            // Camera controls
+            if(key == GLFW_KEY_W) {
+              keys[FORWARD] = (action == GLFW_PRESS);  
+            }
+            if(key == GLFW_KEY_S) {
+              keys[BACKWARD] = (action == GLFW_PRESS);  
+            }
+            if(key == GLFW_KEY_A) {
+              keys[LEFT] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_D) {
+              keys[RIGHT] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_LEFT_SHIFT) {
+              keys[MATCH_VIEW] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_LEFT_CONTROL) {
+              keys[TOWARDS_VIEW] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_ENTER) {
+              keys[NEXT_PATTERN] = (action == GLFW_PRESS); 
+            }
           }
       }
   );
@@ -191,7 +244,7 @@ int main( int argc, char** argv )
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
           if (!screen->scrollCallbackEvent(x, y)) {
-            scene->mouse_scroll_callback(window, x, y);
+            scene->zoom(y);
 
           }
      }
@@ -205,17 +258,24 @@ int main( int argc, char** argv )
   while(!glfwWindowShouldClose(window)) {
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
 
     // Render the scene
-    scene->render(*pattern);
 
+    scene->Do_Movement(keys);
+    scene->render(*pattern, width, height);
 
-    //domeLeds.setGamma(scene->getGamma());
-    bool next = scene->nextPattern();
-    if (next) {
+    bool next = keys[NEXT_PATTERN];
+    if(next) {
+      keys[NEXT_PATTERN] = false;
       pattern = &patterns[rand() % patterns.size()];
     }
-    //domeLeds.update(frameBuffer);
+
+    if(keys[MATCH_VIEW ]) {
+      scene->matchViewToPerspective();
+    }
+
 
     gui->refresh();
     // Draw nanogui

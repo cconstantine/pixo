@@ -5,6 +5,7 @@
 
 using namespace std;
 // GL Includes
+#include <opengl.h>
 #include <glm/glm.hpp>
 
 #include <shader.hpp>
