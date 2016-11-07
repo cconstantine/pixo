@@ -1,10 +1,6 @@
 #include <led_cluster.hpp>
 #include <math.h>
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
-
 LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture, const Texture& led_texture) :
  leds_for_calc(texture),
  leds_for_display(led_texture),

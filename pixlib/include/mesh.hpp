@@ -6,7 +6,6 @@
 using namespace std;
 // GL Includes
 #include <glm/glm.hpp>
-#include <assimp/scene.h>
 #include <texture.hpp>
 
 #include <shader.hpp>
