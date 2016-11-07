@@ -23,7 +23,7 @@ using namespace glm;
 
 #include <shader.hpp>
 #include <camera.hpp>
-#include <model.hpp>
+#include <cube.hpp>
 #include <led_cluster.hpp>
 #include <renderer.hpp>
 #include <scene.hpp>
@@ -200,6 +200,9 @@ int main( int argc, char** argv )
   glfwSetKeyCallback(window,
       [](GLFWwindow *window, int key, int scancode, int action, int mods) {
           if (!screen->keyCallbackEvent(key, scancode, action, mods)) {
+            if (action == GLFW_REPEAT) {
+              return;
+            }
             if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
               glfwSetWindowShouldClose(window, GL_TRUE);
 

@@ -3,7 +3,7 @@
 #include <mesh.hpp>
 #include <led_mesh.hpp>
 #include <shader.hpp>
-#include <model.hpp>
+#include <cube.hpp>
 
 #include <string>
 #include <fstream>
@@ -32,7 +32,7 @@ public:
   /*  Model Data  */
   LedMesh leds_for_calc;;
 
-  Model leds_for_display;
+  Cube leds_for_display;
 
 
 

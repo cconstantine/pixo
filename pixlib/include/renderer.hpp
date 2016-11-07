@@ -4,7 +4,7 @@
 #include <opengl.h>
 
 #include <shader.hpp>
-#include <model.hpp>
+#include <cube.hpp>
 #include <camera.hpp>
 #include <chrono>
 

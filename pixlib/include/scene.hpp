@@ -3,7 +3,7 @@
 
 #include <opengl.h>
 
-#include <model.hpp>
+#include <cube.hpp>
 #include <camera.hpp>
 #include <renderer.hpp>
 #include <led_cluster.hpp>
@@ -30,7 +30,7 @@ private:
   
   LedCluster* leds;
 
-  Model flag;
+  Cube flag;
   
   std::chrono::duration<float> deltaTime;
 

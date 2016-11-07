@@ -7,16 +7,13 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 ###################### GLM     ###############################
 include_directories( ../ext/glm/ )
 
-###################### ASSIMP  ###############################
-include_directories(../ext/assimp/include)
-
 include_directories(include)
 
 add_library(pixlib STATIC
  src/shader.cpp
  src/scene.cpp
  src/texture.cpp
- src/model.cpp
+ src/cube.cpp
  src/mesh.cpp
  src/camera.cpp
  src/led_mesh.cpp

@@ -7,7 +7,7 @@
 
 LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture, const Texture& led_texture) :
  leds_for_calc(texture),
- leds_for_display("../models/cube.obj", led_texture),
+ leds_for_display(led_texture),
  fb_render(led_texture),
  pattern_render(texture),
  fadecandy(fadecandy)

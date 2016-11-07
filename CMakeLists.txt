@@ -27,10 +27,6 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 ###################### GLM     ###############################
 include_directories( ext/glm/ )
 
-###################### ASSIMP  ###############################
-add_subdirectory(ext/assimp)
-include_directories(ext/assimp/include)
-
 
 ###################### GLEW     ###############################
 # glew
@@ -50,6 +46,6 @@ include_directories(${PIXLIB_INCLUDE})
 
 
 add_executable(dome_lights main.cpp )
-target_link_libraries(dome_lights nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib assimp )
+target_link_libraries(dome_lights nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
 
 
