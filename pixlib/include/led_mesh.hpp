@@ -1,11 +1,11 @@
 #pragma once
 // Std. Includes
+#include <opengl.h>
 #include <string>
 #include <vector>
 
 using namespace std;
 // GL Includes
-#include <opengl.h>
 #include <glm/glm.hpp>
 
 #include <shader.hpp>

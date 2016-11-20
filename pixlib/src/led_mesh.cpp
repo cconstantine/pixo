@@ -12,6 +12,7 @@ using namespace std;
 #include <shader.hpp>
 
 LedMesh::LedMesh(const Texture& texture) {
+  ALOGV("LedMesh::LedMesh\n");
   addTexture(texture);
 }
 

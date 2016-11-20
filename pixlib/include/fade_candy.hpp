@@ -1,5 +1,6 @@
 #pragma once
 
+#include <opengl.h>
 #include <string>
 #include <vector>
 

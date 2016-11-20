@@ -66,6 +66,6 @@ private:
   Texture renderedTexture;
   int width, height;
 
-  std::chrono::time_point<std::chrono::steady_clock> start;
+  std::chrono::time_point<std::chrono::high_resolution_clock> start;
 
 };

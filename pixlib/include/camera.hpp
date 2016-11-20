@@ -22,11 +22,11 @@ enum Camera_Movement {
 };
 
 // Default camera values
-const GLfloat YAW        = -90.0f;
-const GLfloat PITCH      =  0.0f;
+const GLfloat YAW        = -60.0f;
+const GLfloat PITCH      =  7.25f;
 const GLfloat SPEED      =  1.0f;
 const GLfloat SENSITIVTY =  0.25f;
-const GLfloat ZOOM       =  0.45f;
+const GLfloat ZOOM       =  1.05f;
 
 
 class OrthoCamera {

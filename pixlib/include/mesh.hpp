@@ -1,5 +1,6 @@
 #pragma once
 // Std. Includes
+#include <opengl.h>
 #include <string>
 #include <vector>
 

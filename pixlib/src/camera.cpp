@@ -1,4 +1,5 @@
 #include <camera.hpp>
+#include <glm/ext.hpp>
 
 // Std. Includes
 #include <vector>
@@ -17,22 +18,30 @@ glm::mat4 OrthoCamera::GetProjectionMatrix(int width, int height) {
 
 
 // Constructor with vectors
-IsoCamera::IsoCamera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+IsoCamera::IsoCamera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) :
+        Position(position),
+        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        WorldUp(up),
+        Yaw(yaw),
+        Pitch(pitch),
+        MovementSpeed(SPEED),
+        MouseSensitivity(SENSITIVTY),
+        Zoom(ZOOM)
 {
-  this->Position = position;
-  this->WorldUp = up;
-  this->Yaw = yaw;
-  this->Pitch = pitch;
   this->updateCameraVectors();
 }
 
 // Constructor with scalar values
-IsoCamera::IsoCamera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVTY), Zoom(ZOOM)
+IsoCamera::IsoCamera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch) :
+        Position(glm::vec3(posX, posY, posZ)),
+        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
+        WorldUp(glm::vec3(upX, upY, upZ)),
+        Yaw(yaw),
+        Pitch(pitch),
+        MovementSpeed(SPEED),
+        MouseSensitivity(SENSITIVTY),
+        Zoom(ZOOM)
 {
-  this->Position = glm::vec3(posX, posY, posZ);
-  this->WorldUp = glm::vec3(upX, upY, upZ);
-  this->Yaw = yaw;
-  this->Pitch = pitch;
   this->updateCameraVectors();
 }
 

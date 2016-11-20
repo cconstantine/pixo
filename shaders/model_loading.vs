@@ -1,4 +1,9 @@
-#version 330 core
+#version 310 es
+
+#ifdef GL_ES
+precision highp float;
+#endif
+
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal;
 layout (location = 2) in vec2 texCoords;

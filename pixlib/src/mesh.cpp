@@ -19,6 +19,8 @@ using namespace std;
 // Constructor
 Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures) : dirty(true)
 {
+  ALOGV("Mesh::Mesh\n");
+
   this->vertices = vertices;
   this->indices = indices;
   this->textures = textures;
@@ -145,7 +147,7 @@ int Mesh::addInstance(const glm::vec3& position, const glm::vec2& textureCoords)
   dirty = true;
   instancePositionOffset.push_back(glm::translate(glm::mat4(), position ));
   instanceTextureOffset.push_back( textureCoords);
-  return numInstances() - 1;
+  return 0;//numInstances() - 1;
 }
 
 int Mesh::numInstances()

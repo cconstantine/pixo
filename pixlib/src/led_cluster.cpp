@@ -8,34 +8,30 @@ LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture, const Textu
  pattern_render(texture),
  fadecandy(fadecandy)
 {
-
   int width = leds_for_display.getDefaultTexture().width;
   int height = leds_for_display.getDefaultTexture().height;
 
   for(int i = 0;i < this->fadecandy->getLeds().size();i++) {
 
     glm::vec3 ballPosDelta = this->fadecandy->getLeds()[i];
-    
+
     int count = numLeds();
     int x = count % width;
     int y = count / height;
     glm::vec3 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f);
 
     LedVertex vertex_calc;
-    vertex_calc.Position = ballPosDelta; 
+    vertex_calc.Position = ballPosDelta;
     vertex_calc.framebuffer_proj = planePosDelta;
 
     leds_for_calc.addVertex(vertex_calc);
 
-    // fprintf(stderr, "x: %3d, y: %3d\n", x, y);
-    // fprintf(stderr, "x: %4.1f, y: %4.1f, z: %4.1f\n", ballPosDelta.x, ballPosDelta.y, ballPosDelta.z);
-
     leds_for_display.addInstance(ballPosDelta, glm::vec2(((float)x + 0.5) / width, ((float)y + 0.5) / height), glm::vec3());
   }
 
+
   leds_for_calc.setupMesh();
   fb_render.models.push_back(&leds_for_calc);
-  fprintf(stderr, "LEDS: %d\n", numLeds());
 }
 
 GLuint LedCluster::numLeds() {

@@ -15,6 +15,7 @@ public:
     // Uses the current shader
     void Use() const;
 
+    static std::string root;
     std::string vertexPath;
     std::string fragmentPath;
 };

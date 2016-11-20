@@ -1,4 +1,8 @@
-#version 330 core
+#version 310 es
+
+#ifdef GL_ES
+precision highp float;
+#endif
 
 in vec2 TexCoords;
 in vec3 Normal;

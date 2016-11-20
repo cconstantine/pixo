@@ -6,6 +6,7 @@
 using namespace std;
 
 // GL Includes
+#include <opengl.h>
 #include <mesh.hpp>
 #include <shader.hpp>
 #include <drawable.hpp>

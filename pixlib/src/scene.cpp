@@ -22,7 +22,7 @@ void Scene::matchViewToPerspective()
 
 
 Scene::Scene(ScreenRender* screen, LedCluster* leds) :
-  perspective(glm::vec3(0.0f, 1.0f, 2.8f)), viewed_from(glm::vec3(0.0f, 1.0f, 2.8f)), screen(screen), leds(leds),
+  perspective(glm::vec3(-2.168596, 1.416614, 10.411120)), viewed_from(perspective), screen(screen), leds(leds),
   deltaTime(0.0f), lastTime(std::chrono::steady_clock::now()), lastUpdate(std::chrono::steady_clock::now()), next(false),
   flag(), fps(0),frames(0)
 {

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <opengl.h>
 #include <mesh.hpp>
 #include <led_mesh.hpp>
 #include <shader.hpp>
@@ -15,7 +16,6 @@
 
 using namespace std;
 
-#include <pixelpusher/pixel_pusher.hpp>
 #include <fade_candy.hpp>
 
 class LedCluster {

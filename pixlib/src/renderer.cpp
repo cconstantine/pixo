@@ -7,7 +7,7 @@
 SceneRender::SceneRender() {}
 
 ScreenRender::ScreenRender() :
- shader("../shaders/model_loading.vs", "../shaders/model_loading.frag")
+ shader("shaders/model_loading.vs", "shaders/model_loading.frag")
 { }
 
 void ScreenRender::setupLights(IsoCamera& perspective) {
@@ -67,8 +67,10 @@ FrameBufferRender::FrameBufferRender(const Texture& renderTo) :
   renderedTexture(renderTo),
    width(renderTo.width),
    height(renderTo.height),
-   shader("../shaders/leds.vs", "../shaders/leds.frag")
+   shader("shaders/leds.vs", "shaders/leds.frag")
 {
+  ALOGV("FrameBufferRender::FrameBufferRender\n");
+
   // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
   glGenFramebuffers(1, &FramebufferName);
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
@@ -82,7 +84,7 @@ FrameBufferRender::FrameBufferRender(const Texture& renderTo) :
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT); 
 
   // Set "renderedTexture" as our colour attachement #0
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture.id, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture.id, 0);
 
   // Set the list of draw buffers.
   GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -91,8 +93,8 @@ FrameBufferRender::FrameBufferRender(const Texture& renderTo) :
   // Always check that our framebuffer is ok
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     fprintf(stderr, "Failed to init GL_FRAMEBUFFER: %d\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
-    exit(1);
   }
+
 
   glGenBuffers(2, pbos);
   glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[0]);
@@ -158,13 +160,35 @@ void FrameBufferRender::render(const IsoCamera& perspective, uint8_t* buffer, si
   active_pbo = (active_pbo + 1) % 2;
 
   glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
-  GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+  GLubyte* src = (GLubyte*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0,size, GL_MAP_READ_BIT);
   if(src)
   {
-    //send to physical leds
-    memcpy(buffer, src, size);
+   // ALOGV("Byters: %02x %02x %02x\n", src[0], src[1], src[2]);
+
+    memcpy(buffer, src, 3*width*height);
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
   }
+//   glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
+//   glReadBuffer( GL_COLOR_ATTACHMENT0 );
+
+//   glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+//   //ALOGV("bytes: %08x %08x %08x\n", buffer[0], buffer[1], buffer[2]);
+
+
+
+//   active_pbo = (active_pbo + 1) % 2;
+
+//   glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
+//   GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
+//   if(src)
+//   {
+//     ALOGV("Byters: %02x %02x %02x\n", src[0], src[1], src[2]);
+
+//     //send to physical leds
+//     memcpy(buffer, src, size);
+//     bool ret = glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+// //    ALOGV("unmap: %d", ret);
+//   }
 }
 
 Texture FrameBufferRender::getTexture() {
@@ -173,11 +197,13 @@ Texture FrameBufferRender::getTexture() {
 
 
 PatternRender::PatternRender(const Texture& renderTo) :
- start(std::chrono::steady_clock::now()),
+ start(std::chrono::high_resolution_clock::now()),
  width(renderTo.width),
  height(renderTo.height),
  renderedTexture(renderTo)
 {
+  ALOGV("PatternRender::PatternRender\n");
+
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
 
@@ -207,7 +233,7 @@ PatternRender::PatternRender(const Texture& renderTo) :
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   // Set "renderedTexture" as our colour attachement #0
-  glFramebufferTexture(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, renderedTexture.id, 0);
+  glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture.id, 0);
 
   // Set the list of draw buffers.
   GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -216,8 +242,7 @@ PatternRender::PatternRender(const Texture& renderTo) :
   // Always check that our framebuffer is ok
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     fprintf(stderr, "Failed to init GL_FRAMEBUFFER\n");
-    exit(1);
-  }  
+  }
 }
 
 const Texture& PatternRender::getTexture() {
@@ -235,9 +260,10 @@ void PatternRender::render(const Shader& pattern) {
 
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
   glViewport(0,0,width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
-  
-  std::chrono::duration<float> diff = std::chrono::steady_clock::now() - start;
+
+  std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - start;
   float time_elapsed = diff.count();
+
   // Use our shader
   pattern.Use();
   glUniform1f(time_id, time_elapsed );
@@ -248,7 +274,7 @@ void PatternRender::render(const Shader& pattern) {
   glUniform2f(iresolution_id, width, height);
   glUniform2f(imouse_id, width/2, height/2);
 
-  // // Clear the screen
+   // Clear the screen
   glClear( GL_COLOR_BUFFER_BIT );
 
   // 1rst attribute buffer : vertices

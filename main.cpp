@@ -40,6 +40,7 @@ static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
 
 bool keys[1024];
+std::string Shader::root = std::string("../");
 
 int main( int argc, char** argv )
 {
@@ -97,7 +98,7 @@ int main( int argc, char** argv )
   
   vector<Shader> patterns;
   for(int i = 2;i < argc;i++) {
-    patterns.push_back(Shader("../shaders/pattern.frag", argv[i]));
+    patterns.push_back(Shader("shaders/pattern.frag", &argv[i][2]));
   }
 
   pattern = &patterns[rand() % patterns.size()];
@@ -118,13 +119,17 @@ int main( int argc, char** argv )
   LedCluster domeLeds(&fc, texture, fb_texture);
 
   ScreenRender screen_renderer;
-
   scene = new Scene(&screen_renderer, &domeLeds);
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();
   screen->initialize(window, true);
-
+  GLenum glErr = glGetError();
+  while (glErr != GL_NO_ERROR)
+  {
+      ALOGV("Screen %04x\n", glErr);
+      glErr = glGetError();
+  }
   // Create nanogui gui
   bool enabled = true;
   FormHelper *gui = new FormHelper(screen);
@@ -143,7 +148,7 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      return &pattern->fragmentPath.c_str()[12];
+      return pattern->fragmentPath.c_str();
     },
     false)->setValue("                 ");
 
@@ -258,6 +263,13 @@ int main( int argc, char** argv )
           screen->resizeCallbackEvent(width, height);
       }
   );
+
+  glErr = glGetError();
+  while (glErr != GL_NO_ERROR)
+  {
+      ALOGV("Preloop %04x\n", glErr);
+      glErr = glGetError();
+  }
   while(!glfwWindowShouldClose(window)) {
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -287,6 +299,14 @@ int main( int argc, char** argv )
     screen->drawWidgets();
 
 		glfwSwapBuffers(window);
+
+
+    GLenum glErr = glGetError();
+    while (glErr != GL_NO_ERROR)
+    {
+        ALOGV("glError %04x\n", glErr);
+        glErr = glGetError();
+    }
 
 	}
 
