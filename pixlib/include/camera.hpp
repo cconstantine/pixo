@@ -18,15 +18,19 @@ enum Camera_Movement {
   RIGHT,
   TOWARDS_VIEW,
   MATCH_VIEW,
-  NEXT_PATTERN
+  NEXT_PATTERN,
+  ORB_UP,
+  ORB_DOWN,
+  ORB_LEFT,
+  ORB_RIGHT
 };
 
 // Default camera values
-const GLfloat YAW        = -60.0f;
-const GLfloat PITCH      =  7.25f;
+const GLfloat YAW        = -77.0f;
+const GLfloat PITCH      =  0.0f;
 const GLfloat SPEED      =  1.0f;
 const GLfloat SENSITIVTY =  0.25f;
-const GLfloat ZOOM       =  1.05f;
+const GLfloat ZOOM       =  11.4f;
 
 
 class OrthoCamera {
@@ -63,11 +67,8 @@ public:
   glm::mat4 GetViewMatrix() const;
   glm::mat4 GetProjectionMatrix(int width, int height) const;
 
-  // Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
-  void ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime);
-
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-  void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset, GLboolean constrainPitch = true);
+  void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset);
 
   // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
   void ProcessMouseScroll(GLfloat yoffset);

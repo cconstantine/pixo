@@ -22,7 +22,7 @@ class ScreenRender : public SceneRender {
 public:
   ScreenRender();
 
-  void render(IsoCamera& perspective, int width, int height);
+  void render(IsoCamera& perspective, glm::quat rotation, int width, int height);
 
   Shader shader;
   void setupLights(IsoCamera& perspective);

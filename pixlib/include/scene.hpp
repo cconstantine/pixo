@@ -15,6 +15,7 @@ public:
   void render(const Shader& pattern, int width, int height);
 
   void Do_Movement(const bool *keys);
+  void orbit_callback(double xoffset, double yoffset);
 
   void mouse_callback(double xoffset, double yoffset);
   void zoom(double yoffset);
@@ -22,9 +23,9 @@ public:
   void matchViewToPerspective();
 
   float getFps();
+  IsoCamera perspective;
 
 private:
-  IsoCamera perspective;
   IsoCamera viewed_from;
   ScreenRender* screen;
   
@@ -39,4 +40,6 @@ private:
   float fps;
   unsigned int frames;
   bool next;
+
+  float rot_x, rot_y, rot_z;
 };

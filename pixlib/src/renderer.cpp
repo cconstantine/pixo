@@ -32,7 +32,7 @@ void ScreenRender::setupLights(IsoCamera& perspective) {
   }
 }
 
-void ScreenRender::render(IsoCamera& perspective, int width, int height) {
+void ScreenRender::render(IsoCamera& perspective, glm::quat rotations, int width, int height) {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glCullFace(GL_BACK);
@@ -53,8 +53,14 @@ void ScreenRender::render(IsoCamera& perspective, int width, int height) {
   glm::mat4 projection = perspective.GetProjectionMatrix(width, height);
   glm::mat4 view = perspective.GetViewMatrix();
 
+
+  glm::mat4 model = glm::mat4_cast(glm::quat(rotations));//glm::mat4(1.0f);
+
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+
+
 
   for(std::vector<Drawable*>::iterator i = models.begin();i != models.end();i++) {
     Drawable* m = *i;
@@ -165,30 +171,10 @@ void FrameBufferRender::render(const IsoCamera& perspective, uint8_t* buffer, si
   {
    // ALOGV("Byters: %02x %02x %02x\n", src[0], src[1], src[2]);
 
-    memcpy(buffer, src, 3*width*height);
+    memcpy(buffer, src, size);
     glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
   }
-//   glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
-//   glReadBuffer( GL_COLOR_ATTACHMENT0 );
 
-//   glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-//   //ALOGV("bytes: %08x %08x %08x\n", buffer[0], buffer[1], buffer[2]);
-
-
-
-//   active_pbo = (active_pbo + 1) % 2;
-
-//   glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
-//   GLubyte* src = (GLubyte*)glMapBuffer(GL_PIXEL_PACK_BUFFER, GL_READ_ONLY);
-//   if(src)
-//   {
-//     ALOGV("Byters: %02x %02x %02x\n", src[0], src[1], src[2]);
-
-//     //send to physical leds
-//     memcpy(buffer, src, size);
-//     bool ret = glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
-// //    ALOGV("unmap: %d", ret);
-//   }
 }
 
 Texture FrameBufferRender::getTexture() {

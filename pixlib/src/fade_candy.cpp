@@ -11,8 +11,8 @@ FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
   int depth = per_size;
   for(int i = 0;i < width;i++) {
     for(int j = 0;j < depth;j++) {
-      glm::vec3 start(i*spacing, 0*spacing,      j*spacing);
-      glm::vec3 end  (i*spacing, height*spacing, j*spacing);
+      glm::vec3 start((i - width/2)*spacing, -(height/2)*spacing,      (j - height/2)*spacing);
+      glm::vec3 end  ((i - width/2)*spacing, (height/2+1)*spacing, (j - height/2)*spacing);
 
 
       add_strip(start, end, height);

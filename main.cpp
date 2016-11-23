@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
+#include <boost/shared_ptr.hpp>
+
 
 #include <iostream>
 
@@ -232,6 +234,18 @@ int main( int argc, char** argv )
             }
             if(key == GLFW_KEY_ENTER) {
               keys[NEXT_PATTERN] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_RIGHT ) {
+              keys[ORB_RIGHT] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_LEFT) {
+              keys[ORB_LEFT] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_UP ) {
+              keys[ORB_UP] = (action == GLFW_PRESS); 
+            }
+            if(key == GLFW_KEY_DOWN) {
+              keys[ORB_DOWN] = (action == GLFW_PRESS); 
             }
           }
       }
