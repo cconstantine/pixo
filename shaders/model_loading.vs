@@ -16,13 +16,12 @@ out vec4 Position;
 
 uniform mat4 view;
 uniform mat4 projection;
-uniform mat4 model;
 
 uniform mat4 MVP;
 
 void main()
 {
-    gl_Position = projection * view  * model * positionOffset * vec4(position, 1.0f);
+    gl_Position = projection * view  * positionOffset * vec4(position, 1.0f);
     TexCoords = texCoords + texCoordsOffset;
     Normal = normal;
     Position = positionOffset*vec4(position, 1.0f);

@@ -10,7 +10,7 @@ ScreenRender::ScreenRender() :
  shader("shaders/model_loading.vs", "shaders/model_loading.frag")
 { }
 
-void ScreenRender::setupLights(IsoCamera& perspective) {
+void ScreenRender::setupLights(const IsoCamera& perspective) {
   {
     GLint lightPosLoc        = glGetUniformLocation(shader.Program, "spot_light.position");
     GLint lightSpotdirLoc    = glGetUniformLocation(shader.Program, "spot_light.direction");
@@ -32,7 +32,7 @@ void ScreenRender::setupLights(IsoCamera& perspective) {
   }
 }
 
-void ScreenRender::render(IsoCamera& perspective, glm::quat rotations, int width, int height) {
+void ScreenRender::render(const IsoCamera& perspective, int width, int height) {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glCullFace(GL_BACK);
@@ -53,11 +53,7 @@ void ScreenRender::render(IsoCamera& perspective, glm::quat rotations, int width
   glm::mat4 projection = perspective.GetProjectionMatrix(width, height);
   glm::mat4 view = perspective.GetViewMatrix();
 
-
-  glm::mat4 model = glm::mat4_cast(glm::quat(rotations));//glm::mat4(1.0f);
-
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-  glUniformMatrix4fv(glGetUniformLocation(shader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
   glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 

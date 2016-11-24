@@ -37,6 +37,8 @@ Screen *screen = nullptr;
 Scene *scene = nullptr;
 Shader *pattern = nullptr;
 
+IsoCamera viewed_from;
+IsoCamera camera;
 
 static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
@@ -181,12 +183,12 @@ int main( int argc, char** argv )
             }
 
             GLfloat xoffset = x - lastX;
-            GLfloat yoffset = lastY - y; 
+            GLfloat yoffset = y - lastY; 
 
             lastX = x;
             lastY = y;
 
-            scene->mouse_callback(xoffset, yoffset);
+            camera.ProcessMouseMovement(xoffset, yoffset);
           }
       }
   );
@@ -266,7 +268,7 @@ int main( int argc, char** argv )
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
           if (!screen->scrollCallbackEvent(x, y)) {
-            scene->zoom(y);
+            camera.ProcessMouseScroll(y);
 
           }
      }
@@ -292,8 +294,8 @@ int main( int argc, char** argv )
 
     // Render the scene
 
-    scene->Do_Movement(keys);
-    scene->render(*pattern, width, height);
+    domeLeds.render(viewed_from, *pattern);
+    scene->render(camera, width, height);
 
     bool next = keys[NEXT_PATTERN];
     if(next) {
@@ -301,9 +303,9 @@ int main( int argc, char** argv )
       pattern = &patterns[rand() % patterns.size()];
     }
 
-    if(keys[MATCH_VIEW ]) {
-      scene->matchViewToPerspective();
-    }
+    // if(keys[MATCH_VIEW ]) {
+    //   scene->matchViewToPerspective();
+    // }
 
 
     gui->refresh();

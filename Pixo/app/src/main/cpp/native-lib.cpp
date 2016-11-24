@@ -21,25 +21,8 @@ int width, height;
 std::string Shader::root;
 
 
-class CubeMatrix {
-public:
-    CubeMatrix() :
-            texture(400,400),
-            fb_texture(256,256),
-            pattern("shaders/pattern.frag", "patterns/neon_ring.glsl"),
-            fc("localhost", 32),
-            domeLeds(&fc, texture, fb_texture),
-            screen_renderer(),
-            scene(&screen_renderer, &domeLeds)
-    {   }
-    Texture texture;
-    Texture fb_texture;
-    Scene scene;
-    Shader pattern ;
-    FadeCandy fc;
-    LedCluster domeLeds;
-    ScreenRender screen_renderer;
-};
+IsoCamera viewed_from;
+IsoCamera camera;
 
 class Textures {
 public:
@@ -73,18 +56,25 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
             ALOGV("flie: %s\n", ep->d_name);
         (void) closedir (dp);
     }
-    if(pattern == nullptr)
+    if (scene != nullptr)
     {
-        pattern = new Shader("shaders/pattern.frag", "patterns/neon_ring.glsl");
-        fc = new FadeCandy("192.168.42.66", 16);
-        texs = new Textures();
-        domeLeds = new LedCluster(fc, texs->texture, texs->fb_texture);
-
-        screen_renderer = new ScreenRender();
-
-        scene = new Scene(screen_renderer, domeLeds);
-
+      delete pattern;
+      delete texs;
+      delete domeLeds;
+      delete screen_renderer;
+      delete scene;
     }
+    if (fc == nullptr)
+    {
+      fc = new FadeCandy("192.168.42.66", 16);
+    }
+    pattern = new Shader("shaders/pattern.frag", "patterns/neon_ring.glsl");
+    texs = new Textures();
+    domeLeds = new LedCluster(fc, texs->texture, texs->fb_texture);
+
+    screen_renderer = new ScreenRender();
+
+    scene = new Scene(screen_renderer, domeLeds);
 }
 
 JNIEXPORT void JNICALL
@@ -99,36 +89,37 @@ Java_org_sillypants_pixo_GLES3JNILib_resize(JNIEnv* env, jobject obj, jint jwidt
 JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_mouse(JNIEnv* env, jobject obj, jint x, jint y) {
 
-  scene->mouse_callback(x/2, y/2);
+  camera.ProcessMouseMovement(x/2, y/2);
 }
 
 JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj) {
-    //ALOGV("GL Step \n");
-    static std::chrono::time_point<std::chrono::high_resolution_clock> lastSecond = std::chrono::high_resolution_clock::now();
+  //ALOGV("GL Step \n");
+  static std::chrono::time_point<std::chrono::high_resolution_clock> lastSecond = std::chrono::high_resolution_clock::now();
 
-    static int frames = 0;
-    frames++;
-    std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
+  static int frames = 0;
+  frames++;
+  std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
-    scene->render(*pattern, width, height);
+  domeLeds->render(viewed_from, *pattern);
+  scene->render(camera, width, height);
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-    std::chrono::duration<float> time_duration = end - start;
-    std::chrono::duration<float> second_seeking = end - lastSecond;
+  std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+  std::chrono::duration<float> time_duration = end - start;
+  std::chrono::duration<float> second_seeking = end - lastSecond;
 
-    if (second_seeking.count() > 1.0f) {
-        ALOGV("GL Step: frames: %d \n", frames);
-        ALOGV("GL Step: time_duration: %fms \n", 1000*time_duration.count());
-        frames = 0;
-        lastSecond = std::chrono::high_resolution_clock::now();
-    }
+  if (second_seeking.count() > 1.0f) {
+      ALOGV("GL Step: frames: %d \n", frames);
+      ALOGV("GL Step: time_duration: %fms \n", 1000*time_duration.count());
+      frames = 0;
+      lastSecond = std::chrono::high_resolution_clock::now();
+  }
 
 
-    GLenum glErr = glGetError();
-    while (glErr != GL_NO_ERROR)
-    {
-        ALOGV("glError %04x\n", glErr);
-        glErr = glGetError();
-    }
+  GLenum glErr = glGetError();
+  while (glErr != GL_NO_ERROR)
+  {
+      ALOGV("glError %04x\n", glErr);
+      glErr = glGetError();
+  }
 }

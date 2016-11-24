@@ -18,13 +18,10 @@ glm::mat4 OrthoCamera::GetProjectionMatrix(int width, int height) {
 
 
 // Constructor with vectors
-IsoCamera::IsoCamera(glm::vec3 position, glm::vec3 up, GLfloat yaw, GLfloat pitch) :
-        Position(position),
-        Front(glm::vec3(0.0f, 0.0f, -1.0f)),
-        WorldUp(up),
+IsoCamera::IsoCamera(GLfloat yaw, GLfloat pitch) :
+        WorldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
         Yaw(yaw),
         Pitch(pitch),
-        MovementSpeed(SPEED),
         MouseSensitivity(SENSITIVTY),
         Zoom(ZOOM)
 {
@@ -72,8 +69,8 @@ void IsoCamera::ProcessMouseScroll(GLfloat yoffset)
   if (this->Zoom >= 90.0f)
     this->Zoom = 90.0f;
   ALOGV("Zoom: %f\n", Zoom);
-  this->updateCameraVectors();
 
+  this->updateCameraVectors();
 }
 
 // Calculates the front vector from the Camera's (updated) Eular Angles

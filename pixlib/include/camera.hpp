@@ -28,7 +28,6 @@ enum Camera_Movement {
 // Default camera values
 const GLfloat YAW        = -77.0f;
 const GLfloat PITCH      =  0.0f;
-const GLfloat SPEED      =  1.0f;
 const GLfloat SENSITIVTY =  0.25f;
 const GLfloat ZOOM       =  11.4f;
 
@@ -53,15 +52,12 @@ public:
   GLfloat Yaw;
   GLfloat Pitch;
   // Camera options
-  GLfloat MovementSpeed;
   GLfloat MouseSensitivity;
   GLfloat Zoom;
 
   // Constructor with vectors
-  IsoCamera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), GLfloat yaw = YAW, GLfloat pitch = PITCH);
+  IsoCamera( GLfloat yaw = YAW, GLfloat pitch = PITCH);
 
-  // Constructor with scalar values
-  IsoCamera(GLfloat posX, GLfloat posY, GLfloat posZ, GLfloat upX, GLfloat upY, GLfloat upZ, GLfloat yaw, GLfloat pitch);
 
   // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
   glm::mat4 GetViewMatrix() const;

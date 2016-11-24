@@ -22,10 +22,10 @@ class ScreenRender : public SceneRender {
 public:
   ScreenRender();
 
-  void render(IsoCamera& perspective, glm::quat rotation, int width, int height);
+  void render(const IsoCamera& perspective, int width, int height);
 
   Shader shader;
-  void setupLights(IsoCamera& perspective);
+  void setupLights(const IsoCamera& perspective);
 };
 
 class FrameBufferRender : public SceneRender {

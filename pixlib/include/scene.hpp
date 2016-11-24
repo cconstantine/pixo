@@ -12,27 +12,15 @@ class Scene {
 public:
   Scene(ScreenRender* screen, LedCluster* leds);
 
-  void render(const Shader& pattern, int width, int height);
-
-  void Do_Movement(const bool *keys);
-  void orbit_callback(double xoffset, double yoffset);
-
-  void mouse_callback(double xoffset, double yoffset);
-  void zoom(double yoffset);
-
-  void matchViewToPerspective();
+  void render(const IsoCamera& perspective, int width, int height);
 
   float getFps();
-  IsoCamera perspective;
 
 private:
-  IsoCamera viewed_from;
   ScreenRender* screen;
   
   LedCluster* leds;
 
-  Cube flag;
-  
   std::chrono::duration<float> deltaTime;
 
   std::chrono::time_point<std::chrono::steady_clock> lastTime;
@@ -41,5 +29,4 @@ private:
   unsigned int frames;
   bool next;
 
-  float rot_x, rot_y, rot_z;
 };
