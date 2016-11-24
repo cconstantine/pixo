@@ -6,7 +6,7 @@ Scene::Scene(ScreenRender* screen, LedCluster* leds) :
   deltaTime(0.0f), lastTime(std::chrono::steady_clock::now()), lastUpdate(std::chrono::steady_clock::now()), next(false),
   fps(0),frames(0)
 {
-  screen->models.push_back(&leds->leds_for_display);
+  screen->models.push_back(leds);
 
 }
 

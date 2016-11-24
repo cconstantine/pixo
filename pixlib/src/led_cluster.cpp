@@ -1,7 +1,15 @@
 #include <led_cluster.hpp>
 #include <math.h>
 
-LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture, const Texture& led_texture) :
+size_t LedCluster::led_canvas_size(size_t leds)
+{
+  fprintf(stderr, "leds: %d\n", leds);
+  return pow(2, ceil(log(sqrt(leds))/log(2)));
+}
+
+
+LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture) :
+ led_texture(led_canvas_size(fadecandy->getLeds().size()), led_canvas_size(fadecandy->getLeds().size())),
  leds_for_calc(texture),
  leds_for_display(led_texture),
  fb_render(led_texture),
@@ -10,6 +18,7 @@ LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture, const Textu
 {
   int width = leds_for_display.getDefaultTexture().width;
   int height = leds_for_display.getDefaultTexture().height;
+  fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", width, height, width*height);
 
   for(int i = 0;i < this->fadecandy->getLeds().size();i++) {
 
@@ -35,10 +44,13 @@ LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture, const Textu
 }
 
 GLuint LedCluster::numLeds() {
-
   return leds_for_calc.numVertices();
 }
 
+void LedCluster::Draw(Shader shader) 
+{
+  leds_for_display.Draw(shader);
+}
 
 void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern) 
 {

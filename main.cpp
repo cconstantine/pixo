@@ -36,6 +36,7 @@ using namespace nanogui;
 Screen *screen = nullptr;
 Scene *scene = nullptr;
 Shader *pattern = nullptr;
+std::chrono::duration<float> time_duration;
 
 IsoCamera viewed_from;
 IsoCamera camera;
@@ -111,16 +112,11 @@ int main( int argc, char** argv )
 
 
   const int canvasSize = sqrt(fc.getLeds().size())*2;
-
-  int rows = pow(2, ceil(log(sqrt(fc.getLeds().size()))/log(2)));
-  int cols = rows;
   fprintf(stderr, "Leds per side:     %3d  (total: %.0f )\n", leds_per_side, pow(leds_per_side, 3));
-  fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", cols, rows, rows*cols);
   fprintf(stderr, "pattern canvas: %d x %d\n", canvasSize, canvasSize);
 
   Texture texture = Texture(canvasSize, canvasSize);
-  Texture fb_texture = Texture(cols, rows);
-  LedCluster domeLeds(&fc, texture, fb_texture);
+  LedCluster domeLeds(&fc, texture);
 
   ScreenRender screen_renderer;
   scene = new Scene(&screen_renderer, &domeLeds);
@@ -145,6 +141,15 @@ int main( int argc, char** argv )
       char ret[256];
       float fps = scene->getFps();
       sprintf(ret, "%2.02f", fps);
+      return ret;
+    },
+    false)->setValue("00.00");
+
+  gui->addVariable<string>("render time",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      sprintf(ret, "%2.02f", time_duration.count());
       return ret;
     },
     false)->setValue("00.00");
@@ -293,9 +298,13 @@ int main( int argc, char** argv )
     glfwGetFramebufferSize(window, &width, &height);
 
     // Render the scene
+    std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
     domeLeds.render(viewed_from, *pattern);
     scene->render(camera, width, height);
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
+    time_duration = end - start;
 
     bool next = keys[NEXT_PATTERN];
     if(next) {

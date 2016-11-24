@@ -26,10 +26,9 @@ IsoCamera camera;
 
 class Textures {
 public:
-    Textures() : texture(400, 400), fb_texture(256,256) { }
+    Textures() : texture(400, 400){ }
 
     Texture texture;
-    Texture fb_texture;
 };
 Textures* texs;
 
@@ -70,7 +69,7 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     }
     pattern = new Shader("shaders/pattern.frag", "patterns/neon_ring.glsl");
     texs = new Textures();
-    domeLeds = new LedCluster(fc, texs->texture, texs->fb_texture);
+    domeLeds = new LedCluster(fc, texs->texture);
 
     screen_renderer = new ScreenRender();
 
