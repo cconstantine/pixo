@@ -10,14 +10,14 @@
 
 class Scene {
 public:
-  Scene(ScreenRender* screen, LedCluster* leds);
+  Scene(LedCluster* leds);
 
   void render(const IsoCamera& perspective, int width, int height);
 
   float getFps();
 
 private:
-  ScreenRender* screen;
+  ScreenRender screen;
   
   LedCluster* leds;
 

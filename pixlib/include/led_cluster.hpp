@@ -21,12 +21,12 @@ using namespace std;
 class LedCluster: public Drawable {
 public:
   // Draws the model, and thus all its meshes
-  LedCluster(FadeCandy *fadecandy, const Texture& pattern_texture);
+  LedCluster(FadeCandy *fadecandy);
 
 
   // Render the mesh
   virtual void Draw(Shader shader);
-  
+
   void render(const IsoCamera& viewed_from, const Shader& pattern);
 
   const Texture& getPatternTexture();

@@ -8,12 +8,12 @@ size_t LedCluster::led_canvas_size(size_t leds)
 }
 
 
-LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& texture) :
+LedCluster::LedCluster(FadeCandy *fadecandy) :
  led_texture(led_canvas_size(fadecandy->getLeds().size()), led_canvas_size(fadecandy->getLeds().size())),
- leds_for_calc(texture),
+ leds_for_calc(pattern_render.getTexture()),
  leds_for_display(led_texture),
  fb_render(led_texture),
- pattern_render(texture),
+ pattern_render(fadecandy->textureSize()),
  fadecandy(fadecandy)
 {
   int width = leds_for_display.getDefaultTexture().width;

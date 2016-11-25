@@ -41,6 +41,11 @@ void FadeCandy::finalize()
   OPCClient::Header::view(framebuffer).init(0, opc_client.SET_PIXEL_COLORS, frameBytes);
 }
 
+glm::vec2 FadeCandy::textureSize()
+{
+  int canvasSize = sqrt(getLeds().size())*2;
+  return glm::vec2(canvasSize, canvasSize);
+}
 
 const std::vector<glm::vec3>& FadeCandy::getLeds()
 {

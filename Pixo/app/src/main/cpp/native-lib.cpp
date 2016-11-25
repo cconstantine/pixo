@@ -24,14 +24,6 @@ std::string Shader::root;
 IsoCamera viewed_from;
 IsoCamera camera;
 
-class Textures {
-public:
-    Textures() : texture(400, 400){ }
-
-    Texture texture;
-};
-Textures* texs;
-
 extern "C" {
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj);
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_resize(JNIEnv* env, jobject obj, jint width, jint height);
@@ -58,9 +50,7 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     if (scene != nullptr)
     {
       delete pattern;
-      delete texs;
       delete domeLeds;
-      delete screen_renderer;
       delete scene;
     }
     if (fc == nullptr)
@@ -68,12 +58,9 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
       fc = new FadeCandy("192.168.42.66", 16);
     }
     pattern = new Shader("shaders/pattern.frag", "patterns/neon_ring.glsl");
-    texs = new Textures();
-    domeLeds = new LedCluster(fc, texs->texture);
+    domeLeds = new LedCluster(fc);
 
-    screen_renderer = new ScreenRender();
-
-    scene = new Scene(screen_renderer, domeLeds);
+    scene = new Scene(domeLeds);
 }
 
 JNIEXPORT void JNICALL

@@ -1,12 +1,12 @@
 #include <scene.hpp>
 
 
-Scene::Scene(ScreenRender* screen, LedCluster* leds) :
-  screen(screen), leds(leds),
+Scene::Scene(LedCluster* leds) :
+  leds(leds),
   deltaTime(0.0f), lastTime(std::chrono::steady_clock::now()), lastUpdate(std::chrono::steady_clock::now()), next(false),
   fps(0),frames(0)
 {
-  screen->models.push_back(leds);
+  screen.models.push_back(leds);
 
 }
 
@@ -29,7 +29,7 @@ void Scene::render(const IsoCamera& perspective, int width, int height)
 
   lastTime = currentTime;
 
-  screen->render(perspective, width, height);
+  screen.render(perspective, width, height);
 
 }
 

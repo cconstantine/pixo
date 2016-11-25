@@ -12,6 +12,7 @@ public:
 	FadeCandy(const std::string& hostname, unsigned int per_size);
 
 	const std::vector<glm::vec3>& getLeds();
+	glm::vec2 textureSize();
 	void update();
 
 	uint8_t* getData();

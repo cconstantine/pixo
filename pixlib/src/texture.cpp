@@ -1,9 +1,7 @@
 #include <texture.hpp>
 
 Texture::Texture(const Texture& copy) : width(copy.width), height(copy.height), id(copy.id), isCopy(true)
-{
-    ALOGV("%d: Texture Copy\n", id);
-}
+{ }
 
 Texture::Texture(int width, int height) : width(width), height(height), isCopy(false)
 {
@@ -18,8 +16,6 @@ Texture::Texture(int width, int height) : width(width), height(height), isCopy(f
 
 Texture::~Texture()
 {
-
-  ALOGV("%d: Texture delete %d\n", id, isCopy);
 	if(isCopy)
 		return;
 	glDeleteTextures(1, &id);

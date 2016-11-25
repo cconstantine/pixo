@@ -111,15 +111,8 @@ int main( int argc, char** argv )
   FadeCandy fc = FadeCandy("localhost", leds_per_side);
 
 
-  const int canvasSize = sqrt(fc.getLeds().size())*2;
-  fprintf(stderr, "Leds per side:     %3d  (total: %.0f )\n", leds_per_side, pow(leds_per_side, 3));
-  fprintf(stderr, "pattern canvas: %d x %d\n", canvasSize, canvasSize);
-
-  Texture texture = Texture(canvasSize, canvasSize);
-  LedCluster domeLeds(&fc, texture);
-
-  ScreenRender screen_renderer;
-  scene = new Scene(&screen_renderer, &domeLeds);
+  LedCluster domeLeds(&fc);
+  scene = new Scene(&domeLeds);
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();

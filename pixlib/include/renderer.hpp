@@ -53,7 +53,7 @@ private:
 
 class PatternRender {
 public:
-  PatternRender(const Texture& renderTo);
+  PatternRender(glm::vec2 canvasSize);
 
   void render(const Shader& pattern);
 

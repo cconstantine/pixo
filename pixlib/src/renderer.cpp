@@ -178,13 +178,13 @@ Texture FrameBufferRender::getTexture() {
 }
 
 
-PatternRender::PatternRender(const Texture& renderTo) :
+PatternRender::PatternRender(glm::vec2 canvasSize) :
  start(std::chrono::high_resolution_clock::now()),
- width(renderTo.width),
- height(renderTo.height),
- renderedTexture(renderTo)
+ width(canvasSize.x),
+ height(canvasSize.y),
+ renderedTexture(canvasSize.x, canvasSize.y)
 {
-  ALOGV("PatternRender::PatternRender\n");
+  ALOGV("PatternRender::PatternRender (%d x %d)\n", width, height);
 
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
