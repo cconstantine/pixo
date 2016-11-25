@@ -74,7 +74,6 @@ Java_org_sillypants_pixo_GLES3JNILib_resize(JNIEnv* env, jobject obj, jint jwidt
 
 JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_mouse(JNIEnv* env, jobject obj, jint x, jint y) {
-
   camera.ProcessMouseMovement(x/2, y/2);
 }
 

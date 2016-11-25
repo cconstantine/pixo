@@ -13,6 +13,8 @@
 #include <map>
 #include <vector>
 #include <renderer.hpp>
+#include <led_renderer.hpp>
+#include <pattern_renderer.hpp>
 
 using namespace std;
 
@@ -39,7 +41,7 @@ private:
   void addStrip(glm::vec3 start, glm::vec3 end, int divisions);
 
   Texture led_texture;
-  FrameBufferRender fb_render;
+  LedRender fb_render;
   PatternRender pattern_render;
   FadeCandy *fadecandy;
 

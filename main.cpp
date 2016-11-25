@@ -93,7 +93,6 @@ int main( int argc, char** argv )
     glfwTerminate();
     return -1;
   }
-
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
