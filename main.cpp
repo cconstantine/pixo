@@ -141,7 +141,11 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      sprintf(ret, "%2.02f", time_duration.count());
+      static float prev = time_duration.count()*1000;
+      float curr = (prev*119 + time_duration.count()*1000) / 120;
+
+      sprintf(ret, "%2.02fms", curr);
+      prev = curr;
       return ret;
     },
     false)->setValue("00.00");
@@ -304,10 +308,6 @@ int main( int argc, char** argv )
       keys[NEXT_PATTERN] = false;
       pattern = &patterns[rand() % patterns.size()];
     }
-
-    // if(keys[MATCH_VIEW ]) {
-    //   scene->matchViewToPerspective();
-    // }
 
 
     gui->refresh();
