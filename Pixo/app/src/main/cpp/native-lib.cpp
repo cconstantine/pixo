@@ -86,6 +86,7 @@ Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj) {
   frames++;
   std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
+  viewed_from.moveTowards(camera, scene->getTimeDelta());
   domeLeds->render(viewed_from, *pattern);
   scene->render(camera, width, height);
 

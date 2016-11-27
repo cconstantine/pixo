@@ -16,6 +16,7 @@ public:
 
   float getFps();
 
+  float getTimeDelta();
 private:
   ScreenRender screen;
   

@@ -68,11 +68,18 @@ void IsoCamera::ProcessMouseScroll(GLfloat yoffset)
     this->Zoom = 0.0f;
   if (this->Zoom >= 90.0f)
     this->Zoom = 90.0f;
-  ALOGV("Zoom: %f\n", Zoom);
 
   this->updateCameraVectors();
 }
 
+void IsoCamera::moveTowards(const IsoCamera& camera, float timeScale)
+{
+  Yaw = Yaw + (camera.Yaw - Yaw) * timeScale;
+  Pitch = Pitch + (camera.Pitch - Pitch) * timeScale;
+  Zoom = Zoom + (camera.Zoom - Zoom) * timeScale;
+
+  updateCameraVectors();
+}
 // Calculates the front vector from the Camera's (updated) Eular Angles
 void IsoCamera::updateCameraVectors()
 {

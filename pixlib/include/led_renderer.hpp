@@ -4,7 +4,7 @@
 #include <opengl.h>
 #include <glm/glm.hpp>
 
-#include <drawable.hpp>
+#include <led_mesh.hpp>
 #include <shader.hpp>
 #include <camera.hpp>
 #include <texture.hpp>
@@ -20,7 +20,7 @@ public:
 
   Texture getTexture();
 
-  std::vector<Drawable*> models;
+  LedMesh* leds;
 
 private:
   GLuint FramebufferName;

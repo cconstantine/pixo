@@ -12,7 +12,6 @@
 
 class SceneRender {
 public:
-  std::vector<Drawable*> models;
 protected:
   SceneRender();
 };
@@ -23,8 +22,13 @@ public:
   ScreenRender();
 
   void render(const IsoCamera& perspective, int width, int height);
+  std::vector<Drawable*> models;
+
+private:
 
   Shader shader;
   void setupLights(const IsoCamera& perspective);
+  std::chrono::time_point<std::chrono::steady_clock> lastRender;
+
 };
 

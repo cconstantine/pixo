@@ -3,7 +3,7 @@
 
 Scene::Scene(LedCluster* leds) :
   leds(leds),
-  deltaTime(0.0f), lastTime(std::chrono::steady_clock::now()), lastUpdate(std::chrono::steady_clock::now()), next(false),
+  lastTime(std::chrono::steady_clock::now()),
   fps(0),frames(0)
 {
   screen.models.push_back(leds);
@@ -19,8 +19,7 @@ void Scene::render(const IsoCamera& perspective, int width, int height)
   float time_delta = time_duration.count();
   if ( time_delta >= 1.0 ){
     lastUpdate = currentTime;
-    float new_fps = frames * (1 / time_delta);
-    fps = (fps + 99*new_fps) / 100;
+    fps = frames;
     frames = 0;
   }
 
@@ -32,6 +31,12 @@ void Scene::render(const IsoCamera& perspective, int width, int height)
   screen.render(perspective, width, height);
 
 }
+
+float Scene::getTimeDelta()
+{
+  return deltaTime.count();
+}
+
 
 float Scene::getFps() {
   return fps;

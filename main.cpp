@@ -292,6 +292,7 @@ int main( int argc, char** argv )
     // Render the scene
     std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
+    viewed_from.moveTowards(camera, scene->getTimeDelta()*0.8);
     domeLeds.render(viewed_from, *pattern);
     scene->render(camera, width, height);
 

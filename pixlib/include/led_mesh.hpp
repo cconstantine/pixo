@@ -32,6 +32,7 @@ public:
   virtual void Draw(Shader shader);
 
   size_t numVertices();
+  float getZoom(glm::vec3 position);
 
   LedVertex getVertex(int idx);
   void addVertex(const LedVertex& vert);
@@ -47,4 +48,12 @@ protected:
   vector<LedVertex> vertices;
   vector<Texture> textures;
 
+  float min_x;
+  float max_x;
+  
+  float min_y;
+  float max_y;
+  
+  float min_z;
+  float max_z;
 };

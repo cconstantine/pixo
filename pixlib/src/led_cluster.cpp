@@ -40,7 +40,7 @@ LedCluster::LedCluster(FadeCandy *fadecandy) :
 
 
   leds_for_calc.setupMesh();
-  fb_render.models.push_back(&leds_for_calc);
+  fb_render.leds = &leds_for_calc;
 }
 
 GLuint LedCluster::numLeds() {
