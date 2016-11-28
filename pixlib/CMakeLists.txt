@@ -21,6 +21,7 @@ add_library(pixlib STATIC
  src/renderer.cpp
  src/pattern_renderer.cpp
  src/led_renderer.cpp
+ src/timer.cpp
  src/fade_candy.cpp)
 
 

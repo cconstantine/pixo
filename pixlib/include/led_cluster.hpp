@@ -15,6 +15,7 @@
 #include <renderer.hpp>
 #include <led_renderer.hpp>
 #include <pattern_renderer.hpp>
+#include <timer.hpp>
 
 using namespace std;
 
@@ -35,6 +36,8 @@ public:
 
   GLuint numLeds();
 
+  float render_time();
+  float pattern_time();
 
 
 private:
@@ -49,6 +52,8 @@ private:
   LedMesh leds_for_calc;;
 
   Cube leds_for_display;
+  Timer render_timer;
+  Timer pattern_timer;
 
   static size_t led_canvas_size(size_t leds);
 

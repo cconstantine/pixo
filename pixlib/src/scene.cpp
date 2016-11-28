@@ -4,7 +4,7 @@
 Scene::Scene(LedCluster* leds) :
   leds(leds),
   lastTime(std::chrono::steady_clock::now()),
-  fps(0),frames(0)
+  fps(0),frames(0), render_timer(120)
 {
   screen.models.push_back(leds);
 
@@ -28,7 +28,9 @@ void Scene::render(const IsoCamera& perspective, int width, int height)
 
   lastTime = currentTime;
 
+  render_timer.start();
   screen.render(perspective, width, height);
+  render_timer.end();
 
 }
 
@@ -40,4 +42,9 @@ float Scene::getTimeDelta()
 
 float Scene::getFps() {
   return fps;
+}
+
+float Scene::get_render_time()
+{
+  return render_timer.duration();
 }
