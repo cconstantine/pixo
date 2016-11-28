@@ -14,7 +14,8 @@ LedCluster::LedCluster(FadeCandy *fadecandy) :
  leds_for_display(led_texture),
  fb_render(led_texture),
  pattern_render(fadecandy->textureSize()),
- fadecandy(fadecandy)
+ fadecandy(fadecandy),
+ render_timer(120), pattern_timer(120)
 {
   int width = leds_for_display.getDefaultTexture().width;
   int height = leds_for_display.getDefaultTexture().height;
@@ -54,9 +55,25 @@ void LedCluster::Draw(Shader shader)
 
 void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern) 
 {
+  pattern_timer.start();
   pattern_render.render(pattern);
+  pattern_timer.end();
+
+  render_timer.start();
   fb_render.render(viewed_from, fadecandy->getData(), numLeds()*3);
+  render_timer.end();
+
   fadecandy->update();
+}
+
+float LedCluster::render_time()
+{
+  return render_timer.duration();
+}
+
+float LedCluster::pattern_time()
+{
+  pattern_timer.duration();
 }
 
 const Texture& LedCluster::getPatternTexture()

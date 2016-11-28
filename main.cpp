@@ -29,6 +29,8 @@ using namespace glm;
 #include <led_cluster.hpp>
 #include <renderer.hpp>
 #include <scene.hpp>
+#include <timer.hpp>
+
 #include <nanogui/nanogui.h>
 #include <fade_candy.hpp>
 
@@ -36,7 +38,8 @@ using namespace nanogui;
 Screen *screen = nullptr;
 Scene *scene = nullptr;
 Shader *pattern = nullptr;
-std::chrono::duration<float> time_duration;
+Timer global_timer = Timer(120);
+LedCluster *domeLeds;
 
 IsoCamera viewed_from;
 IsoCamera camera;
@@ -110,8 +113,8 @@ int main( int argc, char** argv )
   FadeCandy fc = FadeCandy("localhost", leds_per_side);
 
 
-  LedCluster domeLeds(&fc);
-  scene = new Scene(&domeLeds);
+  domeLeds = new LedCluster(&fc);
+  scene = new Scene(domeLeds);
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();
@@ -141,7 +144,34 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      sprintf(ret, "%2.02f", time_duration.count());
+      sprintf(ret, "%2.02fms", global_timer.duration()*1000);
+      return ret;
+    },
+    false)->setValue("00.00");
+
+  gui->addVariable<string>("scene time",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      sprintf(ret, "%2.02fms", scene->get_render_time()*1000);
+      return ret;
+    },
+    false)->setValue("00.00");
+
+  gui->addVariable<string>("pattern time",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      sprintf(ret, "%2.02fms", domeLeds->pattern_time()*1000);
+      return ret;
+    },
+    false)->setValue("00.00");
+
+  gui->addVariable<string>("led time",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      sprintf(ret, "%2.02fms", domeLeds->render_time()*1000);
       return ret;
     },
     false)->setValue("00.00");
@@ -153,7 +183,7 @@ int main( int argc, char** argv )
     },
     false)->setValue("                 ");
 
-  ImageView *imageWidget = new ImageView(nanoguiWindow, domeLeds.getPatternTexture().id);
+  ImageView *imageWidget = new ImageView(nanoguiWindow, domeLeds->getPatternTexture().id);
   imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
   imageWidget->setFixedScale(true);
   gui->addWidget("", imageWidget);
@@ -284,30 +314,23 @@ int main( int argc, char** argv )
       glErr = glGetError();
   }
   while(!glfwWindowShouldClose(window)) {
+    global_timer.start();
+
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
-    // Render the scene
-    std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
-
     viewed_from.moveTowards(camera, scene->getTimeDelta()*0.8);
-    domeLeds.render(viewed_from, *pattern);
-    scene->render(camera, width, height);
 
-    std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
-    time_duration = end - start;
+    domeLeds->render(viewed_from, *pattern);
+    scene->render(camera, width, height);
 
     bool next = keys[NEXT_PATTERN];
     if(next) {
       keys[NEXT_PATTERN] = false;
       pattern = &patterns[rand() % patterns.size()];
     }
-
-    // if(keys[MATCH_VIEW ]) {
-    //   scene->matchViewToPerspective();
-    // }
 
 
     gui->refresh();
@@ -316,8 +339,9 @@ int main( int argc, char** argv )
     screen->drawContents();
     screen->drawWidgets();
 
-		glfwSwapBuffers(window);
+    global_timer.end();
 
+		glfwSwapBuffers(window);
 
     GLenum glErr = glGetError();
     while (glErr != GL_NO_ERROR)

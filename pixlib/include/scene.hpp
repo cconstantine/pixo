@@ -7,6 +7,7 @@
 #include <camera.hpp>
 #include <renderer.hpp>
 #include <led_cluster.hpp>
+#include <timer.hpp>
 
 class Scene {
 public:
@@ -17,6 +18,8 @@ public:
   float getFps();
 
   float getTimeDelta();
+
+  float get_render_time();
 private:
   ScreenRender screen;
   
@@ -30,4 +33,5 @@ private:
   unsigned int frames;
   bool next;
 
+  Timer render_timer;
 };
