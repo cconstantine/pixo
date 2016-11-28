@@ -28,6 +28,7 @@ extern "C" {
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj);
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_resize(JNIEnv* env, jobject obj, jint width, jint height);
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_mouse(JNIEnv* env, jobject obj, jint x, jint y);
+JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_zoom(JNIEnv* env, jobject obj, jfloat x);
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj);
 };
 
@@ -55,9 +56,9 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     }
     if (fc == nullptr)
     {
-      fc = new FadeCandy("192.168.42.66", 16);
+      fc = new FadeCandy("192.168.42.66", 32);
     }
-    pattern = new Shader("shaders/pattern.frag", "patterns/neon_ring.glsl");
+    pattern = new Shader("shaders/pattern.frag", "patterns/sauron.glsl");
     domeLeds = new LedCluster(fc);
 
     scene = new Scene(domeLeds);
@@ -75,6 +76,11 @@ Java_org_sillypants_pixo_GLES3JNILib_resize(JNIEnv* env, jobject obj, jint jwidt
 JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_mouse(JNIEnv* env, jobject obj, jint x, jint y) {
   camera.ProcessMouseMovement(x/2, y/2);
+}
+
+JNIEXPORT void JNICALL
+Java_org_sillypants_pixo_GLES3JNILib_zoom(JNIEnv* env, jobject obj, jfloat x) {
+  camera.ProcessMouseScroll(x/2);
 }
 
 JNIEXPORT void JNICALL

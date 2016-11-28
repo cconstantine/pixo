@@ -11,6 +11,7 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.opengl.GLSurfaceView;
 
@@ -36,6 +37,8 @@ public class PixView extends GLSurfaceView {
     private int lastX = 0;
     private int lastY = 0;
     Renderer renderer;
+    private ScaleGestureDetector mScaleDetector;
+
     public PixView(Context context) {
         super(context);
         // Pick an EGLConfig with RGB8 color, 16-bit depth, no stencil,
@@ -48,6 +51,8 @@ public class PixView extends GLSurfaceView {
         setRenderer(renderer);
 
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
+        mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
+
     }
     private float mPreviousX;
     private float mPreviousY;
@@ -58,6 +63,8 @@ public class PixView extends GLSurfaceView {
         // and other input controls. In this case, you are only
         // interested in events where the touch position changed.
 
+        mScaleDetector.onTouchEvent(e);
+
         int x = (int)e.getX();
         int y = (int)e.getY();
 
@@ -66,21 +73,26 @@ public class PixView extends GLSurfaceView {
             lastY = y;
         }
 
-        renderer.mouse(x - lastX , y - lastY);
+        GLES3JNILib.mouse(x - lastX, y - lastY);
+
         lastX = x;
         lastY = y;
         return true;
     }
 
+    private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            Log.v("ScaleListener", String.format("Scale: %f\n", detector.getScaleFactor()));
+            GLES3JNILib.zoom((-100*(1 - detector.getScaleFactor())));
+            return true;
+        }
+    }
     private static class Renderer implements GLSurfaceView.Renderer {
         private Context context;
         public Renderer(Context context) {
             super();
             this.context = context;
-        }
-
-        public void mouse(int x, int y) {
-            GLES3JNILib.mouse(x, y);
         }
 
         public void onDrawFrame(GL10 gl) {
