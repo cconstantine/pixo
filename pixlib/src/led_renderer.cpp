@@ -82,7 +82,7 @@ void LedRender::render(const IsoCamera& perspective, const PatternRender& patter
     buffer[i*3 + 1] = pattern.colors[y*pattern.width*3 + x + 1];
     buffer[i*3 + 2] = pattern.colors[y*pattern.width*3 + x + 2];
   }
-  ALOGV("buffer[0] color: %2x %2x %2x\n", pattern.colors[0], pattern.colors[1], pattern.colors[2]);
+  //ALOGV("buffer[0] color: %2x %2x %2x\n", pattern.colors[0], pattern.colors[1], pattern.colors[2]);
   // leds->Draw(shader);
 
   // glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
