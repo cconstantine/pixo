@@ -55,12 +55,13 @@ void LedCluster::Draw(Shader shader)
 
 void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern) 
 {
+  unsigned char buffer[ numLeds()*3];
   pattern_timer.start();
   pattern_render.render(pattern);
   pattern_timer.end();
 
   render_timer.start();
-  fb_render.render(viewed_from, fadecandy->getData(), numLeds()*3);
+  fb_render.render(viewed_from, pattern_render, buffer, sizeof(buffer));
   render_timer.end();
 
   fadecandy->update();

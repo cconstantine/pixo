@@ -39,7 +39,7 @@ public:
   void addTexture(const Texture& texture);
 
   void setupMesh();
-protected:
+// protected:
 
   /*  Render data  */
   GLuint VAO, VBO, EBO;

@@ -10,13 +10,14 @@
 #include <texture.hpp>
 #include <chrono>
 
+#include <pattern_renderer.hpp>
 
 class LedRender {
 
 public:
   LedRender(const Texture& renderTo);
 
-  void render(const IsoCamera& perspective, uint8_t* data, size_t size);
+  void render(const IsoCamera& perspective, const PatternRender& pattern, uint8_t* data, size_t size);
 
   Texture getTexture();
 

@@ -2,7 +2,9 @@
 
 #include <glm/gtx/string_cast.hpp>
 #include <fstream>
-
+#include <iostream>
+#include <cstdint>
+#include <cstring>
 
 PatternRender::PatternRender(glm::vec2 canvasSize) :
  start(std::chrono::high_resolution_clock::now()),
@@ -15,6 +17,7 @@ PatternRender::PatternRender(glm::vec2 canvasSize) :
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
 
+  colors.resize((int)canvasSize.x*canvasSize.y*3);
   
   static const GLfloat g_vertex_buffer_data[] = { 
   // Coordinates
@@ -51,6 +54,13 @@ PatternRender::PatternRender(glm::vec2 canvasSize) :
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
     fprintf(stderr, "Failed to init GL_FRAMEBUFFER\n");
   }
+  glGenBuffers(2, pbos);
+  glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[0]);
+  glBufferData(GL_PIXEL_PACK_BUFFER, 3*width*height, 0, GL_STREAM_READ);
+  glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[1]);
+  glBufferData(GL_PIXEL_PACK_BUFFER, 3*width*height, 0, GL_STREAM_READ);
+    active_pbo = 0;
+
 }
 
 const Texture& PatternRender::getTexture() {
@@ -96,6 +106,19 @@ void PatternRender::render(const Shader& pattern) {
 
   // Draw the triangle !
   glDrawArrays(GL_TRIANGLES, 0, 6); // 3 indices starting at 0 -> 1 triangle
+  glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
+  glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, 0);
+  active_pbo = (active_pbo + 1) % 2;
+
+  glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
+  GLubyte* src = (GLubyte*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0,colors.size(), GL_MAP_READ_BIT);
+  if(src)
+  {
+   // ALOGV("Byters: %02x %02x %02x\n", src[0], src[1], src[2]);
+
+    memcpy(&colors[0], src, colors.size());
+    glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+  }
 
   glDisableVertexAttribArray(0);
 

@@ -6,7 +6,7 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-
+#include <camera.hpp>
 #include <glm/gtx/vector_angle.hpp>
 using namespace std;
 // GL Includes
@@ -26,19 +26,35 @@ LedMesh::LedMesh(const Texture& texture) :
 void LedMesh::Draw(Shader shader) 
 {
   // Bind appropriate textures
-  for(GLuint i = 0; i < this->textures.size(); i++)
-  {
-    glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
-    // Retrieve texture number (the N in diffuse_textureN)
-    stringstream ss;
-    ss << "texture" << i; // Transfer GLuint to stream   
-    glUniform1i(glGetUniformLocation(shader.Program,  ss.str().c_str()), i);
-    glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
-  }
+  // for(GLuint i = 0; i < this->textures.size(); i++)
+  // {
+  //   glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
+  //   // Retrieve texture number (the N in diffuse_textureN)
+  //   stringstream ss;
+  //   ss << "texture" << i; // Transfer GLuint to stream   
+  //   glUniform1i(glGetUniformLocation(shader.Program,  ss.str().c_str()), i);
+  //   glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
+  // }
 
-  glBindVertexArray(this->VAO);
-  glDrawArrays(GL_POINTS, 0, this->vertices.size());
-  glBindVertexArray(0);
+  // glBindVertexArray(this->VAO);
+  // glDrawArrays(GL_POINTS, 0, this->vertices.size());
+  // glBindVertexArray(0);
+
+  IsoCamera camera;
+
+  // Transformation matrices
+  glm::mat4 projection = camera.GetProjectionMatrix(2048, 2048);
+
+  glm::mat4 led_projection = glm::perspective(4.0f, (float)2048/(float)2048, 0.1f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
+  glm::mat4 led_view = camera.GetViewMatrix();
+
+  for(int i = 0;i < this->vertices.size();++i) {
+    LedVertex vert = this->vertices[i];
+
+    glm::vec4 gl_Position = projection * glm::vec4(vert.framebuffer_proj, 1.0f);
+    glm::vec4 texPos = led_projection  * led_view * glm::vec4(vert.Position, 1.0f);
+    glm::vec2 TexCoords = glm::vec2(texPos.x / texPos.z + 0.5f, texPos.y / texPos.z + 0.5f);
+  }
 }
 
 size_t LedMesh::numVertices() 
