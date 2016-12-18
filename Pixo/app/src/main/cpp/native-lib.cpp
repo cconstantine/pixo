@@ -56,7 +56,7 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     }
     if (fc == nullptr)
     {
-      fc = new FadeCandy("192.168.42.66", 32);
+      fc = new FadeCandy("192.168.42.66", 16);
     }
     pattern = new Shader("shaders/pattern.frag", "patterns/sauron.glsl");
     domeLeds = new LedCluster(fc);

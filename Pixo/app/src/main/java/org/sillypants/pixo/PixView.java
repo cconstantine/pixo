@@ -12,6 +12,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.GestureDetector;
 import android.view.View;
 import android.opengl.GLSurfaceView;
 
@@ -38,6 +39,7 @@ public class PixView extends GLSurfaceView {
     private int lastY = 0;
     Renderer renderer;
     private ScaleGestureDetector mScaleDetector;
+    private GestureDetector mScrollDetector;
 
     public PixView(Context context) {
         super(context);
@@ -52,39 +54,34 @@ public class PixView extends GLSurfaceView {
 
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
-
+        mScrollDetector = new GestureDetector(context, new ScrollListener());
     }
     private float mPreviousX;
     private float mPreviousY;
 
     @Override
     public boolean onTouchEvent(MotionEvent e) {
-        // MotionEvent reports input details from the touch screen
-        // and other input controls. In this case, you are only
-        // interested in events where the touch position changed.
-
         mScaleDetector.onTouchEvent(e);
+        mScrollDetector.onTouchEvent(e);
 
-        int x = (int)e.getX();
-        int y = (int)e.getY();
-
-        if(e.getAction() == MotionEvent.ACTION_DOWN) {
-            lastX = x;
-            lastY = y;
-        }
-
-        GLES3JNILib.mouse(x - lastX, y - lastY);
-
-        lastX = x;
-        lastY = y;
         return true;
     }
 
     private class ScaleListener extends ScaleGestureDetector.SimpleOnScaleGestureListener {
         @Override
         public boolean onScale(ScaleGestureDetector detector) {
-            Log.v("ScaleListener", String.format("Scale: %f\n", detector.getScaleFactor()));
             GLES3JNILib.zoom((-100*(1 - detector.getScaleFactor())));
+            return true;
+        }
+
+    }
+
+    private class ScrollListener extends GestureDetector.SimpleOnGestureListener {
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2,
+                                float distanceX, float distanceY) {
+            GLES3JNILib.mouse(-(int)distanceX, -(int)distanceY);
             return true;
         }
     }
