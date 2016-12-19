@@ -37,7 +37,7 @@ include_directories(ext/glew/include lib/glew/src)
 
 include_directories(
 	pixelpusher/
-	.
+	src/
 	)
 
 ###################### PIXLIB   ###############################
@@ -45,7 +45,7 @@ add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
 
-add_executable(dome_lights main.cpp )
-target_link_libraries(dome_lights nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
+add_executable(pixo src/main.cpp )
+target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
 
 
