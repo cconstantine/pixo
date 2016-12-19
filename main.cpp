@@ -158,15 +158,6 @@ int main( int argc, char** argv )
     },
     false)->setValue("00.00");
 
-  gui->addVariable<string>("pattern time",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      sprintf(ret, "%2.02fms", domeLeds->pattern_time()*1000);
-      return ret;
-    },
-    false)->setValue("00.00");
-
   gui->addVariable<string>("led time",
     [&](string value) { value; },
     [&]() -> string {

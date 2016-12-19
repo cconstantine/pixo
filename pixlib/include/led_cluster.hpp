@@ -37,8 +37,6 @@ public:
   GLuint numLeds();
 
   float render_time();
-  float pattern_time();
-
 
 private:
   void addStrip(glm::vec3 start, glm::vec3 end, int divisions);
@@ -53,7 +51,6 @@ private:
 
   Cube leds_for_display;
   Timer render_timer;
-  Timer pattern_timer;
 
   static size_t led_canvas_size(size_t leds);
 
