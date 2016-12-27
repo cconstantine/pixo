@@ -17,6 +17,7 @@ LedCluster::LedCluster(FadeCandy *fadecandy) :
  fadecandy(fadecandy),
  render_timer(120)
 {
+  leds_for_calc.addTexture(pattern_render.getDepthTexture());
   int width = leds_for_display.getDefaultTexture().width;
   int height = leds_for_display.getDefaultTexture().height;
   fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", width, height, width*height);

@@ -27,6 +27,10 @@ const Texture& RealsenseReader::getTexture() {
   return renderedTexture;
 }
 
+const Texture& RealsenseReader::getDepthTexture() {
+  return depthTexture;
+}
+
 void RealsenseReader::render() {
   dev->wait_for_frames();
   const uint8_t * color_image = (const uint8_t *)dev->get_frame_data(rs::stream::color);
@@ -65,7 +69,7 @@ void RealsenseReader::render() {
    GL_DEPTH_COMPONENT,
    GL_UNSIGNED_SHORT,
    depth_image);
-  
+
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);

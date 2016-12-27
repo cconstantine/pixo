@@ -15,6 +15,7 @@ public:
   void render();
 
   const Texture& getTexture();
+  const Texture& getDepthTexture();
 private:
   Texture renderedTexture;
   Texture depthTexture;
