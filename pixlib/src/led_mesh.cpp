@@ -31,7 +31,7 @@ void LedMesh::Draw(Shader shader)
     glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
     // Retrieve texture number (the N in diffuse_textureN)
     stringstream ss;
-    ss << "texture" << i; // Transfer GLuint to stream   
+    ss << "texture" << i; // Transfer GLuint to stream
     glUniform1i(glGetUniformLocation(shader.Program,  ss.str().c_str()), i);
     glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
   }

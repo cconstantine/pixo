@@ -18,7 +18,7 @@ struct LedVertex {
   // Normal
   glm::vec3 Normal;
   // TexCoords
-  glm::vec2 TexCoords;
+  glm::vec3 TexCoords;
   // Projection for led rendering
   glm::vec3 framebuffer_proj;
 };

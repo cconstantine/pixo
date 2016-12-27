@@ -27,6 +27,9 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 ###################### GLM     ###############################
 include_directories( ext/glm/ )
 
+###################### librealsense ##########################
+add_subdirectory(ext/librealsense)
+include_directories( ext/librealsense/include )
 
 ###################### GLEW     ###############################
 # glew
@@ -44,8 +47,7 @@ include_directories(
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
-
 add_executable(pixo src/main.cpp )
-target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
+target_link_libraries(pixo realsense nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
 
 

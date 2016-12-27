@@ -7,21 +7,27 @@
 #include <glm/glm.hpp>
 #include <opc_client.h>
 
+struct LedInfo {
+  // Position
+  glm::vec3 position;
+  // TexCoords
+  glm::vec3 texture_coordinates;
+};
+
 class FadeCandy {
 public:
 	FadeCandy(const std::string& hostname, unsigned int per_size);
 
-	const std::vector<glm::vec3>& getLeds();
+	const std::vector<LedInfo>& getLeds();
 	glm::vec2 textureSize();
 	void update();
 
 	uint8_t* getData();
 private:
 
-	void add_strip(glm::vec3 start, glm::vec3 end, unsigned int length);
-  void finalize();
+  	void finalize();
 
-	std::vector<glm::vec3> leds;
+	std::vector<LedInfo> leds;
 	std::vector<uint8_t> framebuffer;
 	OPCClient opc_client;
 

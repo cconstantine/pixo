@@ -14,7 +14,7 @@
 #include <vector>
 #include <renderer.hpp>
 #include <led_renderer.hpp>
-#include <pattern_renderer.hpp>
+#include <realsense_reader.hpp>
 #include <timer.hpp>
 
 using namespace std;
@@ -39,11 +39,10 @@ public:
   float render_time();
 
 private:
-  void addStrip(glm::vec3 start, glm::vec3 end, int divisions);
 
   Texture led_texture;
   LedRender fb_render;
-  PatternRender pattern_render;
+  RealsenseReader pattern_render;
   FadeCandy *fadecandy;
 
   /*  Model Data  */

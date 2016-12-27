@@ -15,23 +15,22 @@ FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
       glm::vec3 end  ((i - width/2)*spacing, (height/2+1)*spacing, (j - height/2)*spacing);
 
 
-      add_strip(start, end, height);
+      glm::vec3 delta = end - start ;
+
+      for(int k = 0;k < height;k++) {
+        glm::vec3 pos = start  + delta  * (1.0f/height)*float(k);
+        
+        LedInfo li;
+        li.position = pos;
+        li.texture_coordinates = glm::vec3(i / float(width), j / float(depth), k / float(height));
+
+        leds.push_back(li);
+      }
     }
   }
   finalize();
 }
 
-
-void FadeCandy::add_strip(glm::vec3 start, glm::vec3 end, unsigned int divisions)
-{
-  glm::vec3 delta = end - start ;
-
-  for(int i = 0;i < divisions;i++) {
-    glm::vec3 pos = start  + delta  * (1.0f/divisions)*float(i);
-    
-    leds.push_back(pos);
-  }
-}
 
 void FadeCandy::finalize()
 { 
@@ -47,7 +46,7 @@ glm::vec2 FadeCandy::textureSize()
   return glm::vec2(canvasSize, canvasSize);
 }
 
-const std::vector<glm::vec3>& FadeCandy::getLeds()
+const std::vector<LedInfo>& FadeCandy::getLeds()
 {
   return leds;
 }

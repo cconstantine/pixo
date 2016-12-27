@@ -15,3 +15,19 @@ public:
 
   bool isCopy;
 };
+
+class Texture3d
+{
+public:
+  Texture3d(int width, int height, int depth);
+  Texture3d(const Texture3d& copy);
+  ~Texture3d();
+
+  GLuint id;
+  GLenum target;
+  int width;
+  int height;
+  int depth;
+
+  bool isCopy;
+};

@@ -9,7 +9,7 @@ include_directories( ../ext/glm/ )
 
 include_directories(include)
 
-add_library(pixlib STATIC
+add_library(pixlib SHARED
  src/shader.cpp
  src/scene.cpp
  src/texture.cpp
@@ -20,9 +20,13 @@ add_library(pixlib STATIC
  src/led_cluster.cpp
  src/renderer.cpp
  src/pattern_renderer.cpp
+ src/realsense_reader.cpp
  src/led_renderer.cpp
  src/timer.cpp
- src/fade_candy.cpp)
+ src/fade_candy.cpp
+ )
+
+ target_link_libraries(pixlib realsense)
 
 
 set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
