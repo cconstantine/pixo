@@ -55,7 +55,26 @@ void RealsenseReader::render() {
   glBindTexture( GL_TEXTURE_2D, NULL );
 
 
+  {
+    const uint16_t * depth_image = (const uint16_t *)dev->get_frame_data(rs::stream::depth);
+    uint16_t max = 0;
+    uint16_t min = 0xffff;
+    for(int i = 0;i < depthTexture.width*depthTexture.height;i++) {
+      if (depth_image[i] > max && depth_image[i] != 0xffff) {
+        max = depth_image[i];
+      }
+      if (depth_image[i] < min && depth_image[i] != 0x0000) {
+        min = depth_image[i];
+      }
+    }
+    ALOGV("Depth: %4x, %4x\n", min, max);
+  }
 
+  // uint16_t depth_image[depthTexture.width* depthTexture.height];
+  // for(int i = 0; i < depthTexture.width* depthTexture.height;i++) {
+  //   depth_image[i] = (uint16_t)0x00FF;
+  // }
+  
   const uint16_t * depth_image = (const uint16_t *)dev->get_frame_data(rs::stream::depth);
 
   glBindTexture(GL_TEXTURE_2D, depthTexture.id);
