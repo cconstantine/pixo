@@ -9,10 +9,10 @@
 #include <iostream>
 
 // Include GLEW
-#include <GL/glew.h>
+//#include <GL/glew.h>
 
 // Include GLFW
-#include <GLFW/glfw3.h>
+#include <opengl.h>
 GLFWwindow* window;
 
 // Include GLM
@@ -35,7 +35,6 @@ using namespace glm;
 #include <fade_candy.hpp>
 
 using namespace nanogui;
-Screen *screen = nullptr;
 Scene *scene = nullptr;
 Shader *pattern = nullptr;
 Timer global_timer = Timer(120);
@@ -61,28 +60,33 @@ int main( int argc, char** argv )
     if( !glfwInit() )
     {
         fprintf( stderr, "Failed to initialize GLFW\n" );
-        getchar();
         return -1;
     }  
 
-  
+ /* 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_DEPTH_BITS, 24 );
+*/
+    glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+    //glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+//    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
 
     // Open a window and create its OpenGL context
     window = glfwCreateWindow( 800, 800, "Pixo", NULL, NULL);
     if( window == NULL ){
-        fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-        getchar();
+        fprintf( stderr, "Failed to open GLFW window.\n" );
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
+printf("VENDOR:  %s\n", glGetString(GL_VENDOR));
+printf("RENDER:  %s\n", glGetString(GL_RENDERER));
+printf("VERSION: %s\n", glGetString(GL_VERSION));
 
-
+exit(1);
   // Ensure we can capture the escape key being pressed below
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
   // Options
@@ -117,77 +121,9 @@ int main( int argc, char** argv )
   scene = new Scene(domeLeds);
 
   // Create a nanogui screen and pass the glfw pointer to initialize
-  screen = new Screen();
-  screen->initialize(window, true);
-  GLenum glErr = glGetError();
-  while (glErr != GL_NO_ERROR)
-  {
-      ALOGV("Screen %04x\n", glErr);
-      glErr = glGetError();
-  }
-  // Create nanogui gui
-  bool enabled = true;
-  FormHelper *gui = new FormHelper(screen);
-  nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Status");
-
-  gui->addVariable<string>("fps",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      float fps = scene->getFps();
-      sprintf(ret, "%2.02f", fps);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("render time",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      sprintf(ret, "%2.02fms", global_timer.duration()*1000);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("scene time",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      sprintf(ret, "%2.02fms", scene->get_render_time()*1000);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("led time",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      sprintf(ret, "%2.02fms", domeLeds->render_time()*1000);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("Shader",
-    [&](string value) { value; },
-    [&]() -> string {
-      return pattern->fragmentPath.c_str();
-    },
-    false)->setValue("                 ");
-
-  ImageView *imageWidget = new ImageView(nanoguiWindow, domeLeds->getPatternTexture().id);
-  imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
-  imageWidget->setFixedScale(true);
-  gui->addWidget("", imageWidget);
-  screen->setVisible(true);
-  screen->performLayout();
-
-  imageWidget->fit();
-
-
 
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
-          if (!screen->cursorPosCallbackEvent(x, y)) {
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
             if (state != GLFW_PRESS) {
@@ -208,12 +144,10 @@ int main( int argc, char** argv )
 
             camera.ProcessMouseMovement(xoffset, yoffset);
           }
-      }
   );
 
   glfwSetMouseButtonCallback(window,
       [](GLFWwindow *window, int button, int action, int modifiers) {
-          if (!screen->mouseButtonCallbackEvent(button, action, modifiers)) {
 
             if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
               glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -221,12 +155,10 @@ int main( int argc, char** argv )
               glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
           }
-      }
   );
 
   glfwSetKeyCallback(window,
       [](GLFWwindow *window, int key, int scancode, int action, int mods) {
-          if (!screen->keyCallbackEvent(key, scancode, action, mods)) {
             if (action == GLFW_REPEAT) {
               return;
             }
@@ -268,43 +200,26 @@ int main( int argc, char** argv )
               keys[ORB_DOWN] = (action == GLFW_PRESS); 
             }
           }
-      }
-  );
-
-  glfwSetCharCallback(window,
-      [](GLFWwindow *window, unsigned int codepoint) {
-          screen->charCallbackEvent(codepoint);
-      }
-  );
-
-  glfwSetDropCallback(window,
-      [](GLFWwindow *window, int count, const char **filenames) {
-          screen->dropCallbackEvent(count, filenames);
-      }
   );
 
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
-          if (!screen->scrollCallbackEvent(x, y)) {
             camera.ProcessMouseScroll(y);
-
-          }
      }
   );
 
-  glfwSetFramebufferSizeCallback(window,
-      [](GLFWwindow *window, int width, int height) {
-          screen->resizeCallbackEvent(width, height);
-      }
-  );
-
-  glErr = glGetError();
+  GLenum glErr = glGetError();
   while (glErr != GL_NO_ERROR)
   {
       ALOGV("Preloop %04x\n", glErr);
       glErr = glGetError();
   }
+  int frames = 0;
   while(!glfwWindowShouldClose(window)) {
+    if (frames++ > 60) {
+      fprintf(stderr, "fps: %3.2f\n", scene->getFps());
+      frames = 0;
+    }
     global_timer.start();
 
     glfwPollEvents();
@@ -323,12 +238,6 @@ int main( int argc, char** argv )
       pattern = &patterns[rand() % patterns.size()];
     }
 
-
-    gui->refresh();
-    // Draw nanogui
-    screen->performLayout();
-    screen->drawContents();
-    screen->drawWidgets();
 
     global_timer.end();
 
