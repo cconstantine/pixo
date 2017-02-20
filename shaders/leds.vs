@@ -9,7 +9,7 @@ layout (location = 1) in vec3 normal;
 layout (location = 2) in vec3 texCoords;
 layout (location = 3) in vec3 framebuf_proj;
 
-out vec3 TexCoords;
+out vec2 TexCoords;
 out vec3 Position;
 
 uniform mat4 projection;
@@ -20,9 +20,9 @@ void main()
 {
     gl_Position = projection * vec4(framebuf_proj, 1.0f);
 
-    //vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
-    //TexCoords =  texPos.xy / texPos.z + 0.5;
+    vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
+    TexCoords =  texPos.xy / texPos.z + 0.5;
 
-    TexCoords = texCoords;
+    //TexCoords = texCoords;
     Position = position;
 }

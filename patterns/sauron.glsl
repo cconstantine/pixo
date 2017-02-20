@@ -1,4 +1,4 @@
-#version 310 es
+#version 330 core
 
 #ifdef GL_ES
 precision highp float;
@@ -21,7 +21,7 @@ uniform vec2 resolution;
 //      Author : Ian McEwan, Ashima Arts.
 //  Maintainer : ijm
 //     Lastmod : 20110822 (ijm)
-//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.
+//     License : Copyright (C ) 2011 Ashima Arts. All rights reserved.
 //               Distributed under the MIT License. See LICENSE file.
 //               https://github.com/ashima/webgl-noise
 // 

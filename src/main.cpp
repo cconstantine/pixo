@@ -3,8 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
-#include <boost/shared_ptr.hpp>
-
 
 #include <iostream>
 

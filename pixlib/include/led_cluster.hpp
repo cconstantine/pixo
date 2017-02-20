@@ -14,7 +14,7 @@
 #include <vector>
 #include <renderer.hpp>
 #include <led_renderer.hpp>
-#include <realsense_reader.hpp>
+#include <pattern_renderer.hpp>
 #include <timer.hpp>
 
 using namespace std;
@@ -42,7 +42,7 @@ private:
 
   Texture led_texture;
   LedRender fb_render;
-  RealsenseReader pattern_render;
+  PatternRender pattern_render;
   FadeCandy *fadecandy;
 
   /*  Model Data  */
