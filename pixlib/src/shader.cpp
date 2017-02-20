@@ -5,7 +5,7 @@
 #include <sstream>
 #include <iostream>
 
-Shader::Shader(const Shader& copy) : Program(copy.Program) { }
+Shader::Shader(const Shader& copy) : Program(copy.Program), vertexPath(copy.vertexPath), fragmentPath(copy.fragmentPath) { }
 
 Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) : vertexPath(vertexPath), fragmentPath(fragmentPath) {
   // 1. Retrieve the vertex/fragment source code from filePath

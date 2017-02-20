@@ -35,7 +35,7 @@ using namespace glm;
 using namespace nanogui;
 Screen *screen = nullptr;
 Scene *scene = nullptr;
-Shader *pattern = nullptr;
+PatternRender *pattern = nullptr;
 Timer global_timer = Timer(120);
 LedCluster *domeLeds;
 
@@ -101,14 +101,16 @@ int main( int argc, char** argv )
   glDepthFunc(GL_LESS);
   glPointSize(1);
   
-  vector<Shader> patterns;
-  for(int i = 2;i < argc;i++) {
-    patterns.push_back(Shader("shaders/pattern.frag", &argv[i][2]));
-  }
-
-  pattern = &patterns[rand() % patterns.size()];
   const int leds_per_side = atoi(argv[1]);
   FadeCandy fc = FadeCandy("localhost", leds_per_side);
+
+  vector<PatternRender*> patterns;
+  for(int i = 2;i < argc;i++) {
+    Shader shade("shaders/pattern.frag", &argv[i][2]);
+    patterns.push_back(new PatternRender(fc.textureSize(), shade));
+  }
+
+  pattern = patterns[rand() % patterns.size()];
 
 
   domeLeds = new LedCluster(&fc);
@@ -168,11 +170,11 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      return pattern->fragmentPath.c_str();
+      return pattern->getName().c_str();
     },
     false)->setValue("                 ");
 
-  ImageView *imageWidget = new ImageView(nanoguiWindow, domeLeds->getPatternTexture().id);
+  ImageView *imageWidget = new ImageView(nanoguiWindow, pattern->getTexture().id);
   imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
   imageWidget->setFixedScale(true);
   gui->addWidget("", imageWidget);
@@ -318,9 +320,9 @@ int main( int argc, char** argv )
     bool next = keys[NEXT_PATTERN];
     if(next) {
       keys[NEXT_PATTERN] = false;
-      pattern = &patterns[rand() % patterns.size()];
+      pattern = patterns[rand() % patterns.size()];
+      imageWidget->bindImage(pattern->getTexture().id);
     }
-
 
     gui->refresh();
     // Draw nanogui

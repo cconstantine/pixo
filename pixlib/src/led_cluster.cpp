@@ -10,14 +10,12 @@ size_t LedCluster::led_canvas_size(size_t leds)
 
 LedCluster::LedCluster(FadeCandy *fadecandy) :
  led_texture(led_canvas_size(fadecandy->getLeds().size()), led_canvas_size(fadecandy->getLeds().size())),
- leds_for_calc(pattern_render.getTexture()),
+ leds_for_calc(),
  leds_for_display(led_texture),
  fb_render(led_texture),
- pattern_render(fadecandy->textureSize()),
  fadecandy(fadecandy),
  render_timer(120)
 {
-  //leds_for_calc.addTexture(pattern_render.getDepthTexture());
   int width = leds_for_display.getDefaultTexture().width;
   int height = leds_for_display.getDefaultTexture().height;
   fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", width, height, width*height);
@@ -55,10 +53,16 @@ void LedCluster::Draw(Shader shader)
   leds_for_display.Draw(shader);
 }
 
-void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern) 
+void LedCluster::render(const IsoCamera& viewed_from, const PatternRender& pattern_render)
 {
   render_timer.start();
-  pattern_render.render(pattern);
+  pattern_render.render();
+
+  if (leds_for_calc.textures.size() == 0) {
+    leds_for_calc.addTexture(pattern_render.getTexture());
+  } else {
+    leds_for_calc.textures[0] = pattern_render.getTexture();
+  }
   fb_render.render(viewed_from, fadecandy->getData(), numLeds()*3);
   render_timer.end();
 
@@ -68,9 +72,4 @@ void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern)
 float LedCluster::render_time()
 {
   return render_timer.duration();
-}
-
-const Texture& LedCluster::getPatternTexture()
-{
-  return pattern_render.getTexture();
 }

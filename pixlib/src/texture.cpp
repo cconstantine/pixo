@@ -18,6 +18,7 @@ Texture::~Texture()
 {
 	if(isCopy)
 		return;
+  ALOGV("Destroying texture: %d\n", id);
 	glDeleteTextures(1, &id);
 }
 

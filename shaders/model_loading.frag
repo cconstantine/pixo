@@ -10,7 +10,7 @@ in vec4 Position;
 
 out vec4 color;
 
-uniform sampler2D texture1;
+uniform sampler2D texture0;
 
 struct PointLight {
   vec3 position;
@@ -32,7 +32,7 @@ void main()
   vec3 lightDir = normalize(point_light.position - Position.xyz);
   float diff = max(dot(norm, lightDir), 0.0);
 
-  color = vec4((texture(texture1, TexCoords) * (attenuation*0.5 + diff)).xyz, 1.0);
+  color = vec4((texture(texture0, TexCoords) * (attenuation*0.5 + diff)).xyz, 1.0);
 	//color = vec4(vec3(gl_FragCoord.z), 1.0f);
 
 }

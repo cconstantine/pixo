@@ -4,13 +4,21 @@
 #include <fstream>
 
 
-PatternRender::PatternRender(glm::vec2 canvasSize) :
+PatternRender::PatternRender(glm::vec2 canvasSize, const Shader& pattern) :
  start(std::chrono::high_resolution_clock::now()),
  width(canvasSize.x),
  height(canvasSize.y),
- renderedTexture(canvasSize.x, canvasSize.y)
+ renderedTexture(canvasSize.x, canvasSize.y),
+ pattern(pattern)
 {
   ALOGV("PatternRender::PatternRender (%d x %d)\n", width, height);
+
+  for(unsigned int i = pattern.fragmentPath.size();i >= 0;i--) {
+    if (pattern.fragmentPath[i] == '/') {
+      break;
+    }
+    name = pattern.fragmentPath[i] + name;
+  }
 
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
@@ -53,11 +61,15 @@ PatternRender::PatternRender(glm::vec2 canvasSize) :
   }
 }
 
-const Texture& PatternRender::getTexture() {
+const Texture& PatternRender::getTexture() const {
   return renderedTexture;
 }
 
-void PatternRender::render(const Shader& pattern) {
+std::string PatternRender::getName() const {
+  return name;
+}
+
+void PatternRender::render() const {
   GLuint time_id = glGetUniformLocation(pattern.Program, "time");
   GLuint resolution_id = glGetUniformLocation(pattern.Program, "resolution");
   GLuint mouse_id = glGetUniformLocation(pattern.Program, "mouse");
