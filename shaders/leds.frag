@@ -10,10 +10,11 @@ in vec3 Position;
 out vec4 color;
 
 uniform sampler2D texture0;
+uniform sampler2D texture1;
 
 void main()
 {
-  color = texture(texture0, TexCoords);
+  color = texture(texture1, TexCoords);
 
   //float raw_depth = texture(texture1, TexCoords.xz).r;
   // if (raw_depth < 0.01f || raw_depth > 0.90f) {

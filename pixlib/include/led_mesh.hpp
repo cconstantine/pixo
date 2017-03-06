@@ -25,7 +25,7 @@ struct LedVertex {
 
 class LedMesh : public Drawable {
 public:
-  LedMesh();
+  LedMesh(const Texture& textures);
 
   
   // Render the mesh
@@ -39,7 +39,6 @@ public:
   void addTexture(const Texture& texture);
 
   void setupMesh();
-  vector<Texture> textures;
 protected:
 
   /*  Render data  */
@@ -47,6 +46,7 @@ protected:
 
   /*  Mesh Data  */
   vector<LedVertex> vertices;
+  vector<Texture> textures;
 
   float min_x;
   float max_x;

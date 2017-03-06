@@ -13,12 +13,13 @@ using namespace std;
 
 #include <shader.hpp>
 
-LedMesh::LedMesh() :
+LedMesh::LedMesh(const Texture& texture) :
  min_x(0.0f), max_x(0.0f),
  min_y(0.0f), max_y(0.0f),
  min_z(0.0f), max_z(0.0f)
  {
   ALOGV("LedMesh::LedMesh\n");
+  addTexture(texture);
 }
 
 // Render the mesh

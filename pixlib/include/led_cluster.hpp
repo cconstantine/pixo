@@ -30,7 +30,9 @@ public:
   // Render the mesh
   virtual void Draw(Shader shader);
 
-  void render(const IsoCamera& viewed_from, const PatternRender& pattern_render);
+  void render(const IsoCamera& viewed_from, const Shader& pattern);
+
+  const Texture& getPatternTexture();
 
   GLuint numLeds();
 
@@ -40,6 +42,7 @@ private:
 
   Texture led_texture;
   LedRender fb_render;
+  PatternRender pattern_render;
   FadeCandy *fadecandy;
 
   /*  Model Data  */

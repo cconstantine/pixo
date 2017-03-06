@@ -7,18 +7,15 @@
 #include <shader.hpp>
 #include <texture.hpp>
 #include <chrono>
-#include <string>
 
 
 class PatternRender {
 public:
-  PatternRender(glm::vec2 canvasSize, const Shader& pattern);
+  PatternRender(glm::vec2 canvasSize);
 
-  void render() const;
+  void render(const Shader& pattern);
 
-  const Texture& getTexture() const;
-  std::string getName() const;
-
+  const Texture& getTexture();
 private:
   GLuint VertexArrayID;
   GLuint vertexbuffer;
@@ -26,10 +23,7 @@ private:
   GLuint FramebufferName;
   Texture renderedTexture;
   int width, height;
-  const Shader pattern;
-  std::string name;
 
   std::chrono::time_point<std::chrono::high_resolution_clock> start;
 
-  PatternRender(const PatternRender& copy);
 };
