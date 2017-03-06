@@ -24,6 +24,7 @@ add_library(pixlib SHARED
  src/led_renderer.cpp
  src/timer.cpp
  src/fade_candy.cpp
+ src/pattern.cpp
  )
 
  target_link_libraries(pixlib realsense)

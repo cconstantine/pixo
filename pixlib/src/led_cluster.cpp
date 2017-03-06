@@ -55,10 +55,10 @@ void LedCluster::Draw(Shader shader)
   leds_for_display.Draw(shader);
 }
 
-void LedCluster::render(const IsoCamera& viewed_from, const Shader& pattern) 
+void LedCluster::render(const IsoCamera& viewed_from, const Pattern& pattern) 
 {
   render_timer.start();
-  pattern_render.render(pattern);
+  pattern_render.render(pattern.shader);
   fb_render.render(viewed_from, fadecandy->getData(), numLeds()*3);
   render_timer.end();
 

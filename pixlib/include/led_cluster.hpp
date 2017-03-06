@@ -3,7 +3,7 @@
 #include <opengl.h>
 #include <mesh.hpp>
 #include <led_mesh.hpp>
-#include <shader.hpp>
+#include <pattern.hpp>
 #include <cube.hpp>
 
 #include <string>
@@ -30,7 +30,7 @@ public:
   // Render the mesh
   virtual void Draw(Shader shader);
 
-  void render(const IsoCamera& viewed_from, const Shader& pattern);
+  void render(const IsoCamera& viewed_from, const Pattern& pattern);
 
   const Texture& getPatternTexture();
 
