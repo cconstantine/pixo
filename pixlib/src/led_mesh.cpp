@@ -59,7 +59,7 @@ float LedMesh::getZoom(glm::vec3 position)
   glm::vec2 b = glm::vec2(-1, 0.0f);
 
 
-  zoom = glm::angle(a, b)*3.5;
+  zoom = glm::angle(a, b)*2.5;
 
   return zoom;
 }

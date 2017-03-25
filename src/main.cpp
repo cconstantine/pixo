@@ -124,7 +124,6 @@ int main( int argc, char** argv )
       glErr = glGetError();
   }
   // Create nanogui gui
-  bool enabled = true;
   FormHelper *gui = new FormHelper(screen);
   nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Status");
 
