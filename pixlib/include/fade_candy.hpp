@@ -21,6 +21,7 @@ public:
 	const std::vector<LedInfo>& getLeds();
 	glm::vec2 textureSize();
 	void update();
+  void clear();
 
 	uint8_t* getData();
 private:

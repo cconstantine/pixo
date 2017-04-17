@@ -9,25 +9,21 @@ FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
   int width = per_size;
   int height = per_size;
   int depth = per_size;
-  for(int i = 0;i < width;i++) {
-    for(int j = 0;j < depth;j++) {
-      glm::vec3 start((i - width/2)*spacing, -(height/2)*spacing,      (j - height/2)*spacing);
-      glm::vec3 end  ((i - width/2)*spacing, (height/2+1)*spacing, (j - height/2)*spacing);
 
-
-      glm::vec3 delta = end - start ;
-
-      for(int k = 0;k < height;k++) {
-        glm::vec3 pos = start  + delta  * (1.0f/height)*float(k);
-        
+  for(int y = height;y > 0;y--) {
+    int direction = 1;
+    for(int z = 0;z < height;z++) {
+      for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
         LedInfo li;
-        li.position = pos;
-        li.texture_coordinates = glm::vec3(i / float(width), j / float(depth), k / float(height));
-
+        li.position = glm::vec3((x - width / 2)*spacing, (z-height/2)*spacing, (y-height/2)*spacing);
+        
         leds.push_back(li);
-      }
+      }  
+      
+      direction *= -1;
     }
   }
+
   finalize();
 }
 
@@ -54,6 +50,12 @@ const std::vector<LedInfo>& FadeCandy::getLeds()
 void FadeCandy::update()
 {
   opc_client.write(framebuffer);
+}
+
+void FadeCandy::clear()
+{
+  memset(getData(), 0, getLeds().size()*3);
+  update();
 }
 
 uint8_t* FadeCandy::getData()

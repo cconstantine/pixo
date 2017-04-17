@@ -338,12 +338,15 @@ int main( int argc, char** argv )
         glErr = glGetError();
     }
 
-    }
+  }
 
-    // Close OpenGL window and terminate GLFW
-    glfwTerminate();
+  fc.clear();
+  
 
-    return 0;
+  // Close OpenGL window and terminate GLFW
+  glfwTerminate();
+
+  return 0;
 }
 
 
