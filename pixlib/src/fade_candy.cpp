@@ -10,12 +10,16 @@ FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
   int height = per_size;
   int depth = per_size;
 
+  float x_offset = -(float)width / 2.0f  + 0.5f;
+  float y_offset = -(float)height / 2.0f - 0.5f;
+  float z_offset = -(float)depth / 2.0f  + 0.5f;
+
   for(int y = height;y > 0;y--) {
     int direction = 1;
     for(int z = 0;z < height;z++) {
       for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
         LedInfo li;
-        li.position = glm::vec3((x - width / 2)*spacing, (z-height/2)*spacing, (y-height/2)*spacing);
+        li.position = glm::vec3(((float)x + x_offset)*spacing, ((float)z+z_offset)*spacing, ((float)y+y_offset)*spacing);
         
         leds.push_back(li);
       }  
