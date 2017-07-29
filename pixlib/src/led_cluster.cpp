@@ -4,7 +4,6 @@
 size_t LedCluster::led_canvas_size(size_t leds)
 {
   fprintf(stderr, "leds: %d\n", leds);
-  //return 64;
   return pow(2, ceil(log(sqrt(leds))/log(2)));
 }
 
