@@ -102,13 +102,13 @@ int main( int argc, char** argv )
   glPointSize(1);
   
   vector<Pattern*> patterns;
-  for(int i = 2;i < argc;i++) {
+  for(int i = 3;i < argc;i++) {
     patterns.push_back(new Pattern(&argv[i][2]));
   }
 
   pattern = patterns[rand() % patterns.size()];
   const int leds_per_side = atoi(argv[1]);
-  FadeCandy fc = FadeCandy("localhost", leds_per_side);
+  FadeCandy fc = FadeCandy(argv[2], leds_per_side);
 
 
   domeLeds = new LedCluster(&fc);
