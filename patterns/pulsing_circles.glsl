@@ -7,7 +7,7 @@ precision mediump float;
 
 // http://glslsandbox.com/e#31456.1
 
-#extension GL_OES_standard_derivatives : enable
+// #extension GL_OES_standard_derivatives : enable
 
 uniform float time;
 uniform vec2 mouse;

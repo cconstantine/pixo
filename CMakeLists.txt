@@ -48,6 +48,6 @@ add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
 add_executable(pixo src/main.cpp )
-target_link_libraries(pixo  nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib ) #realsense
+target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
 
 

@@ -27,7 +27,7 @@ add_library(pixlib STATIC
  src/pattern.cpp
  )
 
- target_link_libraries(pixlib glfw libglew_static) # realsense
+ target_link_libraries(pixlib) # realsense)
 
 
 set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)

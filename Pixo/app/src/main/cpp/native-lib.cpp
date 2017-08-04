@@ -12,7 +12,7 @@
 #include <pixlib.hpp>
 
 Scene *scene = nullptr;
-Shader *pattern = nullptr;
+Pattern *pattern = nullptr;
 FadeCandy* fc = nullptr;
 LedCluster* domeLeds;
 ScreenRender* screen_renderer;
@@ -58,7 +58,7 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     {
       fc = new FadeCandy("192.168.42.66", 16);
     }
-    pattern = new Shader("shaders/pattern.frag", "patterns/sauron.glsl");
+    pattern = new Pattern("patterns/sauron.glsl");
     domeLeds = new LedCluster(fc);
 
     scene = new Scene(domeLeds);
