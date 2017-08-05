@@ -5,7 +5,6 @@
 
 
 PatternRender::PatternRender(glm::vec2 canvasSize) :
- start(std::chrono::high_resolution_clock::now()),
  width(canvasSize.x),
  height(canvasSize.y),
  renderedTexture(canvasSize.x, canvasSize.y)
@@ -57,23 +56,22 @@ const Texture& PatternRender::getTexture() {
   return renderedTexture;
 }
 
-void PatternRender::render(const Shader& pattern) {
-  GLuint time_id = glGetUniformLocation(pattern.Program, "time");
-  GLuint resolution_id = glGetUniformLocation(pattern.Program, "resolution");
-  GLuint mouse_id = glGetUniformLocation(pattern.Program, "mouse");
+void PatternRender::render(const Pattern& pattern) {
+  GLuint time_id = glGetUniformLocation(pattern.shader.Program, "time");
+  GLuint resolution_id = glGetUniformLocation(pattern.shader.Program, "resolution");
+  GLuint mouse_id = glGetUniformLocation(pattern.shader.Program, "mouse");
 
-  GLuint itime_id = glGetUniformLocation(pattern.Program, "iGlobalTime");
-  GLuint iresolution_id = glGetUniformLocation(pattern.Program, "iResolution");
-  GLuint imouse_id = glGetUniformLocation(pattern.Program, "iMouse");
+  GLuint itime_id = glGetUniformLocation(pattern.shader.Program, "iGlobalTime");
+  GLuint iresolution_id = glGetUniformLocation(pattern.shader.Program, "iResolution");
+  GLuint imouse_id = glGetUniformLocation(pattern.shader.Program, "iMouse");
 
   glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
   glViewport(0,0,width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
-  std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - start;
-  float time_elapsed = diff.count();
+  float time_elapsed = pattern.getTimeElapsed();
 
   // Use our shader
-  pattern.Use();
+  pattern.shader.Use();
   glUniform1f(time_id, time_elapsed );
   glUniform2f(resolution_id, width, height);
   glUniform2f(mouse_id, width/2, height/2);

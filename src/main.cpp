@@ -301,6 +301,7 @@ int main( int argc, char** argv )
       ALOGV("Preloop %04x\n", glErr);
       glErr = glGetError();
   }
+  std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();
 
@@ -314,10 +315,12 @@ int main( int argc, char** argv )
     domeLeds->render(viewed_from, *pattern);
     scene->render(camera, width, height);
 
-    bool next = keys[NEXT_PATTERN];
-    if(next) {
+    std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - last_pattern_change;
+    if(keys[NEXT_PATTERN] || diff.count() > 600) {
       keys[NEXT_PATTERN] = false;
       pattern = patterns[rand() % patterns.size()];
+      pattern->resetStart();
+      last_pattern_change = std::chrono::high_resolution_clock::now();
     }
 
 

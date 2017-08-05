@@ -4,7 +4,7 @@
 #include <opengl.h>
 #include <glm/glm.hpp>
 
-#include <shader.hpp>
+#include <pattern.hpp>
 #include <texture.hpp>
 #include <chrono>
 
@@ -13,7 +13,7 @@ class PatternRender {
 public:
   PatternRender(glm::vec2 canvasSize);
 
-  void render(const Shader& pattern);
+  void render(const Pattern& pattern);
 
   const Texture& getTexture();
 private:
@@ -24,6 +24,5 @@ private:
   Texture renderedTexture;
   int width, height;
 
-  std::chrono::time_point<std::chrono::high_resolution_clock> start;
 
 };

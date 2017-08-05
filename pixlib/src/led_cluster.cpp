@@ -58,7 +58,7 @@ void LedCluster::Draw(Shader shader)
 void LedCluster::render(const IsoCamera& viewed_from, const Pattern& pattern) 
 {
   render_timer.start();
-  pattern_render.render(pattern.shader);
+  pattern_render.render(pattern);
   fb_render.render(viewed_from, fadecandy->getData(), numLeds()*3);
   render_timer.end();
 
