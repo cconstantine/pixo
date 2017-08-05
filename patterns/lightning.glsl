@@ -1,4 +1,5 @@
 #version 330 core
+out vec4 color_out;
 
 // Lightning
 //
@@ -17,7 +18,6 @@ precision mediump float;
 uniform float time;
 uniform vec2 mouse;
 uniform vec2 resolution;
-out vec4 color_out;
 
 float random( vec2 p )
 {

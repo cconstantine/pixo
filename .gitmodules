@@ -10,3 +10,6 @@
 [submodule "ext/librealsense"]
 	path = ext/librealsense
 	url = https://github.com/IntelRealSense/librealsense.git
+[submodule "ext/tinyobjloader"]
+	path = ext/tinyobjloader
+	url = https://github.com/syoyo/tinyobjloader.git
