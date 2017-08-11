@@ -332,7 +332,9 @@ int main( int argc, char** argv )
 
     global_timer.end();
 
-        glfwSwapBuffers(window);
+        camera.rotate(global_timer.duration() * 5);
+    
+    glfwSwapBuffers(window);
 
     GLenum glErr = glGetError();
     while (glErr != GL_NO_ERROR)
