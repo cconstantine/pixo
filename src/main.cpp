@@ -29,28 +29,32 @@ GLFWwindow* window;
 #include <nanogui/nanogui.h>
 #include <fade_candy.hpp>
 
+#include <app.hpp>
+
+
 using namespace nanogui;
 using namespace glm;
 using namespace std;
 
-Screen *screen = nullptr;
-Scene *scene = nullptr;
-Pattern *pattern = nullptr;
 Timer global_timer = Timer(120);
-LedCluster *domeLeds;
-
-IsoCamera viewed_from;
-IsoCamera camera;
 
 static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
 
 bool keys[1024];
 std::string Shader::root = std::string("../");
+Screen *screen;
+
+void sig_int_handler(int s){
+  static unsigned int hits = 1;
+  if (hits++ >= 3) {
+    exit(1);
+  }
+  glfwSetWindowShouldClose(window, GL_TRUE);
+}
 
 int main( int argc, char** argv )
-{
-  
+{  
   if(argc < 3) {
     fprintf(stderr, "Usage: %s LEDS_PER_SIDE [pattern file]*\n", argv[0]);
     exit(1);
@@ -83,8 +87,6 @@ int main( int argc, char** argv )
 
   // Ensure we can capture the escape key being pressed below
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-  // Options
-  //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // Initialize GLEW
   glewExperimental = GL_TRUE; // Needed for core profile
@@ -97,22 +99,16 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
-  // Accept fragment if it closer to the camera than the former one
-  glDepthFunc(GL_LESS);
-  glPointSize(1);
   
-  vector<Pattern*> patterns;
-  for(int i = 3;i < argc;i++) {
-    patterns.push_back(new Pattern(&argv[i][2]));
-  }
-
-  pattern = patterns[rand() % patterns.size()];
   const int leds_per_side = atoi(argv[1]);
   FadeCandy fc = FadeCandy(argv[2], leds_per_side);
 
+  App application(&fc);
+  glfwSetWindowUserPointer(window, &application);
 
-  domeLeds = new LedCluster(&fc);
-  scene = new Scene(domeLeds);
+  for(int i = 3;i < argc;i++) {
+    application.add_pattern(new Pattern(&argv[i][2]));
+  }
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new Screen();
@@ -131,7 +127,7 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      float fps = scene->getFps();
+      float fps = application.scene_fps();
       sprintf(ret, "%2.02f", fps);
       return ret;
     },
@@ -150,7 +146,7 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      sprintf(ret, "%2.02fms", scene->get_render_time()*1000);
+      sprintf(ret, "%2.02fms", application.scene_render_time()*1000);
       return ret;
     },
     false)->setValue("00.00");
@@ -159,7 +155,7 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      sprintf(ret, "%2.02fms", domeLeds->render_time()*1000);
+      sprintf(ret, "%2.02fms", application.led_render_time()*1000);
       return ret;
     },
     false)->setValue("00.00");
@@ -167,11 +163,11 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      return pattern->getName().c_str();
+      return application.current_pattern()->getName();
     },
     false)->setValue("                 ");
 
-  ImageView *imageWidget = new ImageView(nanoguiWindow, domeLeds->getPatternTexture().id);
+  ImageView *imageWidget = new ImageView(nanoguiWindow, application.getPatternTexture().id);
   imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
   imageWidget->setFixedScale(true);
   gui->addWidget("", imageWidget);
@@ -181,10 +177,10 @@ int main( int argc, char** argv )
   imageWidget->fit();
 
 
-
   glfwSetCursorPosCallback(window,
-          [](GLFWwindow *window, double x, double y) {
+          [] (GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {
+            App* app = (App*)glfwGetWindowUserPointer(window);
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
             if (state != GLFW_PRESS) {
@@ -203,7 +199,7 @@ int main( int argc, char** argv )
             lastX = x;
             lastY = y;
 
-            camera.ProcessMouseMovement(xoffset, yoffset);
+            app->ProcessMouseMovement(xoffset, yoffset);
           }
       }
   );
@@ -211,7 +207,6 @@ int main( int argc, char** argv )
   glfwSetMouseButtonCallback(window,
       [](GLFWwindow *window, int button, int action, int modifiers) {
           if (!screen->mouseButtonCallbackEvent(button, action, modifiers)) {
-
             if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
               glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
@@ -229,41 +224,11 @@ int main( int argc, char** argv )
             }
             if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
               glfwSetWindowShouldClose(window, GL_TRUE);
-
-            // Camera controls
-            if(key == GLFW_KEY_W) {
-              keys[FORWARD] = (action == GLFW_PRESS);  
-            }
-            if(key == GLFW_KEY_S) {
-              keys[BACKWARD] = (action == GLFW_PRESS);  
-            }
-            if(key == GLFW_KEY_A) {
-              keys[LEFT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_D) {
-              keys[RIGHT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_LEFT_SHIFT) {
-              keys[MATCH_VIEW] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_LEFT_CONTROL) {
-              keys[TOWARDS_VIEW] = (action == GLFW_PRESS); 
-            }
+ 
             if(key == GLFW_KEY_ENTER) {
               keys[NEXT_PATTERN] = (action == GLFW_PRESS); 
             }
-            if(key == GLFW_KEY_RIGHT ) {
-              keys[ORB_RIGHT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_LEFT) {
-              keys[ORB_LEFT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_UP ) {
-              keys[ORB_UP] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_DOWN) {
-              keys[ORB_DOWN] = (action == GLFW_PRESS); 
-            }
+
           }
       }
   );
@@ -283,7 +248,9 @@ int main( int argc, char** argv )
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
           if (!screen->scrollCallbackEvent(x, y)) {
-            camera.ProcessMouseScroll(y);
+            App* app = (App*)glfwGetWindowUserPointer(window);
+
+            app->ProcessMouseScroll(y);
 
           }
      }
@@ -302,7 +269,12 @@ int main( int argc, char** argv )
       glErr = glGetError();
   }
 
-  std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
+  struct sigaction sigIntHandler;
+  sigIntHandler.sa_handler = sig_int_handler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+  sigaction(SIGINT, &sigIntHandler, NULL);
+
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();
 
@@ -311,17 +283,12 @@ int main( int argc, char** argv )
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
-    viewed_from.moveTowards(camera, scene->getTimeDelta()*0.8);
+    application.tick(width, height);
+    application.move_perspective_to_camera();
 
-    domeLeds->render(viewed_from, *pattern);
-    scene->render(camera, width, height);
-
-    std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - last_pattern_change;
-    if(keys[NEXT_PATTERN] || diff.count() > 600) {
+    if(keys[NEXT_PATTERN]) {
       keys[NEXT_PATTERN] = false;
-      pattern = patterns[rand() % patterns.size()];
-      pattern->resetStart();
-      last_pattern_change = std::chrono::high_resolution_clock::now();
+      application.change_pattern();
     }
 
 
@@ -332,8 +299,6 @@ int main( int argc, char** argv )
     screen->drawWidgets();
 
     global_timer.end();
-
-        camera.rotate(global_timer.duration() * 5);
     
     glfwSwapBuffers(window);
 
@@ -351,6 +316,8 @@ int main( int argc, char** argv )
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();
+
+  ALOGV("Exiting\n");
 
   return 0;
 }

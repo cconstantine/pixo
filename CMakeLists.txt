@@ -43,5 +43,5 @@ include_directories(
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
-add_executable(pixo src/main.cpp )
+add_executable(pixo src/main.cpp src/app.cpp )
 target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} glfw libglew_static pthread pixlib )
