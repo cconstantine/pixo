@@ -28,6 +28,7 @@ GLFWwindow* window;
 
 #include <nanogui/nanogui.h>
 #include <fade_candy.hpp>
+#include <webserver.hpp>
 
 #include <app.hpp>
 
@@ -105,6 +106,8 @@ int main( int argc, char** argv )
 
   App application(&fc);
   glfwSetWindowUserPointer(window, &application);
+
+  Webserver web_interface(&application);
 
   for(int i = 3;i < argc;i++) {
     application.add_pattern(new Pattern(&argv[i][2]));

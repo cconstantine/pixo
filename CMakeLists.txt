@@ -10,6 +10,10 @@ if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui")
     "by calling \"git submodule update --init --recursive\"")
 endif()
 
+###################### CROW    ###############################
+find_package( Boost 1.52 COMPONENTS system thread REQUIRED )
+include_directories(ext/crow/include)
+
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
@@ -43,5 +47,5 @@ include_directories(
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
-add_executable(pixo src/main.cpp src/app.cpp )
+add_executable(pixo src/main.cpp src/app.cpp src/webserver.cpp )
 target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} glfw libglew_static pthread pixlib )

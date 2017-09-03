@@ -1,3 +1,5 @@
+#pragma once
+
 #include <pattern.hpp>
 #include <camera.hpp>
 #include <led_cluster.hpp>
@@ -14,7 +16,6 @@ public:
 
   float scene_fps();
   float scene_render_time();
-
   float led_render_time();
 
   const Pattern* current_pattern();
