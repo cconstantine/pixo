@@ -33,21 +33,19 @@ include_directories( ext/glm/ )
 
 ###################### GLEW     ###############################
 # glew
-add_definitions(-DGLEW_STATIC)
-option(glew-cmake_BUILD_SHARED "" OFF)
+set(glew-cmake_BUILD_MULTI_CONTEXT       OFF CACHE BOOL " " FORCE)
+set(glew-cmake_BUILD_SHARED              OFF CACHE BOOL " " FORCE)
+
 add_subdirectory(ext/glew)
 include_directories(ext/glew/include lib/glew/src)
 
-include_directories(
-	pixelpusher/
-	src/
-	)
-
 ###################### PIXLIB   ###############################
+include_directories(
+  src/
+  )
+
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
 add_executable(pixo src/main.cpp )
-target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
-
-
+target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} glfw libglew_static pthread pixlib )
