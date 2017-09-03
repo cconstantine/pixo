@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 // GL Includes
 #include <glm/glm.hpp>
 
@@ -45,8 +44,8 @@ protected:
   GLuint VAO, VBO, EBO;
 
   /*  Mesh Data  */
-  vector<LedVertex> vertices;
-  vector<Texture> textures;
+  std::vector<LedVertex> vertices;
+  std::vector<Texture> textures;
 
   float min_x;
   float max_x;

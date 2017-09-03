@@ -13,6 +13,8 @@ using namespace std;
 
 #include <shader.hpp>
 
+using namespace std;
+
 LedMesh::LedMesh(const Texture& texture) :
  min_x(0.0f), max_x(0.0f),
  min_y(0.0f), max_y(0.0f),

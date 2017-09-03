@@ -1,6 +1,8 @@
 #include <led_cluster.hpp>
 #include <math.h>
 
+using namespace std;
+
 size_t LedCluster::led_canvas_size(size_t leds)
 {
   fprintf(stderr, "leds: %d\n", leds);

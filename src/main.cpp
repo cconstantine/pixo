@@ -17,9 +17,6 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-using namespace glm;
-
-
 
 #include <pattern.hpp>
 #include <camera.hpp>
@@ -33,6 +30,9 @@ using namespace glm;
 #include <fade_candy.hpp>
 
 using namespace nanogui;
+using namespace glm;
+using namespace std;
+
 Screen *screen = nullptr;
 Scene *scene = nullptr;
 Pattern *pattern = nullptr;
@@ -301,6 +301,7 @@ int main( int argc, char** argv )
       ALOGV("Preloop %04x\n", glErr);
       glErr = glGetError();
   }
+
   std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();

@@ -3,7 +3,6 @@
 #include <string>
 #include <map>
 #include <vector>
-using namespace std;
 
 // GL Includes
 #include <opengl.h>
@@ -35,7 +34,7 @@ public:
     Texture getDefaultTexture();
 private:
     /*  Model Data  */
-    vector<Mesh> meshes;
+    std::vector<Mesh> meshes;
     Texture defaultTexture;
 
     /*  Functions   */

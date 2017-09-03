@@ -17,7 +17,6 @@
 #include <pattern_renderer.hpp>
 #include <timer.hpp>
 
-using namespace std;
 
 #include <fade_candy.hpp>
 

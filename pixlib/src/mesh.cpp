@@ -6,7 +6,6 @@
 #include <sstream>
 #include <iostream>
 #include <vector>
-using namespace std;
 // GL Includes
 #include <opengl.h>
 #include <glm/glm.hpp>
@@ -14,6 +13,7 @@ using namespace std;
 
 #include <shader.hpp>
 
+using namespace std;
 
 /*  Functions  */
 // Constructor

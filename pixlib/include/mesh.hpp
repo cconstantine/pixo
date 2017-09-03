@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-using namespace std;
 // GL Includes
 #include <glm/glm.hpp>
 #include <texture.hpp>
@@ -22,7 +21,7 @@ struct Vertex {
 class Mesh {
 public:
   // Constructor
-  Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures);
+  Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
 
   // Render the mesh
   void Draw(Shader shader);
@@ -31,9 +30,9 @@ public:
   GLuint VAO, VBO, EBO, POS, TPOS;
 
   /*  Mesh Data  */
-  vector<Vertex> vertices;
-  vector<GLuint> indices;
-  vector<Texture> textures;
+  std::vector<Vertex> vertices;
+  std::vector<GLuint> indices;
+  std::vector<Texture> textures;
 
   int  addInstance(const glm::vec3& position, const glm::vec2& textureCoords);
   void moveInstance(int instance, const glm::vec3& position);
@@ -48,6 +47,6 @@ private:
   void updateData();
 
 
-  vector<glm::mat4> instancePositionOffset;
-  vector<glm::vec2> instanceTextureOffset;
+  std::vector<glm::mat4> instancePositionOffset;
+  std::vector<glm::vec2> instanceTextureOffset;
 };
