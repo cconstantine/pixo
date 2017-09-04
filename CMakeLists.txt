@@ -2,7 +2,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
 if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui")
   message(FATAL_ERROR "The NanoGUI dependency is missing! "
@@ -47,5 +48,23 @@ include_directories(
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
-add_executable(pixo src/main.cpp src/app.cpp src/webserver.cpp )
+
+###################### PIXO     ################################
+add_executable(pixo src/main.cpp )
 target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} glfw libglew_static pthread pixlib )
+
+add_custom_target(patterns ALL)
+add_custom_command(TARGET patterns
+                   POST_BUILD
+                   COMMAND cp -a ${CMAKE_CURRENT_SOURCE_DIR}/patterns .
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                   VERBATIM
+                   )
+
+add_custom_target(shaders ALL)
+add_custom_command(TARGET shaders
+                   POST_BUILD
+                   COMMAND cp -a ${CMAKE_CURRENT_SOURCE_DIR}/shaders .
+                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+                   VERBATIM
+                   )

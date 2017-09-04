@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.0)
 project(pixlib)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
 
 ###################### GLM     ###############################
@@ -20,11 +20,11 @@ add_library(pixlib STATIC
  src/led_cluster.cpp
  src/renderer.cpp
  src/pattern_renderer.cpp
- # src/realsense_reader.cpp
  src/led_renderer.cpp
  src/timer.cpp
  src/fade_candy.cpp
  src/pattern.cpp
+ src/app.cpp
  )
 
  target_link_libraries(pixlib) # realsense)

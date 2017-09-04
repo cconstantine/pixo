@@ -3,7 +3,7 @@ out vec4 color_out;
 
 uniform float time;
 uniform vec2 mouse;
-varying vec2 surfacePosition;
+in vec2 surfacePosition;
 
 void main( void ) {
 

@@ -10,6 +10,3 @@
 [submodule "ext/tinyobjloader"]
 	path = ext/tinyobjloader
 	url = https://github.com/syoyo/tinyobjloader.git
-[submodule "ext/crow"]
-	path = ext/crow
-	url = https://github.com/uctakeoff/crow.git

@@ -28,7 +28,6 @@ GLFWwindow* window;
 
 #include <nanogui/nanogui.h>
 #include <fade_candy.hpp>
-#include <webserver.hpp>
 
 #include <app.hpp>
 
@@ -43,7 +42,7 @@ static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
 
 bool keys[1024];
-std::string Shader::root = std::string("../");
+std::string Shader::root = std::string("./");
 Screen *screen;
 
 void sig_int_handler(int s){
@@ -57,7 +56,7 @@ void sig_int_handler(int s){
 int main( int argc, char** argv )
 {  
   if(argc < 3) {
-    fprintf(stderr, "Usage: %s LEDS_PER_SIDE [pattern file]*\n", argv[0]);
+    fprintf(stderr, "Usage: %s LEDS_PER_SIDE hostname [pattern file]*\n", argv[0]);
     exit(1);
   }
     // Initialise GLFW
@@ -107,10 +106,8 @@ int main( int argc, char** argv )
   App application(&fc);
   glfwSetWindowUserPointer(window, &application);
 
-  Webserver web_interface(&application);
-
   for(int i = 3;i < argc;i++) {
-    application.add_pattern(new Pattern(&argv[i][2]));
+    application.add_pattern(new Pattern(argv[i]));
   }
 
   // Create a nanogui screen and pass the glfw pointer to initialize
