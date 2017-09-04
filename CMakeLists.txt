@@ -13,17 +13,17 @@ endif()
 
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
-set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
-set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
-set(NANOGUI_INSTALL       OFF CACHE BOOL " " FORCE)
+#set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
+#set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
+#set(NANOGUI_INSTALL       OFF CACHE BOOL " " FORCE)
 
 # Disable warnings because assimp and nanogui have too many
-add_definitions(-w)
+#add_definitions(-w)
 
-add_subdirectory(ext/nanogui)
-include_directories(ext/nanogui/include)
-include_directories(${NANOGUI_EXTRA_INCS})
-add_definitions(${NANOGUI_EXTRA_DEFS})
+#add_subdirectory(ext/nanogui)
+#include_directories(ext/nanogui/include)
+#include_directories(${NANOGUI_EXTRA_INCS})
+#add_definitions(${NANOGUI_EXTRA_DEFS})
 
 
 ###################### GLM     ###############################
@@ -47,7 +47,6 @@ include_directories(${PIXLIB_INCLUDE})
 
 set(PIXO_INCLUDE
   ${PIXO_INCLUDE}
-  ${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/include
   ${NANOGUI_EXTRA_INCS} 
   ${CMAKE_CURRENT_SOURCE_DIR}/ext/glew/include
   ${PIXLIB_INCLUDE}
@@ -58,7 +57,7 @@ message(STATUS ${PIXO_INCLUDE})
 
 ###################### PIXO     ################################
 add_executable(pixo src/main.cpp )
-target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} ${Boost_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT} glfw libglew_static pthread pixlib )
+target_link_libraries(pixo glfw libglew_static pthread pixlib )
 
 add_custom_target(patterns ALL)
 add_custom_command(TARGET patterns
