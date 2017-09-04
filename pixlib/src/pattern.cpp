@@ -1,17 +1,26 @@
 #include <pattern.hpp>
 
-Pattern::Pattern(const std::string& fragment_filename) :
- shader("shaders/pattern.frag", fragment_filename.c_str()),
- name(fragment_filename),
+Pattern::Pattern(const std::string& name, const std::string& fragment) :
+ shader(
+R"(#version 330 core
+
+#ifdef GL_ES
+precision highp float;
+#endif
+
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec2 surfacePosAttrib;
+
+out vec2 surfacePosition;
+
+void main() {
+  surfacePosition = position.xy;
+  gl_Position = vec4( position, 1.0 );
+})",
+fragment.c_str()),
+ name(name),
  start(std::chrono::high_resolution_clock::now())
-{
-  for(unsigned int i = shader.fragmentPath.size();i >= 0;i--) {
-    if (shader.fragmentPath[i] == '/') {
-      break;
-    }
-    name = shader.fragmentPath[i] + name;
-  }
-}
+{ }
 
 float Pattern::getTimeElapsed() const {
   std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - start;

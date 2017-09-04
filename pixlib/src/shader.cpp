@@ -1,52 +1,9 @@
 #include <shader.hpp>
 
-#include <string>
-#include <fstream>
-#include <sstream>
-#include <iostream>
-
 Shader::Shader(const Shader& copy) : Program(copy.Program) { }
 
-Shader::Shader(const GLchar* vertexPath, const GLchar* fragmentPath) : vertexPath(vertexPath), fragmentPath(fragmentPath) {
-  // 1. Retrieve the vertex/fragment source code from filePath
-  std::string vertexCode;
-  std::string fragmentCode;
-  std::ifstream vShaderFile;
-  std::ifstream fShaderFile;
-  // ensures ifstream objects can throw exceptions:
-  vShaderFile.exceptions (std::ifstream::badbit);
-  fShaderFile.exceptions (std::ifstream::badbit);
-
-  std::string fulLVertexPath = Shader::root + std::string(vertexPath);
-  std::string fulLFragmentath = Shader::root + std::string(fragmentPath);
-  try
-  {
-    ALOGV("Loading: %s, %s\n", fulLVertexPath.c_str(), fulLFragmentath.c_str());
-
-    // Open files
-    vShaderFile.open(fulLVertexPath.c_str());
-    fShaderFile.open(fulLFragmentath.c_str());
-    std::stringstream vShaderStream, fShaderStream;
-    // Read file's buffer contents into streams
-    vShaderStream << vShaderFile.rdbuf();
-    fShaderStream << fShaderFile.rdbuf();
-    // close file handlers
-    vShaderFile.close();
-    fShaderFile.close();
-    // Convert stream into string
-    vertexCode = vShaderStream.str();
-    fragmentCode = fShaderStream.str();
-  }
-  catch (std::ifstream::failure e)
-  {
-    std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-  }
-  //ALOGV("Vertex Code %s:\n%s\n", vertexPath, vertexCode.c_str());
-  //ALOGV("Fragment Code %s:\n%s\n", fragmentPath, fragmentCode.c_str());
-
-  const GLchar* vShaderCode = vertexCode.c_str();
-  const GLchar * fShaderCode = fragmentCode.c_str();
-  // 2. Compile shaders
+Shader::Shader(const GLchar* vShaderCode, const GLchar* fShaderCode) {
+ 
   GLuint vertex, fragment;
   GLint success;
   GLchar infoLog[512];

@@ -9,6 +9,7 @@
 #include <texture.hpp>
 
 #include <shader.hpp>
+
 struct Vertex {
   // Position
   glm::vec3 Position;
@@ -39,6 +40,7 @@ public:
 
   int numInstances();
 private:
+  void Draw(GLuint program);
   bool dirty;
   /*  Functions    */
   // Initializes all the buffer objects/arrays

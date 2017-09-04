@@ -42,7 +42,6 @@ static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
 
 bool keys[1024];
-std::string Shader::root = std::string("./");
 Screen *screen;
 
 void sig_int_handler(int s){
@@ -107,7 +106,30 @@ int main( int argc, char** argv )
   glfwSetWindowUserPointer(window, &application);
 
   for(int i = 3;i < argc;i++) {
-    application.add_pattern(new Pattern(argv[i]));
+    std::string fragmentCode;
+    std::ifstream fShaderFile;
+    // ensures ifstream objects can throw exceptions:
+    fShaderFile.exceptions (std::ifstream::badbit);
+
+    std::string fulLFragmentath = std::string(argv[i]);
+    ALOGV("Loading: %s\n", fulLFragmentath.c_str());
+
+    fShaderFile.open(fulLFragmentath.c_str());
+    std::stringstream fShaderStream;
+    fShaderStream << fShaderFile.rdbuf();
+    fShaderFile.close();
+    
+    // Convert stream into string
+    fragmentCode = fShaderStream.str();
+
+    std::string name;
+    for(unsigned int i = fulLFragmentath.size();i >= 0;i--) {
+      if (fulLFragmentath[i] == '/') {
+        break;
+      }
+      name = fulLFragmentath[i] + name;
+    }
+    application.add_pattern(new Pattern(name, fragmentCode.c_str()));
   }
 
   // Create a nanogui screen and pass the glfw pointer to initialize

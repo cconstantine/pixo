@@ -7,7 +7,7 @@
 
 class Pattern {
 public:
-  Pattern(const std::string& fragment_filename);
+  Pattern(const std::string& name, const std::string& fragment);
 
   std::string getName() const;
 

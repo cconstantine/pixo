@@ -39,7 +39,6 @@ public:
 
   void setupMesh();
 protected:
-
   /*  Render data  */
   GLuint VAO, VBO, EBO;
 

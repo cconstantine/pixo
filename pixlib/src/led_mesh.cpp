@@ -23,10 +23,8 @@ LedMesh::LedMesh(const Texture& texture) :
   ALOGV("LedMesh::LedMesh\n");
   addTexture(texture);
 }
-
 // Render the mesh
-void LedMesh::Draw(Shader shader) 
-{
+void LedMesh::Draw(Shader shader) {
   // Bind appropriate textures
   for(GLuint i = 0; i < this->textures.size(); i++)
   {

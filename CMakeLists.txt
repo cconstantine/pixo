@@ -11,10 +11,6 @@ if(NOT IS_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui")
     "by calling \"git submodule update --init --recursive\"")
 endif()
 
-###################### CROW    ###############################
-find_package( Boost 1.52 COMPONENTS system thread REQUIRED )
-include_directories(ext/crow/include)
-
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
@@ -28,6 +24,7 @@ add_subdirectory(ext/nanogui)
 include_directories(ext/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 add_definitions(${NANOGUI_EXTRA_DEFS})
+
 
 ###################### GLM     ###############################
 include_directories( ext/glm/ )
@@ -48,6 +45,16 @@ include_directories(
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
+set(PIXO_INCLUDE
+  ${PIXO_INCLUDE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/nanogui/include
+  ${NANOGUI_EXTRA_INCS} 
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/glew/include
+  ${PIXLIB_INCLUDE}
+  ${CMAKE_CURRENT_SOURCE_DIR}/ext/glm/
+ PARENT_SCOPE) 
+
+message(STATUS ${PIXO_INCLUDE})
 
 ###################### PIXO     ################################
 add_executable(pixo src/main.cpp )
@@ -57,14 +64,6 @@ add_custom_target(patterns ALL)
 add_custom_command(TARGET patterns
                    POST_BUILD
                    COMMAND cp -a ${CMAKE_CURRENT_SOURCE_DIR}/patterns .
-                   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-                   VERBATIM
-                   )
-
-add_custom_target(shaders ALL)
-add_custom_command(TARGET shaders
-                   POST_BUILD
-                   COMMAND cp -a ${CMAKE_CURRENT_SOURCE_DIR}/shaders .
                    WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
                    VERBATIM
                    )
