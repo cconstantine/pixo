@@ -40,6 +40,7 @@ add_subdirectory(ext/glew EXCLUDE_FROM_ALL)
 include_directories(ext/glew/include lib/glew/src)
 
 ###################### PIXLIB   ###############################
+include_directories(src)
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 

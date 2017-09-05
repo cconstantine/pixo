@@ -6,18 +6,19 @@
 
 // GL Includes
 #include <opengl.h>
-#include <mesh.hpp>
-#include <shader.hpp>
-#include <drawable.hpp>
+#include <pixlib/mesh.hpp>
+#include <pixlib/shader.hpp>
+#include <pixlib/drawable.hpp>
 
 // Include GLM
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-class Cube : public Drawable
-{
-public:
+namespace Pixlib {
+  class Cube : public Drawable
+  {
+  public:
     /*  Functions   */
     // Constructor, expects a filepath to a 3D model.
     Cube();
@@ -32,7 +33,7 @@ public:
     int numInstances();
 
     Texture getDefaultTexture();
-private:
+  private:
     /*  Model Data  */
     std::vector<Mesh> meshes;
     Texture defaultTexture;
@@ -40,6 +41,6 @@ private:
     /*  Functions   */
     // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel();
-};
-
+  };
+}
 

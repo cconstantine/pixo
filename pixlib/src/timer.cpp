@@ -1,37 +1,39 @@
-#include <timer.hpp>
+#include <pixlib/timer.hpp>
 
-Timer::Timer(unsigned int smoothing) :
- start_time(std::chrono::high_resolution_clock::now()),
- smoothing(smoothing),
- previous_duration(0.0f)
-{ }
+namespace Pixlib {
+  Timer::Timer(unsigned int smoothing) :
+   start_time(std::chrono::high_resolution_clock::now()),
+   smoothing(smoothing),
+   previous_duration(0.0f)
+  { }
 
 
-void Timer::start()
-{
-  start_time = std::chrono::high_resolution_clock::now();
-}
-
-void Timer::end()
-{
-
-  std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
-  std::chrono::duration<float> time_duration = now - start_time;
-  start_time = now;
-
-  if (previous_duration == 0.0f)
+  void Timer::start()
   {
-    previous_duration = time_duration.count();
+    start_time = std::chrono::high_resolution_clock::now();
   }
 
-  float duration = (previous_duration*(smoothing - 1) + time_duration.count()) / smoothing;
+  void Timer::end()
+  {
 
-  previous_duration = duration;
+    std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> time_duration = now - start_time;
+    start_time = now;
 
-  return;
-}
+    if (previous_duration == 0.0f)
+    {
+      previous_duration = time_duration.count();
+    }
 
-float Timer::duration()
-{
-  return previous_duration;
+    float duration = (previous_duration*(smoothing - 1) + time_duration.count()) / smoothing;
+
+    previous_duration = duration;
+
+    return;
+  }
+
+  float Timer::duration()
+  {
+    return previous_duration;
+  }
 }

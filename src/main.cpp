@@ -18,21 +18,12 @@ GLFWwindow* window;
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include <pattern.hpp>
-#include <camera.hpp>
-#include <cube.hpp>
-#include <led_cluster.hpp>
-#include <renderer.hpp>
-#include <scene.hpp>
-#include <timer.hpp>
-
-#include <fade_candy.hpp>
-
-#include <app.hpp>
+#include <pixlib.hpp>
 
 
 using namespace glm;
 using namespace std;
+using namespace Pixlib;
 
 Timer global_timer = Timer(120);
 
