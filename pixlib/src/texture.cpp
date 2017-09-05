@@ -9,8 +9,6 @@ Texture::Texture(int width, int height) : width(width), height(height), isCopy(f
   glGenTextures(1, &id);
   glBindTexture(GL_TEXTURE_2D, id);
   glTexImage2D(GL_TEXTURE_2D, 0,GL_RGB, width, height, 0,GL_RGB, GL_UNSIGNED_BYTE, 0);
-
-  ALOGV("%d: Texture Create\n", id);
 }
 
 
@@ -51,8 +49,6 @@ Texture3d::Texture3d(int width, int height, int depth) :
   GL_DEPTH_COMPONENT,
   GL_UNSIGNED_SHORT,
   nullptr);
-
-  ALOGV("%d: Texture Create\n", id);
 }
 
 

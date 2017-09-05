@@ -27,7 +27,7 @@ public:
 
 
   // Render the mesh
-  virtual void Draw(Shader shader);
+  virtual void Draw(const Shader& shader);
 
   void render(const IsoCamera& viewed_from, const Pattern& pattern);
 

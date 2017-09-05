@@ -19,24 +19,15 @@ using namespace std;
 // Constructor
 Mesh::Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> textures) : dirty(true)
 {
-  ALOGV("Mesh::Mesh\n");
-
   this->vertices = vertices;
   this->indices = indices;
   this->textures = textures;
-
-  fprintf(stderr, "vertices: %d\n", (int)vertices.size());
-  fprintf(stderr, "indices: %d\n", (int)indices.size());
-  fprintf(stderr, "textures: %d\n", (int)textures.size());
-  // Now that we have all the required data, set the vertex buffers and its attribute pointers.
-
-
 
   setupMesh();
 }
 
 // Render the mesh
-void Mesh::Draw(Shader shader) {
+void Mesh::Draw(const Shader& shader) {
   // Bind appropriate textures
   for(GLuint i = 0; i < this->textures.size(); i++)
   {

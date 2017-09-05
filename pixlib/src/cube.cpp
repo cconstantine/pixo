@@ -42,7 +42,7 @@ int Cube::numInstances() {
 }
 
 // Draws the model, and thus all its meshes
-void Cube::Draw(Shader shader)
+void Cube::Draw(const Shader& shader)
 {
   for(GLuint i = 0; i < this->meshes.size(); i++) {
     this->meshes[i].Draw(shader);

@@ -24,7 +24,7 @@ public:
     Cube(const Texture& defaultTexture);
 
     // Draws the model, and thus all its meshes
-    virtual void Draw(Shader shader);
+    virtual void Draw(const Shader& shader);
     
     int  addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
     void moveInstance(int instance, const glm::vec3& position);

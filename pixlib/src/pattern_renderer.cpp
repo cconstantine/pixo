@@ -9,8 +9,6 @@ PatternRender::PatternRender(glm::vec2 canvasSize) :
  height(canvasSize.y),
  renderedTexture(canvasSize.x, canvasSize.y)
 {
-  ALOGV("PatternRender::PatternRender (%d x %d)\n", width, height);
-
   glGenVertexArrays(1, &VertexArrayID);
   glBindVertexArray(VertexArrayID);
 
@@ -52,7 +50,7 @@ PatternRender::PatternRender(glm::vec2 canvasSize) :
 
   // Always check that our framebuffer is ok
   if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-    fprintf(stderr, "Failed to init GL_FRAMEBUFFER\n");
+    ALOGV(  "Failed to init GL_FRAMEBUFFER\n");
   }
 }
 

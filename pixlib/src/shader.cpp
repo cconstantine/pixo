@@ -1,6 +1,6 @@
 #include <shader.hpp>
 
-Shader::Shader(const Shader& copy) : Program(copy.Program) { }
+// Shader::Shader(const Shader& copy) : Program(copy.Program) { }
 
 Shader::Shader(const GLchar* vShaderCode, const GLchar* fShaderCode) {
  
@@ -45,7 +45,10 @@ Shader::Shader(const GLchar* vShaderCode, const GLchar* fShaderCode) {
   // Delete the shaders as they're linked into our program now and no longer necessery
   glDeleteShader(vertex);
   glDeleteShader(fragment);
+}
 
+Shader::~Shader() {
+  glDeleteProgram(this->Program);
 }
 
 // Uses the current shader

@@ -28,7 +28,7 @@ public:
 
   
   // Render the mesh
-  virtual void Draw(Shader shader);
+  virtual void Draw(const Shader& shader);
 
   size_t numVertices();
   float getZoom(glm::vec3 position);

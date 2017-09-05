@@ -26,13 +26,11 @@ GLFWwindow* window;
 #include <scene.hpp>
 #include <timer.hpp>
 
-#include <nanogui/nanogui.h>
 #include <fade_candy.hpp>
 
 #include <app.hpp>
 
 
-using namespace nanogui;
 using namespace glm;
 using namespace std;
 
@@ -42,7 +40,6 @@ static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
 
 bool keys[1024];
-Screen *screen;
 
 void sig_int_handler(int s){
   static unsigned int hits = 1;
@@ -54,6 +51,9 @@ void sig_int_handler(int s){
 
 int main( int argc, char** argv )
 {  
+  std::vector<Pattern*> patterns;
+  Pattern* pattern = nullptr;
+GLenum glErr;
   if(argc < 3) {
     fprintf(stderr, "Usage: %s LEDS_PER_SIDE hostname [pattern file]*\n", argv[0]);
     exit(1);
@@ -129,79 +129,12 @@ int main( int argc, char** argv )
       }
       name = fulLFragmentath[i] + name;
     }
-    application.add_pattern(new Pattern(name, fragmentCode.c_str()));
+    patterns.push_back(new Pattern(name, fragmentCode.c_str()));
+    pattern = patterns[0];
   }
-
-  // Create a nanogui screen and pass the glfw pointer to initialize
-  screen = new Screen();
-  screen->initialize(window, true);
-  GLenum glErr = glGetError();
-  while (glErr != GL_NO_ERROR)
-  {
-      ALOGV("Screen %04x\n", glErr);
-      glErr = glGetError();
-  }
-  // Create nanogui gui
-  FormHelper *gui = new FormHelper(screen);
-  nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Status");
-
-  gui->addVariable<string>("fps",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      float fps = application.scene_fps();
-      sprintf(ret, "%2.02f", fps);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("render time",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      sprintf(ret, "%2.02fms", global_timer.duration()*1000);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("scene time",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      sprintf(ret, "%2.02fms", application.scene_render_time()*1000);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("led time",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      sprintf(ret, "%2.02fms", application.led_render_time()*1000);
-      return ret;
-    },
-    false)->setValue("00.00");
-
-  gui->addVariable<string>("Shader",
-    [&](string value) { value; },
-    [&]() -> string {
-      return application.current_pattern()->getName();
-    },
-    false)->setValue("                 ");
-
-  ImageView *imageWidget = new ImageView(nanoguiWindow, application.getPatternTexture().id);
-  imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
-  imageWidget->setFixedScale(true);
-  gui->addWidget("", imageWidget);
-  screen->setVisible(true);
-  screen->performLayout();
-
-  imageWidget->fit();
-
 
   glfwSetCursorPosCallback(window,
           [] (GLFWwindow *window, double x, double y) {
-          if (!screen->cursorPosCallbackEvent(x, y)) {
             App* app = (App*)glfwGetWindowUserPointer(window);
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
 
@@ -223,24 +156,21 @@ int main( int argc, char** argv )
 
             app->ProcessMouseMovement(xoffset, yoffset);
           }
-      }
+      
   );
 
   glfwSetMouseButtonCallback(window,
       [](GLFWwindow *window, int button, int action, int modifiers) {
-          if (!screen->mouseButtonCallbackEvent(button, action, modifiers)) {
             if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
               glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
               glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
           }
-      }
   );
 
   glfwSetKeyCallback(window,
       [](GLFWwindow *window, int key, int scancode, int action, int mods) {
-          if (!screen->keyCallbackEvent(key, scancode, action, mods)) {
             if (action == GLFW_REPEAT) {
               return;
             }
@@ -252,36 +182,16 @@ int main( int argc, char** argv )
             }
 
           }
-      }
   );
 
-  glfwSetCharCallback(window,
-      [](GLFWwindow *window, unsigned int codepoint) {
-          screen->charCallbackEvent(codepoint);
-      }
-  );
-
-  glfwSetDropCallback(window,
-      [](GLFWwindow *window, int count, const char **filenames) {
-          screen->dropCallbackEvent(count, filenames);
-      }
-  );
 
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
-          if (!screen->scrollCallbackEvent(x, y)) {
             App* app = (App*)glfwGetWindowUserPointer(window);
 
             app->ProcessMouseScroll(y);
 
           }
-     }
-  );
-
-  glfwSetFramebufferSizeCallback(window,
-      [](GLFWwindow *window, int width, int height) {
-          screen->resizeCallbackEvent(width, height);
-      }
   );
 
   glErr = glGetError();
@@ -305,20 +215,16 @@ int main( int argc, char** argv )
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
-    application.tick(width, height);
+    application.tick(pattern, width, height);
     application.move_perspective_to_camera();
 
     if(keys[NEXT_PATTERN]) {
       keys[NEXT_PATTERN] = false;
-      application.change_pattern();
+
+      pattern = patterns[rand() % patterns.size()];
     }
 
 
-    gui->refresh();
-    // Draw nanogui
-    screen->performLayout();
-    screen->drawContents();
-    screen->drawWidgets();
 
     global_timer.end();
     

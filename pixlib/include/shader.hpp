@@ -10,7 +10,7 @@ public:
     GLuint Program;
     // Constructor generates the shader on the fly
     Shader(const GLchar* vertexCode, const GLchar* fragmentCode);
-    Shader(const Shader& copy);
+    ~Shader();
 
     // Uses the current shader
     void Use() const;

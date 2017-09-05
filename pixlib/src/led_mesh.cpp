@@ -20,11 +20,10 @@ LedMesh::LedMesh(const Texture& texture) :
  min_y(0.0f), max_y(0.0f),
  min_z(0.0f), max_z(0.0f)
  {
-  ALOGV("LedMesh::LedMesh\n");
   addTexture(texture);
 }
 // Render the mesh
-void LedMesh::Draw(Shader shader) {
+void LedMesh::Draw(const Shader& shader) {
   // Bind appropriate textures
   for(GLuint i = 0; i < this->textures.size(); i++)
   {

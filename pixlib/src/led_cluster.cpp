@@ -5,7 +5,6 @@ using namespace std;
 
 size_t LedCluster::led_canvas_size(size_t leds)
 {
-  fprintf(stderr, "leds: %d\n", leds);
   return pow(2, ceil(log(sqrt(leds))/log(2)));
 }
 
@@ -22,7 +21,6 @@ LedCluster::LedCluster(FadeCandy *fadecandy) :
   //leds_for_calc.addTexture(pattern_render.getDepthTexture());
   int width = leds_for_display.getDefaultTexture().width;
   int height = leds_for_display.getDefaultTexture().height;
-  fprintf(stderr, "Led canvas: %4d x %4d (total: %d)\n", width, height, width*height);
 
   for(int i = 0;i < this->fadecandy->getLeds().size();i++) {
 
@@ -52,7 +50,7 @@ GLuint LedCluster::numLeds() {
   return leds_for_calc.numVertices();
 }
 
-void LedCluster::Draw(Shader shader) 
+void LedCluster::Draw(const Shader& shader) 
 {
   leds_for_display.Draw(shader);
 }
