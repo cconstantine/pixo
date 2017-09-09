@@ -1,13 +1,14 @@
 #include <pixlib/scene.hpp>
 
 namespace Pixlib {
-  Scene::Scene(LedCluster* leds) :
-    leds(leds),
+  Scene::Scene() :
     lastTime(std::chrono::steady_clock::now()),
     fps(0),frames(0), render_timer(120)
+  { }
+
+  void Scene::addCluster(LedCluster* leds)
   {
     screen.models.push_back(leds);
-
   }
 
   void Scene::render(const IsoCamera& perspective, int width, int height)

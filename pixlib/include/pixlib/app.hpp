@@ -27,7 +27,7 @@ namespace Pixlib {
     void tick(Pattern* pattern, int width, int height);
   private:
     Scene scene;
-    LedCluster domeLeds;
+    LedCluster led_cluster;
 
     IsoCamera viewed_from;
     IsoCamera camera;

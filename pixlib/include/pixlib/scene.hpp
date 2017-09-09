@@ -12,7 +12,9 @@
 namespace Pixlib {
   class Scene {
   public:
-    Scene(LedCluster* leds);
+    Scene();
+
+    void addCluster(LedCluster* leds);
 
     void render(const IsoCamera& perspective, int width, int height);
 
@@ -24,8 +26,6 @@ namespace Pixlib {
   private:
     ScreenRender screen;
     
-    LedCluster* leds;
-
     std::chrono::duration<float> deltaTime;
 
     std::chrono::time_point<std::chrono::steady_clock> lastTime;

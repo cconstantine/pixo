@@ -2,10 +2,12 @@
 
 namespace Pixlib {
   App::App(FadeCandy *fc) :
-   domeLeds(fc),
-   scene(&domeLeds),
+   led_cluster(fc),
+   scene(),
    fc(fc)
-  { }
+  {
+    scene.addCluster(&led_cluster);
+  }
 
 
   float App::scene_fps() {
@@ -17,11 +19,7 @@ namespace Pixlib {
   }
 
   float App::led_render_time() {
-    return domeLeds.render_time();
-  }
-
-  const Texture& App::getPatternTexture() {
-    return domeLeds.getPatternTexture();
+    return led_cluster.render_time();
   }
 
   void App::ProcessMouseMovement(int xoffset, int yoffset) {
@@ -40,7 +38,7 @@ namespace Pixlib {
   void App::tick(Pattern* pattern, int width, int height) {
     camera.rotate(scene_render_time() * 5);
 
-    domeLeds.render(viewed_from, *pattern);
+    led_cluster.render(viewed_from, *pattern);
     scene.render(camera, width, height);
   }
 }
