@@ -1,14 +1,23 @@
 #include <pixlib/app.hpp>
 
 namespace Pixlib {
-  App::App(FadeCandy *fc) :
-   led_cluster(fc),
-   scene(),
-   fc(fc)
-  {
-    scene.addCluster(&led_cluster);
+  App::App() :
+   scene()
+  {  }
+
+  App::~App() {
+    for (LedCluster* i : led_clusters) {
+      delete i;
+    }
+    led_clusters.clear();
   }
 
+  void App::addFadeCandy(FadeCandy* fc) {
+    LedCluster *lc = new LedCluster(fc);
+
+    scene.addCluster(lc);
+    led_clusters.push_back(lc);
+  }
 
   float App::scene_fps() {
     return scene.getFps();
@@ -19,7 +28,11 @@ namespace Pixlib {
   }
 
   float App::led_render_time() {
-    return led_cluster.render_time();
+    float total = 0;
+    for (LedCluster* i : led_clusters) {
+      total += i->render_time();
+    }
+    return total;
   }
 
   void App::ProcessMouseMovement(int xoffset, int yoffset) {
@@ -38,7 +51,9 @@ namespace Pixlib {
   void App::tick(Pattern* pattern, int width, int height) {
     camera.rotate(scene_render_time() * 5);
 
-    led_cluster.render(viewed_from, *pattern);
+    for (LedCluster* led_cluster : led_clusters) {
+      led_cluster->render(viewed_from, *pattern);
+    }
     scene.render(camera, width, height);
   }
 }

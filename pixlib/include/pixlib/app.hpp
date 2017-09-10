@@ -1,4 +1,5 @@
 #pragma once
+#include <vector>
 
 #include <pixlib/pattern.hpp>
 #include <pixlib/camera.hpp>
@@ -11,8 +12,11 @@ namespace Pixlib {
   class App {
   public:
 
-    App(FadeCandy* fc);
+    App();
+    ~App();
 
+    void addFadeCandy(FadeCandy* fc);
+    
     float scene_fps();
     float scene_render_time();
     float led_render_time();
@@ -27,7 +31,7 @@ namespace Pixlib {
     void tick(Pattern* pattern, int width, int height);
   private:
     Scene scene;
-    LedCluster led_cluster;
+    std::vector<LedCluster*> led_clusters;
 
     IsoCamera viewed_from;
     IsoCamera camera;
