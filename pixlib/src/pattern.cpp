@@ -1,7 +1,7 @@
 #include <pixlib/pattern.hpp>
 
 namespace Pixlib {
-  Pattern::Pattern(const std::string& name, const std::string& fragment) :
+  Pattern::Pattern(const std::string& fragment) :
    shader(
   R"(#version 330 core
 
@@ -19,7 +19,6 @@ namespace Pixlib {
     gl_Position = vec4( position, 1.0 );
   })",
   fragment.c_str()),
-   name(name),
    start(std::chrono::high_resolution_clock::now())
   { }
 
@@ -29,9 +28,5 @@ namespace Pixlib {
   }
   void Pattern::resetStart() {
     start = std::chrono::high_resolution_clock::now();
-  }
-
-  std::string Pattern::getName() const {
-    return name;
   }
 }

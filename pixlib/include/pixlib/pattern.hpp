@@ -8,9 +8,7 @@
 namespace Pixlib {
   class Pattern {
   public:
-    Pattern(const std::string& name, const std::string& fragment);
-
-    std::string getName() const;
+    Pattern(const std::string& fragment);
 
     Shader shader;
 
@@ -19,6 +17,5 @@ namespace Pixlib {
     void resetStart();  
   private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
-    std::string name;
   };
 }
