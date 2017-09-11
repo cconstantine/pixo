@@ -54,6 +54,6 @@ namespace Pixlib {
     for (LedCluster* led_cluster : led_clusters) {
       led_cluster->render(viewed_from, *pattern);
     }
-    scene.render(camera, width, height);
+    //scene.render(camera, width, height);
   }
 }
