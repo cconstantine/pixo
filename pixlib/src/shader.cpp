@@ -49,7 +49,7 @@ namespace Pixlib {
   }
 
   Shader::~Shader() {
-    glDeleteProgram(this->Program);
+    //glDeleteProgram(this->Program);
   }
 
   // Uses the current shader
