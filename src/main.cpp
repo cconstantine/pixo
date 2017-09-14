@@ -44,7 +44,8 @@ int main( int argc, char** argv )
 {  
   std::vector<Pattern*> patterns;
   Pattern* pattern = nullptr;
-GLenum glErr;
+  GLenum glErr;
+  
   if(argc < 3) {
     fprintf(stderr, "Usage: %s LEDS_PER_SIDE hostname [pattern file]*\n", argv[0]);
     exit(1);
@@ -93,7 +94,9 @@ GLenum glErr;
   const int leds_per_side = atoi(argv[1]);
   FadeCandy fc = FadeCandy(argv[2], leds_per_side);
 
-  App application(&fc);
+  App application;
+
+  application.addFadeCandy(&fc);
   glfwSetWindowUserPointer(window, &application);
 
   for(int i = 3;i < argc;i++) {
@@ -120,7 +123,7 @@ GLenum glErr;
       }
       name = fulLFragmentath[i] + name;
     }
-    patterns.push_back(new Pattern(name, fragmentCode.c_str()));
+    patterns.push_back(new Pattern(fragmentCode.c_str()));
     pattern = patterns[0];
   }
 
