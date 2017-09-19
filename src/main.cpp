@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
+#include <thread>
 
 #include <iostream>
 
@@ -17,6 +18,9 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+#include <pistache/net.h>
+#include <pistache/endpoint.h>
 
 #include <pixlib.hpp>
 
@@ -40,12 +44,35 @@ void sig_int_handler(int s){
   glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+using namespace Pistache;
+
+struct HelloHandler : public Http::Handler {
+    HTTP_PROTOTYPE(HelloHandler)
+
+    void onRequest(const Http::Request& request, Http::ResponseWriter writer) {
+        writer.send(Http::Code::Ok, "Hello, World!");
+    }
+};
+
+Http::Endpoint* server;
+
+void runServer() {
+//  Http::listenAndServe<HelloHandler>("*:9080");
+//    Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
+    auto opts = Http::Endpoint::options().threads(1);
+    server->init(opts);
+    server->setHandler(std::make_shared<HelloHandler>());
+    server->serveThreaded();
+}
+
 int main( int argc, char** argv )
 {  
   std::vector<Pattern*> patterns;
   Pattern* pattern = nullptr;
   GLenum glErr;
-  
+  Pistache::Address addr(Pistache::Ipv4::any(), Pistache::Port(9080));
+  server = new Http::Endpoint(addr);
+
   if(argc < 3) {
     fprintf(stderr, "Usage: %s LEDS_PER_SIDE hostname [pattern file]*\n", argv[0]);
     exit(1);
@@ -200,6 +227,7 @@ int main( int argc, char** argv )
   sigemptyset(&sigIntHandler.sa_mask);
   sigIntHandler.sa_flags = 0;
   sigaction(SIGINT, &sigIntHandler, NULL);
+  std::thread server_thread (runServer);
 
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();
@@ -238,6 +266,8 @@ int main( int argc, char** argv )
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();
+  server->shutdown();
+  server_thread.join();
 
   ALOGV("Exiting\n");
 

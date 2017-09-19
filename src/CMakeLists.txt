@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.0)
 project(pixo_app)
 
 add_executable(pixo main.cpp )
-target_link_libraries(pixo glfw libglew_static pthread pixlib )
+target_link_libraries(pixo glfw libglew_static pthread pixlib pistache)
 
 add_custom_target(patterns ALL)
 add_custom_command(TARGET patterns

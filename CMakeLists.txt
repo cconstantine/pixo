@@ -39,6 +39,9 @@ set(glew-cmake_BUILD_SHARED              OFF CACHE BOOL " " FORCE)
 add_subdirectory(ext/glew EXCLUDE_FROM_ALL)
 include_directories(ext/glew/include lib/glew/src)
 
+###################### PISTACHE ###############################
+add_subdirectory(ext/pistache EXCLUDE_FROM_ALL)
+include_directories(ext/pistache/include)
 ###################### PIXLIB   ###############################
 include_directories(src)
 add_subdirectory(pixlib)

@@ -10,3 +10,6 @@
 [submodule "ext/glfw"]
 	path = ext/glfw
 	url = https://github.com/glfw/glfw.git
+[submodule "ext/pistache"]
+	path = ext/pistache
+	url = https://github.com/oktal/pistache.git
