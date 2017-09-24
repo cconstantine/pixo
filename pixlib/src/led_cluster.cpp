@@ -55,10 +55,10 @@ namespace Pixlib {
     leds_for_display.Draw(shader);
   }
 
-  void LedCluster::render(const IsoCamera& viewed_from, const Pattern& pattern) 
+  void LedCluster::render(const IsoCamera& viewed_from, const Pattern& pattern, float brightness) 
   {
     render_timer.start();
-    led_renderer.render(viewed_from, fadecandy->getData(), numLeds()*3);
+    led_renderer.render(viewed_from, brightness, fadecandy->getData(), numLeds()*3);
     render_timer.end();
 
     fadecandy->update();

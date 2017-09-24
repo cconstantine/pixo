@@ -19,6 +19,7 @@ App     *application = nullptr;
 Pattern *pattern = nullptr;
 FadeCandy* fc = nullptr;
 int width, height;
+float brightness = 1.0f;
 
 extern "C" {
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj);
@@ -96,18 +97,20 @@ Java_org_sillypants_pixo_GLES3JNILib_zoom(JNIEnv* env, jobject obj, jfloat x) {
   application->ProcessMouseScroll(x/2);
 }
 JNIEXPORT void JNICALL
-Java_org_sillypants_pixo_GLES3JNILib_random_pattern(JNIEnv * env, jobject jobj);
-
-JNIEXPORT void JNICALL
-Java_org_sillypants_pixo_GLES3JNILib_setBrightness(JNIEnv * env, jobject jobj, jfloat brightness) {
+Java_org_sillypants_pixo_GLES3JNILib_randomPattern(JNIEnv * env, jobject jobj) {
   auto it = application->patterns.begin();
   std::advance(it, rand() % application->patterns.size());
   pattern = it->second.get();
   pattern->resetStart();
+
+  std::string name = it->first;
+  ALOGV("Using pattern: %s\n", name.c_str());
 }
 
 JNIEXPORT void JNICALL
-Java_org_sillypants_pixo_GLES3JNILib_setBrightness(JNIEnv * env, jobject jobj, jfloat x);
+Java_org_sillypants_pixo_GLES3JNILib_setBrightness(JNIEnv * env, jobject jobj, jfloat x) {
+  brightness = x;
+}
 
 
 
@@ -118,10 +121,7 @@ Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj) {
     return;
   }
   if(pattern->getTimeElapsed() > 10*60) {
-    auto it = application->patterns.begin();
-    std::advance(it, rand() % application->patterns.size());
-    pattern = it->second.get();
-    pattern->resetStart();
+    Java_org_sillypants_pixo_GLES3JNILib_randomPattern(env, obj);
   }
   //ALOGV("GL Step \n");
   static std::chrono::time_point<std::chrono::high_resolution_clock> lastSecond = std::chrono::high_resolution_clock::now();
@@ -131,7 +131,7 @@ Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj) {
   std::chrono::time_point<std::chrono::high_resolution_clock> start = std::chrono::high_resolution_clock::now();
 
 
-  application->tick(pattern, width, height);
+  application->tick(pattern, brightness, width, height);
   application->move_perspective_to_camera();
 
   std::chrono::time_point<std::chrono::high_resolution_clock> end = std::chrono::high_resolution_clock::now();
@@ -139,8 +139,8 @@ Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj) {
   std::chrono::duration<float> second_seeking = end - lastSecond;
 
   if (second_seeking.count() > 1.0f) {
-      ALOGV("GL Step: frames: %d \n", frames);
-      ALOGV("GL Step: time_duration: %fms \n", 1000*time_duration.count());
+      // ALOGV("GL Step: frames: %d \n", frames);
+      // ALOGV("GL Step: time_duration: %fms \n", 1000*time_duration.count());
       frames = 0;
       lastSecond = std::chrono::high_resolution_clock::now();
   }

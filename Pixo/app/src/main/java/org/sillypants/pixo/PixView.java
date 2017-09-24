@@ -59,6 +59,8 @@ public class PixView extends GLSurfaceView {
         mScrollDetector = new GestureDetector(context, new ScrollListener());
         setFocusable(true);
         setFocusableInTouchMode(true);
+
+
     }
     private float mPreviousX;
     private float mPreviousY;
@@ -86,22 +88,27 @@ public class PixView extends GLSurfaceView {
                 GLES3JNILib.zoom((int)100);
                 return true;
             case KeyEvent.KEYCODE_DPAD_UP:
-                GLES3JNILib.mouse(0, 100);
-                return true;
-            case KeyEvent.KEYCODE_DPAD_DOWN:
                 GLES3JNILib.mouse(0, -100);
                 return true;
+            case KeyEvent.KEYCODE_DPAD_DOWN:
+                GLES3JNILib.mouse(0, 100);
+                return true;
             case KeyEvent.KEYCODE_DPAD_RIGHT:
-                GLES3JNILib.mouse(100, 0);
+                GLES3JNILib.mouse(-100, 0);
                 return true;
             case KeyEvent.KEYCODE_DPAD_LEFT:
-                GLES3JNILib.mouse(-100, 0);
+                GLES3JNILib.mouse(100, 0);
                 return true;
             case KeyEvent.KEYCODE_ENTER:
                 GLES3JNILib.randomPattern();
                 return true;
             case KeyEvent.KEYCODE_0:
                 GLES3JNILib.setBrightness(0.0f);
+                return true;
+            case KeyEvent.KEYCODE_9:
+                GLES3JNILib.setBrightness(1.0f);
+                return true;
+            case KeyEvent.KEYCODE_BACK:
                 return true;
 
             default:
@@ -170,7 +177,29 @@ public class PixView extends GLSurfaceView {
 
             new File(pathToInternalDir + "/" + assetSet).mkdirs();
             try {
-                String files[] = assetManager.list(assetSet);
+                String files[] = {
+                        "basic.glsl",
+                        "blades.glsl",
+                        "clouds.glsl",
+                        "cnoise.glsl",
+                        "corrente_continua.glsl",
+                        "fire.glsl",
+                        "fireball.glsl",
+                        "flower.glsl",
+                        "hypno_rings.glsl",
+                        "lightning.glsl",
+                        "paint.glsl",
+                        "plasam.glsl",
+                        "pulsing_circles.glsl",
+                        "rings.glsl",
+                        "soccer.glsl",
+                        "spherical_polyhedra.glsl",
+                        "spiral.glsl",
+                        "star.glsl",
+                        "swirl.glsl",
+                        "tiedy.glsl",
+                        "warping_grid.glsl"
+                };
                 for(int i =0;i < files.length;i++) {
                     Log.v("PixView", "Asset: " + pathToInternalDir  + "/" + assetSet + "/" + files[i]);
                     InputStream input = assetManager.open(assetSet + "/" + files[i]);

@@ -29,9 +29,10 @@ namespace Pixlib {
     void ProcessMouseScroll(float x);
 
     void move_perspective_to_camera();
-    void tick(Pattern* pattern, int width, int height);
 
     std::map<std::string, std::shared_ptr<Pattern> > patterns;
+
+    void tick(Pattern* pattern, float brightness, int width, int height);
   private:
     Scene scene;
     PatternRender pattern_render;

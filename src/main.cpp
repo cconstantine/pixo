@@ -394,7 +394,7 @@ int main( int argc, char** argv )
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
-    application.tick(patterns[pattern], width, height);
+    application.tick(patterns[pattern], 1.0, width, height);
     application.move_perspective_to_camera();
 
     gui->refresh();
