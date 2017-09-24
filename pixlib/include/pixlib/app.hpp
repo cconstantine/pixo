@@ -28,7 +28,7 @@ namespace Pixlib {
 
     void move_perspective_to_camera();
 
-    void tick(Pattern* pattern, int width, int height);
+    void tick(Pattern* pattern, float brightness, int width, int height);
   private:
     Scene scene;
     std::vector<LedCluster*> led_clusters;

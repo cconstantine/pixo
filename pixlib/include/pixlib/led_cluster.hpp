@@ -31,7 +31,7 @@ namespace Pixlib {
     // Render the mesh
     virtual void Draw(const Shader& shader);
 
-    void render(const IsoCamera& viewed_from, const Pattern& pattern);
+    void render(const IsoCamera& viewed_from, const Pattern& pattern, float brightness);
 
     const Texture& getPatternTexture();
 

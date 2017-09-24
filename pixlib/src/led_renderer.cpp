@@ -50,9 +50,11 @@ namespace Pixlib {
   uniform sampler2D texture0;
   uniform sampler2D texture1;
 
+  uniform float brightness;
+
   void main()
   {
-    color = texture(texture1, TexCoords);
+    color = texture(texture1, TexCoords) * brightness;
   })")
   {
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
@@ -89,7 +91,7 @@ namespace Pixlib {
     active_pbo = 0;
   }
 
-  void LedRender::render(const IsoCamera& perspective, uint8_t* buffer, size_t size) {
+  void LedRender::render(const IsoCamera& perspective, float brightness, uint8_t* buffer, size_t size) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
@@ -110,6 +112,8 @@ namespace Pixlib {
     glm::mat4 led_view = perspective.GetViewMatrix();
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));
+
+    glUniform1f(glGetUniformLocation(shader.Program, "brightness"), brightness);
 
     leds->Draw(shader);
 

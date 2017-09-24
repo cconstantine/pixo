@@ -48,11 +48,11 @@ namespace Pixlib {
     viewed_from.moveTowards(camera, scene.getTimeDelta()*0.8);
   }
 
-  void App::tick(Pattern* pattern, int width, int height) {
+  void App::tick(Pattern* pattern, float brightness, int width, int height) {
     camera.rotate(scene_render_time() * 5);
 
     for (LedCluster* led_cluster : led_clusters) {
-      led_cluster->render(viewed_from, *pattern);
+      led_cluster->render(viewed_from, *pattern, brightness);
     }
     scene.render(camera, width, height);
   }
