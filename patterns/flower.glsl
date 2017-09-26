@@ -14,7 +14,7 @@ void main()
   /// integers values align perfectly
   float numSides = 9.;
   
-  float brightness = 1. + abs(cos(time/5.) * 3.);
+  float brightness = 5.;// + abs(cos(time/5.) * 3.);
   float size = 7. + sin(time/20.) * 50.;
   
   vec2 position = (gl_FragCoord.xy - 0.5*resolution) / resolution.xx ;
