@@ -36,6 +36,8 @@ namespace Pixlib {
     IsoCamera viewed_from;
     IsoCamera camera;
 
+    Timer frame_timer;
+
     FadeCandy *fc;
   };
 }
