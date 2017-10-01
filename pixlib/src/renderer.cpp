@@ -23,7 +23,6 @@ namespace Pixlib {
 
   out vec2 TexCoords;
   out vec3 Normal;
-  out vec4 Position;
 
   uniform mat4 view;
   uniform mat4 projection;
@@ -35,7 +34,6 @@ namespace Pixlib {
       gl_Position = projection * view  * positionOffset * vec4(position, 1.0f);
       TexCoords = texCoords + texCoordsOffset;
       Normal = normal;
-      Position = positionOffset*vec4(position, 1.0f);
   })", 
   R"(#version 330 core
 
@@ -44,7 +42,6 @@ namespace Pixlib {
   #endif
 
   in vec2 TexCoords;
-  in vec3 Position;
 
   out vec4 color;
 
