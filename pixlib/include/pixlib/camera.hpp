@@ -70,7 +70,7 @@ namespace Pixlib {
 
     void moveTowards(const IsoCamera& camera, float timeScale);
 
-    void rotate(const float rads);
+    void rotate(const float degs);
   private:
     // Calculates the front vector from the Camera's (updated) Eular Angles
     void updateCameraVectors();

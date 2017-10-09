@@ -98,9 +98,13 @@ namespace Pixlib {
   }
 
 
-  void IsoCamera::rotate(const float rads)
+  void IsoCamera::rotate(const float degs)
   {
-    Yaw += rads;
+    Yaw += degs;
+    if (Yaw > 360) {
+      Yaw -= 360;
+    }
+
     updateCameraVectors();
   }
 }
