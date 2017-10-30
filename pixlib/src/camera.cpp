@@ -84,6 +84,13 @@ namespace Pixlib {
   // Calculates the front vector from the Camera's (updated) Eular Angles
   void IsoCamera::updateCameraVectors()
   {
+
+    if (Yaw > 360) {
+      Yaw -= 360;
+    } else if (Yaw < 0) {
+      Yaw += 360;
+    }
+    
     // Calculate the new Front vector
     glm::vec3 front;
     front.x = cos(glm::radians(this->Yaw)) * cos(glm::radians(this->Pitch));
@@ -101,9 +108,6 @@ namespace Pixlib {
   void IsoCamera::rotate(const float degs)
   {
     Yaw += degs;
-    if (Yaw > 360) {
-      Yaw -= 360;
-    }
 
     updateCameraVectors();
   }

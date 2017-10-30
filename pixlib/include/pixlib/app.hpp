@@ -27,6 +27,7 @@ namespace Pixlib {
     void ProcessMouseScroll(float x);
 
     void move_perspective_to_camera();
+    void move_camera_to_perspective();
 
     void tick(Pattern* pattern, float brightness, int width, int height);
   private:

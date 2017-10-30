@@ -48,6 +48,10 @@ namespace Pixlib {
     viewed_from.moveTowards(camera, scene.getTimeDelta()*0.8);
   }
 
+  void App::move_camera_to_perspective() {
+    camera.moveTowards(viewed_from, scene.getTimeDelta()*0.8);
+  }
+
   void App::tick(Pattern* pattern, float brightness, int width, int height) {
     frame_timer.end();
     frame_timer.start();
