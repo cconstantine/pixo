@@ -30,14 +30,15 @@ namespace Pixlib {
     void move_camera_to_perspective();
 
     void tick(Pattern* pattern, float brightness, int width, int height);
+    Timer frame_timer;
+    
+    IsoCamera viewed_from;
+    IsoCamera camera;
   private:
     Scene scene;
     std::vector<LedCluster*> led_clusters;
 
-    IsoCamera viewed_from;
-    IsoCamera camera;
 
-    Timer frame_timer;
 
     FadeCandy *fc;
   };

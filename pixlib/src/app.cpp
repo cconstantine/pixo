@@ -55,11 +55,7 @@ namespace Pixlib {
   void App::tick(Pattern* pattern, float brightness, int width, int height) {
     frame_timer.end();
     frame_timer.start();
-    if (frame_timer.duration() > 0) {
-      float rotate_by = 5 * frame_timer.duration();
-      camera.rotate(rotate_by);
-    }
-
+    
     for (LedCluster* led_cluster : led_clusters) {
       led_cluster->render(viewed_from, *pattern, brightness);
     }
