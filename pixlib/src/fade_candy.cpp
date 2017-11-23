@@ -4,7 +4,7 @@
 FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
 {
   opc_client.resolve(hostname.c_str());
-  float spacing = .3;
+  float spacing = .6;
 
   int width = per_size;
   int height = per_size;

@@ -332,7 +332,7 @@ int main( int argc, char** argv )
 
     global_timer.end();
 
-        camera.rotate(global_timer.duration() * 5);
+    //camera.rotate(global_timer.duration() * 5);
     
     glfwSwapBuffers(window);
 
