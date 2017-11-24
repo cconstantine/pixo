@@ -46,8 +46,9 @@ include_directories(
 ###################### PIXLIB   ###############################
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
+include_directories(ext/mongoose/mongoose-6.10/)
 
-add_executable(pixo src/main.cpp )
-target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib )
+add_executable(pixo src/main.cpp ext/mongoose/mongoose-6.10/mongoose.c)
+target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib)
 
 

@@ -31,6 +31,8 @@ using namespace glm;
 
 #include <nanogui/nanogui.h>
 #include <fade_candy.hpp>
+#include <mongoose.h>
+#include <thread>
 
 using namespace nanogui;
 Screen *screen = nullptr;
@@ -48,9 +50,64 @@ static bool firstMouse = true;
 bool keys[1024];
 std::string Shader::root = std::string("../");
 
+
+  static const char *s_http_port = "8000";
+  static struct mg_serve_http_opts s_http_server_opts;
+static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
+  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
+}
+
+static int is_equal(const struct mg_str *s1, const struct mg_str *s2) {
+  return s1->len == s2->len && memcmp(s1->p, s2->p, s2->len) == 0;
+}
+
+static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
+  static const struct mg_str api_prefix = MG_MK_STR("/api/v1");
+  struct http_message *hm = (struct http_message *) ev_data;
+  struct mg_str key;
+
+  switch (ev) {
+    case MG_EV_HTTP_REQUEST:
+      if (has_prefix(&hm->uri, &api_prefix)) {
+
+        mg_printf(nc, "%s",
+                  "HTTP/1.0 501 Not Implemented\r\n"
+                  "Content-Length: 0\r\n\r\n");
+      } else {
+        mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
+      }
+      break;
+    default:
+      break;
+  }
+}
+
+bool running = true;
+
+void web_listen() {
+
+  struct mg_mgr mgr;
+  struct mg_connection *nc;
+  int i;
+
+  /* Open listening socket */
+  mg_mgr_init(&mgr, NULL);
+  nc = mg_bind(&mgr, s_http_port, ev_handler);
+  mg_set_protocol_http_websocket(nc);
+
+  while(running) {
+    mg_mgr_poll(&mgr, 1000);
+
+  }
+  mg_mgr_free(&mgr);
+}
+
+std::thread webserver (web_listen); 
 int main( int argc, char** argv )
 {
   
+
+
   if(argc < 3) {
     fprintf(stderr, "Usage: %s LEDS_PER_SIDE [pattern file]*\n", argv[0]);
     exit(1);
@@ -301,6 +358,9 @@ int main( int argc, char** argv )
       ALOGV("Preloop %04x\n", glErr);
       glErr = glGetError();
   }
+
+
+
   std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();
@@ -347,6 +407,8 @@ int main( int argc, char** argv )
 
   fc.clear();
   
+  running = false;
+  webserver.join();
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();
