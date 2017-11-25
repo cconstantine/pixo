@@ -1,8 +1,6 @@
-#include <opengl.h>
+#pragma once
 
-#include <camera.hpp>
-#include <cube.hpp>
-#include <fade_candy.hpp>
-#include <led_cluster.hpp>
-#include <renderer.hpp>
-#include <scene.hpp>
+#include <pixlib/app.hpp>
+#include <pixlib/camera.hpp>
+#include <pixlib/fade_candy.hpp>
+#include <pixlib/timer.hpp>

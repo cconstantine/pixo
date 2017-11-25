@@ -1,15 +1,12 @@
-[submodule "ext/nanogui"]
-	path = ext/nanogui
-	url = https://github.com/wjakob/nanogui.git
 [submodule "ext/glm"]
 	path = ext/glm
 	url = https://github.com/g-truc/glm.git
 [submodule "ext/glew"]
 	path = ext/glew
 	url = https://github.com/Perlmint/glew-cmake
-[submodule "ext/librealsense"]
-	path = ext/librealsense
-	url = https://github.com/IntelRealSense/librealsense.git
 [submodule "ext/tinyobjloader"]
 	path = ext/tinyobjloader
 	url = https://github.com/syoyo/tinyobjloader.git
+[submodule "ext/glfw"]
+	path = ext/glfw
+	url = https://github.com/glfw/glfw.git

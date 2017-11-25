@@ -1,4 +1,4 @@
-#include <cube.hpp>
+#include <pixlib/cube.hpp>
 
 // Std. Includes
 #include <vector>
@@ -9,90 +9,92 @@ using namespace std;
 #include <glm/gtc/matrix_transform.hpp>
 
 
-#include <mesh.hpp>
+#include <pixlib/mesh.hpp>
 
-// Constructor, expects a filepath to a 3D model.
-Cube::Cube() : defaultTexture(Texture(1,1))
-{
-  this->loadModel();
-}
-
-// Constructor, expects a filepath to a 3D model.
-Cube::Cube(const Texture& defaultTexture ) : defaultTexture(defaultTexture)
-{
-  this->loadModel();
-}
-
-int Cube::addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta) {
-  int instance = 0;
-  for(GLuint i = 0; i < this->meshes.size(); i++) {
-    instance = meshes[i].addInstance(posDelta, texDelta);
+namespace Pixlib {
+  // Constructor, expects a filepath to a 3D model.
+  Cube::Cube() : defaultTexture(Texture(1,1))
+  {
+    this->loadModel();
   }
-  return instance;
-}
 
-void Cube::moveInstance(int instance, const glm::vec3& position) {
-  for(GLuint i = 0; i < this->meshes.size(); i++) {
-    meshes[i].moveInstance(instance, position);
+  // Constructor, expects a filepath to a 3D model.
+  Cube::Cube(const Texture& defaultTexture ) : defaultTexture(defaultTexture)
+  {
+    this->loadModel();
   }
-}
 
-int Cube::numInstances() {
-  return meshes[0].numInstances();
-}
-
-// Draws the model, and thus all its meshes
-void Cube::Draw(Shader shader)
-{
-  for(GLuint i = 0; i < this->meshes.size(); i++) {
-    this->meshes[i].Draw(shader);
-  }
-}
-
-Texture Cube::getDefaultTexture() {
-  return defaultTexture;
-}
-
-/*  Functions   */
-// Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-void Cube::loadModel()
-{
-
-  std::vector<Vertex> vertices = std::vector<Vertex>(
-    {
-     {glm::vec3(+0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, -0.03470500, +0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, -0.03470500, +0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, +0.03470500, +0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, +0.03470500, +0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, -0.03470500, -0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, +0.03470500, -0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, +0.03470500, +0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, -0.03470500, +0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, -0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, +0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, +0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, -0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, -0.03470500, +0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, +0.03470500, +0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, +0.03470500, -0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, -0.03470500, -0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(+0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)},
-     {glm::vec3(-0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)}
+  int Cube::addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta) {
+    int instance = 0;
+    for(GLuint i = 0; i < this->meshes.size(); i++) {
+      instance = meshes[i].addInstance(posDelta, texDelta);
     }
-   );
+    return instance;
+  }
 
-  std::vector<GLuint> indices = std::vector<GLuint>(
-    { 0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9,10, 8,10,11,12,13,14,12,14,15,16,17,18,16,18,19,20,21,22,20,22,23}
-   );
+  void Cube::moveInstance(int instance, const glm::vec3& position) {
+    for(GLuint i = 0; i < this->meshes.size(); i++) {
+      meshes[i].moveInstance(instance, position);
+    }
+  }
 
-  std::vector<Texture> textures = std::vector<Texture>({getDefaultTexture()});
+  int Cube::numInstances() {
+    return meshes[0].numInstances();
+  }
 
-  this->meshes.push_back(Mesh(vertices, indices, textures));
-  return;
+  // Draws the model, and thus all its meshes
+  void Cube::Draw(const Shader& shader)
+  {
+    for(GLuint i = 0; i < this->meshes.size(); i++) {
+      this->meshes[i].Draw(shader);
+    }
+  }
+
+  Texture Cube::getDefaultTexture() {
+    return defaultTexture;
+  }
+
+  /*  Functions   */
+  // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
+  void Cube::loadModel()
+  {
+
+    std::vector<Vertex> vertices = std::vector<Vertex>(
+      {
+       {glm::vec3(+0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, -0.03470500, +0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, -0.03470500, +0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, -1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, +0.03470500, +0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, +0.03470500, +0.03470500), glm::vec3(+0.00000000, +1.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, -0.03470500, -0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, +0.03470500, -0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, +0.03470500, +0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, -0.03470500, +0.03470500), glm::vec3(+1.00000000, +0.00000000, +0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, -0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, +0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, +0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, -0.03470500, +0.03470500), glm::vec3(-0.00000000, -0.00000000, +1.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, -0.03470500, +0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, +0.03470500, +0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, +0.03470500, -0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, -0.03470500, -0.03470500), glm::vec3(-1.00000000, -0.00000000, -0.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(+0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, -0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)},
+       {glm::vec3(-0.03470500, +0.03470500, -0.03470500), glm::vec3(+0.00000000, +0.00000000, -1.00000000), glm::vec2(+0.00000000, +0.00000000)}
+      }
+     );
+
+    std::vector<GLuint> indices = std::vector<GLuint>(
+      { 0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9,10, 8,10,11,12,13,14,12,14,15,16,17,18,16,18,19,20,21,22,20,22,23}
+     );
+
+    std::vector<Texture> textures = std::vector<Texture>({getDefaultTexture()});
+
+    this->meshes.push_back(Mesh(vertices, indices, textures));
+    return;
+  }
 }

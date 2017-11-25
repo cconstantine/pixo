@@ -17,48 +17,39 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-using namespace glm;
 
+#include <pixlib.hpp>
 
-
-#include <pattern.hpp>
-#include <camera.hpp>
-#include <cube.hpp>
-#include <led_cluster.hpp>
-#include <renderer.hpp>
-#include <scene.hpp>
-#include <timer.hpp>
 
 #include <nanogui/nanogui.h>
-#include <fade_candy.hpp>
 #include <mongoose.h>
 #include <thread>
 
-using namespace nanogui;
-Screen *screen = nullptr;
-Scene *scene = nullptr;
-Pattern *pattern = nullptr;
-Timer global_timer = Timer(120);
-LedCluster *domeLeds;
+using namespace glm;
+using namespace std;
+using namespace Pixlib;
+nanogui::Screen *screen = nullptr;
 
-IsoCamera viewed_from;
-IsoCamera camera;
+Timer global_timer = Timer(120);
 
 static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
 
 bool keys[1024];
-std::string Shader::root = std::string("../");
 
-
-  static const char *s_http_port = "8000";
-  static struct mg_serve_http_opts s_http_server_opts;
-static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
-  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
+void sig_int_handler(int s){
+  static unsigned int hits = 1;
+  if (hits++ >= 3) {
+    exit(1);
+  }
+  glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
-static int is_equal(const struct mg_str *s1, const struct mg_str *s2) {
-  return s1->len == s2->len && memcmp(s1->p, s2->p, s2->len) == 0;
+
+static const char *s_http_port = "8000";
+static struct mg_serve_http_opts s_http_server_opts;
+static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
+  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
 }
 
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
@@ -104,12 +95,12 @@ void web_listen() {
 
 std::thread webserver (web_listen); 
 int main( int argc, char** argv )
-{
-  
-
+{  
+  std::vector<Pattern*> patterns;
+  Pattern* pattern = nullptr;
 
   if(argc < 3) {
-    fprintf(stderr, "Usage: %s LEDS_PER_SIDE [pattern file]*\n", argv[0]);
+    fprintf(stderr, "Usage: %s LEDS_PER_SIDE hostname [pattern file]*\n", argv[0]);
     exit(1);
   }
     // Initialise GLFW
@@ -140,8 +131,6 @@ int main( int argc, char** argv )
 
   // Ensure we can capture the escape key being pressed below
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-  // Options
-  //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
   // Initialize GLEW
   glewExperimental = GL_TRUE; // Needed for core profile
@@ -154,25 +143,47 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
-  // Accept fragment if it closer to the camera than the former one
-  glDepthFunc(GL_LESS);
-  glPointSize(1);
   
-  vector<Pattern*> patterns;
-  for(int i = 3;i < argc;i++) {
-    patterns.push_back(new Pattern(&argv[i][2]));
-  }
-
-  pattern = patterns[rand() % patterns.size()];
   const int leds_per_side = atoi(argv[1]);
   FadeCandy fc = FadeCandy(argv[2], leds_per_side);
 
+  App application;
 
-  domeLeds = new LedCluster(&fc);
-  scene = new Scene(domeLeds);
+  application.addFadeCandy(&fc);
+  glfwSetWindowUserPointer(window, &application);
+
+
+
+  for(int i = 3;i < argc;i++) {
+    std::string fragmentCode;
+    std::ifstream fShaderFile;
+    // ensures ifstream objects can throw exceptions:
+    fShaderFile.exceptions (std::ifstream::badbit);
+
+    std::string fulLFragmentath = std::string(argv[i]);
+    ALOGV("Loading: %s\n", fulLFragmentath.c_str());
+
+    fShaderFile.open(fulLFragmentath.c_str());
+    std::stringstream fShaderStream;
+    fShaderStream << fShaderFile.rdbuf();
+    fShaderFile.close();
+    
+    // Convert stream into string
+    fragmentCode = fShaderStream.str();
+
+    std::string name;
+    for(unsigned int i = fulLFragmentath.size();i >= 0;i--) {
+      if (fulLFragmentath[i] == '/') {
+        break;
+      }
+      name = fulLFragmentath[i] + name;
+    }
+    patterns.push_back(new Pattern(fragmentCode.c_str()));
+    pattern = patterns[0];
+  }
 
   // Create a nanogui screen and pass the glfw pointer to initialize
-  screen = new Screen();
+  screen = new nanogui::Screen();
   screen->initialize(window, true);
   GLenum glErr = glGetError();
   while (glErr != GL_NO_ERROR)
@@ -180,15 +191,16 @@ int main( int argc, char** argv )
       ALOGV("Screen %04x\n", glErr);
       glErr = glGetError();
   }
+
   // Create nanogui gui
-  FormHelper *gui = new FormHelper(screen);
-  nanogui::ref<Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Status");
+  nanogui::FormHelper *gui = new nanogui::FormHelper(screen);
+  nanogui::ref<nanogui::Window> nanoguiWindow = gui->addWindow(Eigen::Vector2i(10, 10), "Status");
 
   gui->addVariable<string>("fps",
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      float fps = scene->getFps();
+      float fps = application.scene_fps();
       sprintf(ret, "%2.02f", fps);
       return ret;
     },
@@ -206,8 +218,11 @@ int main( int argc, char** argv )
   gui->addVariable<string>("scene time",
     [&](string value) { value; },
     [&]() -> string {
+
       char ret[256];
-      sprintf(ret, "%2.02fms", scene->get_render_time()*1000);
+      App* app = (App*)glfwGetWindowUserPointer(window);
+
+      sprintf(ret, "%2.02fms", app->scene_render_time()*1000);
       return ret;
     },
     false)->setValue("00.00");
@@ -216,7 +231,8 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      sprintf(ret, "%2.02fms", domeLeds->render_time()*1000);
+      App* app = (App*)glfwGetWindowUserPointer(window);
+      sprintf(ret, "%2.02fms", app->led_render_time()*1000);
       return ret;
     },
     false)->setValue("00.00");
@@ -224,25 +240,25 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      return pattern->getName().c_str();
+      return "                 ";//TODO: pattern->getName().c_str();
     },
     false)->setValue("                 ");
 
-  ImageView *imageWidget = new ImageView(nanoguiWindow, domeLeds->getPatternTexture().id);
-  imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
-  imageWidget->setFixedScale(true);
-  gui->addWidget("", imageWidget);
-  screen->setVisible(true);
-  screen->performLayout();
+  // TODO:
+  // nanogui::ImageView *imageWidget = new nanogui::ImageView(nanoguiWindow, domeLeds->getPatternTexture().id);
+  // imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
+  // imageWidget->setFixedScale(true);
+  // gui->addWidget("", imageWidget);
+  // screen->setVisible(true);
+  // screen->performLayout();
 
-  imageWidget->fit();
-
-
+  // imageWidget->fit();
 
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+            App* app = (App*)glfwGetWindowUserPointer(window);
 
             if (state != GLFW_PRESS) {
               firstMouse = true;
@@ -260,7 +276,7 @@ int main( int argc, char** argv )
             lastX = x;
             lastY = y;
 
-            camera.ProcessMouseMovement(xoffset, yoffset);
+            app->ProcessMouseMovement(xoffset, yoffset);
           }
       }
   );
@@ -337,20 +353,21 @@ int main( int argc, char** argv )
       }
   );
 
-  glfwSetScrollCallback(window,
-      [](GLFWwindow *window, double x, double y) {
-          if (!screen->scrollCallbackEvent(x, y)) {
-            camera.ProcessMouseScroll(y);
+  // glfwSetScrollCallback(window,
+  //     [](GLFWwindow *window, double x, double y) {
+  //         if (!screen->scrollCallbackEvent(x, y)) {
+  //           camera.ProcessMouseScroll(y);
 
-          }
-     }
-  );
+  //         }
+  //    }
+  // );
 
   glfwSetFramebufferSizeCallback(window,
       [](GLFWwindow *window, int width, int height) {
           screen->resizeCallbackEvent(width, height);
       }
   );
+
 
   glErr = glGetError();
   while (glErr != GL_NO_ERROR)
@@ -360,8 +377,13 @@ int main( int argc, char** argv )
   }
 
 
-
   std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
+  struct sigaction sigIntHandler;
+  sigIntHandler.sa_handler = sig_int_handler;
+  sigemptyset(&sigIntHandler.sa_mask);
+  sigIntHandler.sa_flags = 0;
+  sigaction(SIGINT, &sigIntHandler, NULL);
+
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();
 
@@ -370,29 +392,26 @@ int main( int argc, char** argv )
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
-    viewed_from.moveTowards(camera, scene->getTimeDelta()*0.8);
-
-    domeLeds->render(viewed_from, *pattern);
-    scene->render(camera, width, height);
-
-    std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - last_pattern_change;
-    if(keys[NEXT_PATTERN] || diff.count() > 600) {
-      keys[NEXT_PATTERN] = false;
-      pattern = patterns[rand() % patterns.size()];
-      pattern->resetStart();
-      last_pattern_change = std::chrono::high_resolution_clock::now();
-    }
-
+    application.tick(pattern, width, height);
+    application.move_perspective_to_camera();
 
     gui->refresh();
-    // Draw nanogui
     screen->performLayout();
     screen->drawContents();
     screen->drawWidgets();
 
+    if(keys[NEXT_PATTERN]) {
+      keys[NEXT_PATTERN] = false;
+
+      pattern = patterns[rand() % patterns.size()];
+    }
+
+
+
     global_timer.end();
 
     //camera.rotate(global_timer.duration() * 5);
+
     
     glfwSwapBuffers(window);
 
@@ -412,6 +431,8 @@ int main( int argc, char** argv )
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();
+
+  ALOGV("Exiting\n");
 
   return 0;
 }
