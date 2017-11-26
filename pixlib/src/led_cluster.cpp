@@ -10,12 +10,11 @@ namespace Pixlib {
   }
 
 
-  LedCluster::LedCluster(FadeCandy *fadecandy) :
+  LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& pattern_texture) :
    led_texture(led_canvas_size(fadecandy->getLeds().size()), led_canvas_size(fadecandy->getLeds().size())),
-   leds_for_calc(pattern_render.getTexture()),
+   leds_for_calc(pattern_texture),
    leds_for_display(led_texture),
    led_renderer(led_texture),
-   pattern_render(fadecandy->textureSize()),
    fadecandy(fadecandy),
    render_timer(120)
   {
@@ -59,7 +58,6 @@ namespace Pixlib {
   void LedCluster::render(const IsoCamera& viewed_from, const Pattern& pattern) 
   {
     render_timer.start();
-    pattern_render.render(pattern);
     led_renderer.render(viewed_from, fadecandy->getData(), numLeds()*3);
     render_timer.end();
 
@@ -71,8 +69,4 @@ namespace Pixlib {
     return render_timer.duration();
   }
 
-  const Texture& LedCluster::getPatternTexture()
-  {
-    return pattern_render.getTexture();
-  }
 }

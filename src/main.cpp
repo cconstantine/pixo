@@ -246,15 +246,14 @@ int main( int argc, char** argv )
     },
     false)->setValue("                 ");
 
-  // TODO:
-  // nanogui::ImageView *imageWidget = new nanogui::ImageView(nanoguiWindow, domeLeds->getPatternTexture().id);
-  // imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
-  // imageWidget->setFixedScale(true);
-  // gui->addWidget("", imageWidget);
-  // screen->setVisible(true);
-  // screen->performLayout();
+  nanogui::ImageView *imageWidget = new nanogui::ImageView(nanoguiWindow, application.getPatternTexture().id);
+  imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
+  imageWidget->setFixedScale(true);
+  gui->addWidget("", imageWidget);
+  screen->setVisible(true);
+  screen->performLayout();
 
-  // imageWidget->fit();
+  imageWidget->fit();
 
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {

@@ -2,7 +2,9 @@
 
 namespace Pixlib {
   App::App() :
-   scene()
+   scene(),
+   pattern_render(glm::vec2(1000, 1000))
+
   {  }
 
   App::~App() {
@@ -13,7 +15,7 @@ namespace Pixlib {
   }
 
   void App::addFadeCandy(FadeCandy* fc) {
-    LedCluster *lc = new LedCluster(fc);
+    LedCluster *lc = new LedCluster(fc, pattern_render.getTexture());
 
     scene.addCluster(lc);
     led_clusters.push_back(lc);
@@ -48,8 +50,13 @@ namespace Pixlib {
     viewed_from.moveTowards(camera, scene.getTimeDelta()*0.8);
   }
 
+  const Texture& App::getPatternTexture() {
+    return pattern_render.getTexture();
+  }
+
   void App::tick(Pattern* pattern, int width, int height) {
-    
+    pattern_render.render(*pattern);
+
     for (LedCluster* led_cluster : led_clusters) {
       led_cluster->render(viewed_from, *pattern);
     }
