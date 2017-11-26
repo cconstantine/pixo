@@ -14,7 +14,7 @@ namespace Pixlib {
    led_texture(led_canvas_size(fadecandy->getLeds().size()), led_canvas_size(fadecandy->getLeds().size())),
    leds_for_calc(pattern_render.getTexture()),
    leds_for_display(led_texture),
-   fb_render(led_texture),
+   led_renderer(led_texture),
    pattern_render(fadecandy->textureSize()),
    fadecandy(fadecandy),
    render_timer(120)
@@ -44,7 +44,7 @@ namespace Pixlib {
 
 
     leds_for_calc.setupMesh();
-    fb_render.leds = &leds_for_calc;
+    led_renderer.leds = &leds_for_calc;
   }
 
   GLuint LedCluster::numLeds() {
@@ -60,7 +60,7 @@ namespace Pixlib {
   {
     render_timer.start();
     pattern_render.render(pattern);
-    fb_render.render(viewed_from, fadecandy->getData(), numLeds()*3);
+    led_renderer.render(viewed_from, fadecandy->getData(), numLeds()*3);
     render_timer.end();
 
     fadecandy->update();

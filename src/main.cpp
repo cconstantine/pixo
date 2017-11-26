@@ -87,7 +87,7 @@ void web_listen() {
   mg_set_protocol_http_websocket(nc);
 
   while(running) {
-    mg_mgr_poll(&mgr, 1000);
+    mg_mgr_poll(&mgr, 100);
 
   }
   mg_mgr_free(&mgr);
@@ -96,8 +96,8 @@ void web_listen() {
 std::thread webserver (web_listen); 
 int main( int argc, char** argv )
 {  
-  std::vector<Pattern*> patterns;
-  Pattern* pattern = nullptr;
+  std::map<std::string, Pattern*> patterns;
+  std::string pattern;
 
   if(argc < 3) {
     fprintf(stderr, "Usage: %s LEDS_PER_SIDE hostname [pattern file]*\n", argv[0]);
@@ -118,15 +118,15 @@ int main( int argc, char** argv )
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_DEPTH_BITS, 24 );
 
-    // Open a window and create its OpenGL context
-    window = glfwCreateWindow( 800, 800, "Pixo", NULL, NULL);
-    if( window == NULL ){
-        fprintf( stderr, "Failed to open GLFW window. If you have an Intel GPU, they are not 3.3 compatible. Try the 2.1 version of the tutorials.\n" );
-        getchar();
-        glfwTerminate();
-        return -1;
-    }
-    glfwMakeContextCurrent(window);
+  // Open a window and create its OpenGL context
+  window = glfwCreateWindow( 800, 800, "Pixo", NULL, NULL);
+  if( window == NULL ){
+      fprintf( stderr, "Failed to open GLFW window.\n" );
+      getchar();
+      glfwTerminate();
+      return -1;
+  }
+  glfwMakeContextCurrent(window);
 
 
   // Ensure we can capture the escape key being pressed below
@@ -178,9 +178,11 @@ int main( int argc, char** argv )
       }
       name = fulLFragmentath[i] + name;
     }
-    patterns.push_back(new Pattern(fragmentCode.c_str()));
-    pattern = patterns[0];
+    patterns[name] = new Pattern(fragmentCode.c_str());
   }
+  auto it = patterns.begin();
+  std::advance(it, rand() % patterns.size());
+  pattern = it->first;
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new nanogui::Screen();
@@ -240,7 +242,7 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      return "                 ";//TODO: pattern->getName().c_str();
+      return pattern.c_str();
     },
     false)->setValue("                 ");
 
@@ -353,14 +355,15 @@ int main( int argc, char** argv )
       }
   );
 
-  // glfwSetScrollCallback(window,
-  //     [](GLFWwindow *window, double x, double y) {
-  //         if (!screen->scrollCallbackEvent(x, y)) {
-  //           camera.ProcessMouseScroll(y);
+  glfwSetScrollCallback(window,
+      [](GLFWwindow *window, double x, double y) {
+          if (!screen->scrollCallbackEvent(x, y)) {
+            App* app = (App*)glfwGetWindowUserPointer(window);
 
-  //         }
-  //    }
-  // );
+            app->ProcessMouseScroll(y);
+          }
+     }
+  );
 
   glfwSetFramebufferSizeCallback(window,
       [](GLFWwindow *window, int width, int height) {
@@ -392,7 +395,7 @@ int main( int argc, char** argv )
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
-    application.tick(pattern, width, height);
+    application.tick(patterns[pattern], width, height);
     application.move_perspective_to_camera();
 
     gui->refresh();
@@ -403,15 +406,12 @@ int main( int argc, char** argv )
     if(keys[NEXT_PATTERN]) {
       keys[NEXT_PATTERN] = false;
 
-      pattern = patterns[rand() % patterns.size()];
+      auto it = patterns.begin();
+      std::advance(it, rand() % patterns.size());
+      pattern = it->first;
     }
 
-
-
     global_timer.end();
-
-    //camera.rotate(global_timer.duration() * 5);
-
     
     glfwSwapBuffers(window);
 

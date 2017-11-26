@@ -49,8 +49,7 @@ namespace Pixlib {
   }
 
   void App::tick(Pattern* pattern, int width, int height) {
-    camera.rotate(scene_render_time() * 5);
-
+    
     for (LedCluster* led_cluster : led_clusters) {
       led_cluster->render(viewed_from, *pattern);
     }

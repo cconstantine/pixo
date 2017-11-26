@@ -42,7 +42,7 @@ namespace Pixlib {
   private:
 
     Texture led_texture;
-    LedRender fb_render;
+    LedRender led_renderer;
     PatternRender pattern_render;
     FadeCandy *fadecandy;
 
