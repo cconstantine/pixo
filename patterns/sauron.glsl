@@ -1,4 +1,4 @@
-#version 330 core
+#version 310 es
 
 #ifdef GL_ES
 precision highp float;
@@ -21,10 +21,10 @@ uniform vec2 resolution;
 //      Author : Ian McEwan, Ashima Arts.
 //  Maintainer : ijm
 //     Lastmod : 20110822 (ijm)
-//     License : Copyright (C ) 2011 Ashima Arts. All rights reserved.
+//     License : Copyright (C) 2011 Ashima Arts. All rights reserved.
 //               Distributed under the MIT License. See LICENSE file.
 //               https://github.com/ashima/webgl-noise
-// 
+//
 // http://glslsandbox.com/e#35818.0
 
 vec3 mod289(vec3 x) {
@@ -45,7 +45,7 @@ vec4 taylorInvSqrt(vec4 r)
 }
 
 float snoise(vec3 v)
-{ 
+{
   const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
   const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
 
@@ -68,10 +68,10 @@ float snoise(vec3 v)
   vec3 x3 = x0 - D.yyy;      // -1.0+3.0*C.x = -0.5 = -D.y
 
 // Permutations
-  i = mod289(i); 
-  vec4 p = permute( permute( permute( 
+  i = mod289(i);
+  vec4 p = permute( permute( permute(
              i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
-           + i.y + vec4(0.0, i1.y, i2.y, 1.0 )) 
+           + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
            + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
 
 // Gradients: 7x7 points over a square, mapped onto an octahedron.
@@ -115,7 +115,7 @@ float snoise(vec3 v)
 // Mix final noise value
   vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
   m = m * m;
-  return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), 
+  return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1),
                                 dot(p2,x2), dot(p3,x3) ) );
 }
 
@@ -128,16 +128,16 @@ float snoise(vec3 v)
 
 
 // From iq's latest live coding video, "a simple eye ball"
- 
 
- 
+
+
 mat2 m = mat2( 0.80,  0.60, -0.60,  0.80 );
- 
+
 float hash( float n )
 {
     return fract(sin(n)*4375.5453);
 }
- 
+
 float noise( in vec2 x )
 {
     vec2 p = floor(x);
@@ -147,7 +147,7 @@ float noise( in vec2 x )
     float res = mix(mix( hash(n+  0.0), hash(n+  1.0),f.x), mix( hash(n+ 57.0), hash(n+ 58.0),f.x),f.y);
     return res;
 }
- 
+
 float fbm( vec2 p )
 {
     float f = 0.0;
@@ -158,14 +158,14 @@ float fbm( vec2 p )
     f += 0.03125*noise( p );
     return f/0.984375;
 }
- 
+
 float length2( vec2 p )
 {
     float ax = abs(p.x);
     float ay = abs(p.y);
     return pow( pow(ax,4.0) + pow(ay,4.0), 1.0/4.0 );
 }
- 
+
 vec4 main2(vec3 color)
 {
     vec2 q = gl_FragCoord.xy / resolution.xy;
@@ -197,7 +197,7 @@ vec4 main2(vec3 color)
     return vec4(col,1.0);
 }
 
-//rob dunn 
+//rob dunn
 void main( void ) {
 	vec2 p = ( gl_FragCoord.xy / resolution.xy ) - vec2(0.5);
 	p.x *= resolution.x/resolution.y;

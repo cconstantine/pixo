@@ -9,7 +9,7 @@ namespace Pixlib {
 
   ScreenRender::ScreenRender() :
    shader(
-  R"(#version 330 core
+  R"(#version 310 es
 
   #ifdef GL_ES
   precision highp float;
@@ -22,8 +22,6 @@ namespace Pixlib {
   layout (location = 4) in mat4 positionOffset;
 
   out vec2 TexCoords;
-  out vec3 Normal;
-  out vec4 Position;
 
   uniform mat4 view;
   uniform mat4 projection;
@@ -34,17 +32,14 @@ namespace Pixlib {
   {
       gl_Position = projection * view  * positionOffset * vec4(position, 1.0f);
       TexCoords = texCoords + texCoordsOffset;
-      Normal = normal;
-      Position = positionOffset*vec4(position, 1.0f);
-  })", 
-  R"(#version 330 core
+  })",
+  R"(#version 310 es
 
   #ifdef GL_ES
   precision highp float;
   #endif
 
   in vec2 TexCoords;
-  in vec3 Position;
 
   out vec4 color;
 

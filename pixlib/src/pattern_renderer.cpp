@@ -9,6 +9,9 @@ namespace Pixlib {
    height(canvasSize.y),
    renderedTexture(canvasSize.x, canvasSize.y)
   {
+    ALOGV("Create PatternRender::PatternRender\n");
+    ALOGV("width : %d\n", width);
+    ALOGV("height: %d\n", height);
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 
@@ -36,8 +39,8 @@ namespace Pixlib {
 
     glBindTexture(GL_TEXTURE_2D, renderedTexture.id);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -59,13 +62,6 @@ namespace Pixlib {
   }
 
   void PatternRender::render(const Pattern& pattern) {
-    GLuint time_id = glGetUniformLocation(pattern.shader.Program, "time");
-    GLuint resolution_id = glGetUniformLocation(pattern.shader.Program, "resolution");
-    GLuint mouse_id = glGetUniformLocation(pattern.shader.Program, "mouse");
-
-    GLuint itime_id = glGetUniformLocation(pattern.shader.Program, "iGlobalTime");
-    GLuint iresolution_id = glGetUniformLocation(pattern.shader.Program, "iResolution");
-    GLuint imouse_id = glGetUniformLocation(pattern.shader.Program, "iMouse");
 
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
     glViewport(0,0,width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
@@ -74,6 +70,17 @@ namespace Pixlib {
 
     // Use our shader
     pattern.shader.Use();
+
+
+    GLuint time_id = glGetUniformLocation(pattern.shader.Program, "time");
+    GLuint resolution_id = glGetUniformLocation(pattern.shader.Program, "resolution");
+    GLuint mouse_id = glGetUniformLocation(pattern.shader.Program, "mouse");
+
+    GLuint itime_id = glGetUniformLocation(pattern.shader.Program, "iGlobalTime");
+    GLuint iresolution_id = glGetUniformLocation(pattern.shader.Program, "iResolution");
+    GLuint imouse_id = glGetUniformLocation(pattern.shader.Program, "iMouse");
+
+
     glUniform1f(time_id, time_elapsed );
     glUniform2f(resolution_id, width, height);
     glUniform2f(mouse_id, width/2, height/2);

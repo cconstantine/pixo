@@ -3,7 +3,7 @@
 namespace Pixlib {
   Pattern::Pattern(const std::string& fragment) :
    shader(
-  R"(#version 330 core
+  R"(#version 310 es
 
   #ifdef GL_ES
   precision highp float;

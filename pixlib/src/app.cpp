@@ -3,7 +3,7 @@
 namespace Pixlib {
   App::App() :
    scene(),
-   pattern_render(glm::vec2(1000, 1000))
+   pattern_render(glm::vec2(52, 52))
 
   {  }
 
