@@ -1,10 +1,10 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
 
 // http://glslsandbox.com/e#32563.0
 
-#ifdef GL_ES
-precision mediump float;
-#endif
  
 uniform float time;
 uniform vec2 mouse;

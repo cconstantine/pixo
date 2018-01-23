@@ -1,10 +1,11 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
+
 out vec4 color_out;
 // http://glslsandbox.com/e#39265.0
 
-#ifdef GL_ES
-precision mediump float;
-#endif
 uniform float time;
 uniform vec2 resolution;
 // Leadlight by @hintz 2013-05-02

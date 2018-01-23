@@ -12,7 +12,7 @@ namespace Pixlib {
   class App {
   public:
 
-    App();
+    App(glm::vec2 canvas_size);
     ~App();
 
     void addFadeCandy(FadeCandy* fc);

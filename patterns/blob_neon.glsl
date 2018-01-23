@@ -1,4 +1,7 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
 
 // BlobNeon   By @paulofalcao - some blobs modifications with symmetries. 
 // Shrunk to fit in a page; paul's orig is nicer!
@@ -6,42 +9,41 @@
 
 // http://glslsandbox.com/e#26491.2
 
-
-#ifdef GL_ES
-precision mediump float; 
-#endif
 #define PI 3.14159265
 uniform float time;
 uniform vec2 resolution;
 
 out vec4 color_out;
 
-
-vec3 sim(vec3 p,float s); //.h
+vec3 sim(vec3 p,float s);
 vec2 rot(vec2 p,float r);
 vec2 rotsim(vec2 p,float s);
 
-vec2 makeSymmetry(vec2 p){ //nice stuff :)
+vec2 makeSymmetry(vec2 p)
+{
    vec2 ret=p;
    ret=rotsim(ret,sin(time*0.3)*2.0+3.0);
    ret.x=abs(ret.x);
    return ret;
 }
 
-float makePoint(float x,float y,float fx,float fy,float sx,float sy,float t){
+float makePoint(float x,float y,float fx,float fy,float sx,float sy,float t)
+{
    float xx=x+tan(t*fx)*sx;
    float yy=y-tan(t*fy)*sy;
    return 0.8/sqrt(abs(x*xx+yy*yy));
 }
 
-vec3 sim(vec3 p,float s){
+vec3 sim(vec3 p,float s)
+{
    vec3 ret=p;
    ret=p+s/2.0;
    ret=fract(ret/s)*s-s/2.0;
    return ret;
 }
 
-vec2 rot(vec2 p,float r){
+vec2 rot(vec2 p,float r)
+{
    vec2 ret;
    ret.x=p.x*cos(r)-p.y*sin(r);
    ret.y=p.x*sin(r)+p.y*cos(r);

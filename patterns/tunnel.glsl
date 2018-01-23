@@ -1,4 +1,8 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
+
 out vec4 color_out;
 
 //---------------------------------------------------------------------------
@@ -10,11 +14,7 @@ out vec4 color_out;
 
 // http://glslsandbox.com/e#35176.0
 
-#ifdef GL_ES
-precision mediump float;
-#endif
-
-// #extension GL_OES_standard_derivatives : enable
+// // #extension GL_OES_standard_derivatives : enable
 
 uniform vec2 resolution;
 uniform float time;

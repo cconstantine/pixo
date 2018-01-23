@@ -1,9 +1,9 @@
-#version 330 core
-out vec4 color_out;
-
+#version 310 es
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
+
+out vec4 color_out;
 
 in vec2 surfacePosition;
 uniform float time;

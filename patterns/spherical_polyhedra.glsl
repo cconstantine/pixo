@@ -1,6 +1,11 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
+
 out vec4 color_out;
 
+//TODO: get to work on android
 
 uniform float time;
 uniform vec2 mouse;
@@ -9,10 +14,10 @@ uniform vec2 resolution;
 
 // http://glslsandbox.com/e#38738.0
 
-vec3   iResolution = vec3(resolution, 1.0);
-float  iGlobalTime = time;
-vec4   iMouse = vec4(mouse, 0.0, 1.0);
-uniform sampler2D iChannel0,iChannel1;
+#define iResolution  vec3(resolution, 1.0)
+#define iGlobalTime  time
+#define iMouse       vec4(mouse, 0.0, 1.0)
+#define sampler2D    iChannel0,iChannel1,bb
 
 //Spherical polyhedra by nimitz (twitter: @stormoid)
 

@@ -36,14 +36,14 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
 
     if (fc == nullptr)
     {
-      fc = new FadeCandy("localhost", 8);
+      fc = new FadeCandy("localhost", 16);
     }
 
     if (application != nullptr) {
       delete application;
     }
 
-    application = new App();
+    application = new App(glm::vec2(256, 256));
     application->addFadeCandy(fc);
 
 
@@ -56,7 +56,7 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     fShaderFile.exceptions(std::ifstream::badbit);
 
     std::string fulLFragmentath = std::string(
-            "/data/user/0/org.sillypants.pixo/files/patterns/sauron.glsl");
+            "/data/user/0/org.sillypants.pixo/files/patterns/spherical_polyhedra.glsl");
     ALOGV("Loading: %s\n", fulLFragmentath.c_str());
 
     fShaderFile.open(fulLFragmentath.c_str());

@@ -1,13 +1,12 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
 
 // Colorful Voronoi
 // By: Brandon Fogerty
 // bfogerty at gmail dot com
 // xdpixel.com
-
-#ifdef GL_ES
-precision mediump float;
-#endif
 
 uniform float time;
 uniform vec2 mouse;

@@ -1,4 +1,5 @@
-#version 330 core
+#version 310 es
+#extension GL_OES_standard_derivatives : enable
 
 #ifdef GL_ES
 precision highp float;
@@ -11,10 +12,10 @@ in vec2 surfacePosition;
 in vec2 surfaceSize;
 out vec4 color_out;
 
-vec3   iResolution = vec3(resolution, 1.0);
-float  iGlobalTime = time;
-vec4   iMouse = vec4(mouse, 0.0, 1.0);
-uniform sampler2D iChannel0,iChannel1,bb;
+#define iResolution  vec3(resolution, 1.0)
+#define iGlobalTime  time
+#define iMouse       vec4(mouse, 0.0, 1.0)
+#define sampler2D    iChannel0,iChannel1,bb
 
 // srtuss, 2015
 // volumetric cloud tunnel, a single light source, lightning and something that is supposed

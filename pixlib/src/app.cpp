@@ -1,9 +1,9 @@
 #include <pixlib/app.hpp>
 
 namespace Pixlib {
-  App::App() :
+  App::App(glm::vec2 canvas_size) :
    scene(),
-   pattern_render(glm::vec2(52, 52))
+   pattern_render(canvas_size)
 
   {  }
 

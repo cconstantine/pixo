@@ -1,14 +1,13 @@
-#version 330 core
-
+#version 310 es
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 // http://glslsandbox.com/e#32646.0
 
 #define M_PI 3.1415926535897932384626433832795
 
-#extension GL_OES_standard_derivatives : enable
+// #extension GL_OES_standard_derivatives : enable
 
 uniform float time;
 uniform vec2 mouse;

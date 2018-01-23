@@ -1,8 +1,8 @@
-#version 330 core
-
+#version 310 es
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
+
 // dashxdr was here 20120228
  
 uniform float time;

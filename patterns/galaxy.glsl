@@ -1,7 +1,6 @@
-#version 330 core
-
+#version 310 es
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 uniform float time;

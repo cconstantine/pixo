@@ -1,10 +1,9 @@
-#version 330 core
-
+#version 310 es
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
-#extension GL_OES_standard_derivatives : enable
+// #extension GL_OES_standard_derivatives : enable
 // http://glslsandbox.com/e#31734.0
 
 uniform float time;

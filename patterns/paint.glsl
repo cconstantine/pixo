@@ -1,7 +1,6 @@
-#version 330 core
-
+#version 310 es
 #ifdef GL_ES
-precision mediump float;
+precision highp float;
 #endif
 
 // http://glslsandbox.com/e#29536.0
@@ -12,7 +11,7 @@ uniform vec2 resolution;
 out vec4 color_out;
 
 
-vec2 R = resolution;
+#define R resolution
 vec2 Offset;
 vec2 Scale=vec2(0.005,0.005);
 float Saturation = 0.4; // 0 - 1;

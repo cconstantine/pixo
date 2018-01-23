@@ -147,7 +147,7 @@ int main( int argc, char** argv )
   const int leds_per_side = atoi(argv[1]);
   FadeCandy fc = FadeCandy(argv[2], leds_per_side);
 
-  App application;
+  App application(glm::vec2(256, 256));
 
   application.addFadeCandy(&fc);
   glfwSetWindowUserPointer(window, &application);

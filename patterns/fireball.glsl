@@ -1,14 +1,13 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
 
 // Fireball
 // Awd
 // @AlexWDunn
 
 // http://glslsandbox.com/e#30194.0
-
-#ifdef GL_ES
-precision highp float;
-#endif
 
 uniform vec2 resolution;
 uniform float time;

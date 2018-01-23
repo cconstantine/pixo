@@ -1,4 +1,8 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
+
 out vec4 color_out;
 
 // Corrente Continua - 1k intro (win32)
@@ -11,9 +15,6 @@ out vec4 color_out;
 // http://glslsandbox.com/e#32862.0
 
 
-#ifdef GL_ES
-precision mediump float;
-#endif
 
 uniform float time;
 uniform vec2 mouse;

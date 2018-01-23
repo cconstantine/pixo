@@ -1,4 +1,8 @@
-#version 330 core
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
+
 out vec4 color_out;
 
 // http://glslsandbox.com/e#41156.0
