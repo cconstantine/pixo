@@ -2,6 +2,7 @@ package org.sillypants.pixo;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.widget.TextView;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;

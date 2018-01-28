@@ -29,7 +29,7 @@ namespace Pixlib {
   const GLfloat YAW        = 108.0f;
   const GLfloat PITCH      =  12.0f;
   const GLfloat SENSITIVTY =  0.25f;
-  const GLfloat ZOOM       =  11.4f;
+  const GLfloat ZOOM       =  50.4f;
 
   class OrthoCamera {
   public:

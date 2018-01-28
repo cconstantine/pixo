@@ -9,6 +9,9 @@ namespace Pixlib {
   class Pattern {
   public:
     Pattern(const std::string& fragment);
+    Pattern(const Pattern& copy);
+
+    ~Pattern();
 
     Shader shader;
 

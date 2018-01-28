@@ -26,6 +26,11 @@ JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_resize(JNIEnv* env, 
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_mouse(JNIEnv* env, jobject obj, jint x, jint y);
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_zoom(JNIEnv* env, jobject obj, jfloat x);
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj);
+JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_addPattern(JNIEnv * env, jobject jobj, jstring name, jstring code);
+JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_randomPattern(JNIEnv * env, jobject jobj);
+JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_setBrightness(JNIEnv * env, jobject jobj, jfloat x);
+
+
 };
 
 JNIEXPORT void JNICALL
@@ -36,48 +41,40 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
 
     if (fc == nullptr)
     {
-      fc = new FadeCandy("localhost", 16);
+      fc = new FadeCandy("localhost", 8);
     }
 
     if (application != nullptr) {
       delete application;
     }
 
-    application = new App(glm::vec2(256, 256));
+    application = new App(glm::vec2(128, 128));
     application->addFadeCandy(fc);
 
 
     if(pattern != nullptr) {
       delete pattern;
     }
-    std::string fragmentCode;
-    std::ifstream fShaderFile;
-    // ensures ifstream objects can throw exceptions:
-    fShaderFile.exceptions(std::ifstream::badbit);
+}
 
-    std::string fulLFragmentath = std::string(
-            "/data/user/0/org.sillypants.pixo/files/patterns/spherical_polyhedra.glsl");
-    ALOGV("Loading: %s\n", fulLFragmentath.c_str());
+JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_addPattern(JNIEnv * env, jobject jobj, jstring jname, jstring jcode)
+{
+  const char * n, *c;
+  n = env->GetStringUTFChars( jname , NULL );
+  c = env->GetStringUTFChars( jcode , NULL );
 
-    fShaderFile.open(fulLFragmentath.c_str());
-    std::stringstream fShaderStream;
-    fShaderStream << fShaderFile.rdbuf();
-    fShaderFile.close();
+  std::string name(n);
+  std::string code(c);
 
-    // Convert stream into string
-    fragmentCode = fShaderStream.str();
+  application->patterns[name] = make_shared<Pattern>(code);
+  if (pattern == nullptr) {
 
-    std::string name;
-    for (unsigned int i = fulLFragmentath.size(); i >= 0; i--) {
-      if (fulLFragmentath[i] == '/') {
-        break;
-      }
-      name = fulLFragmentath[i] + name;
-    }
+    ALOGV("name: %s", n);
+    pattern = application->patterns[name].get();
+  }
 
-    //ALOGV("Compiling:\n%s\n", fragmentCode.c_str());
-    pattern = new Pattern(fragmentCode.c_str());
-
+  env->ReleaseStringUTFChars(jname, n);
+  env->ReleaseStringUTFChars(jcode, c);
 }
 
 JNIEXPORT void JNICALL
@@ -98,12 +95,33 @@ JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_zoom(JNIEnv* env, jobject obj, jfloat x) {
   application->ProcessMouseScroll(x/2);
 }
+JNIEXPORT void JNICALL
+Java_org_sillypants_pixo_GLES3JNILib_random_pattern(JNIEnv * env, jobject jobj);
+
+JNIEXPORT void JNICALL
+Java_org_sillypants_pixo_GLES3JNILib_setBrightness(JNIEnv * env, jobject jobj, jfloat brightness) {
+  auto it = application->patterns.begin();
+  std::advance(it, rand() % application->patterns.size());
+  pattern = it->second.get();
+  pattern->resetStart();
+}
+
+JNIEXPORT void JNICALL
+Java_org_sillypants_pixo_GLES3JNILib_setBrightness(JNIEnv * env, jobject jobj, jfloat x);
+
+
 
 JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj) {
 
   if (pattern == nullptr){
     return;
+  }
+  if(pattern->getTimeElapsed() > 10*60) {
+    auto it = application->patterns.begin();
+    std::advance(it, rand() % application->patterns.size());
+    pattern = it->second.get();
+    pattern->resetStart();
   }
   //ALOGV("GL Step \n");
   static std::chrono::time_point<std::chrono::high_resolution_clock> lastSecond = std::chrono::high_resolution_clock::now();

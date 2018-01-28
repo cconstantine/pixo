@@ -1,5 +1,7 @@
 #pragma once
 #include <vector>
+#include <map>
+#include <memory>
 
 #include <pixlib/pattern.hpp>
 #include <pixlib/camera.hpp>
@@ -28,6 +30,8 @@ namespace Pixlib {
 
     void move_perspective_to_camera();
     void tick(Pattern* pattern, int width, int height);
+
+    std::map<std::string, std::shared_ptr<Pattern> > patterns;
   private:
     Scene scene;
     PatternRender pattern_render;
@@ -38,5 +42,6 @@ namespace Pixlib {
     IsoCamera camera;
 
     FadeCandy *fc;
+
   };
 }

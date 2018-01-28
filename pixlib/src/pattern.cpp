@@ -20,7 +20,17 @@ namespace Pixlib {
   })",
   fragment.c_str()),
    start(std::chrono::high_resolution_clock::now())
-  { }
+  {
+    ALOGV("Creating pattern\n");
+  }
+  Pattern::Pattern(const Pattern& copy) : shader(copy.shader) {
+    ALOGV("Copy pattern\n");
+  }
+
+
+    Pattern::~Pattern() {
+    ALOGV("DESTROY pattern\n");
+  }
 
   float Pattern::getTimeElapsed() const {
     std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - start;
