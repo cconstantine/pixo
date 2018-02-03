@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
                 "        {\n" +
                 "            \"type\": \"fadecandy\",\n" +
                 "            \"map\": [\n" +
-                "                [ 0, 0,  0, 512]\n" +
+                "                [ 0, 0,  0, 512, \"grb\"]\n" +
                 "            ]\n" +
                 "        }\n" +
                 "    ]\n" +
@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
         "org.sillypants.pixo/.activity.MainActivity"
         );
 
-        mFadecandyClient.startServer();
         mFadecandyClient.setServiceType(ServiceType.NON_PERSISTENT_SERVICE);
+        mFadecandyClient.startServer();
 
 
     }

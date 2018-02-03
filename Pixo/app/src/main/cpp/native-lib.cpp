@@ -49,7 +49,7 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
       delete application;
     }
 
-    application = new App(glm::vec2(128, 128));
+    application = new App(glm::vec2(64, 64));
     application->addFadeCandy(fc);
 
 
@@ -139,8 +139,7 @@ Java_org_sillypants_pixo_GLES3JNILib_step(JNIEnv* env, jobject obj) {
   std::chrono::duration<float> second_seeking = end - lastSecond;
 
   if (second_seeking.count() > 1.0f) {
-      // ALOGV("GL Step: frames: %d \n", frames);
-      // ALOGV("GL Step: time_duration: %fms \n", 1000*time_duration.count());
+      ALOGV("GL Step: %2d fps, %3.1fms \n", frames, 1000.0f*time_duration.count());
       frames = 0;
       lastSecond = std::chrono::high_resolution_clock::now();
   }

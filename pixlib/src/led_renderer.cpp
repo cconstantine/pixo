@@ -51,9 +51,8 @@ namespace Pixlib {
 
   void main()
   {
-    vec4 raw_color = texture(texture1, TexCoords) * brightness;
-    color = vec4(raw_color.g, raw_color.r, raw_color.b, 1.0);
-  })")
+    color = texture(texture1, TexCoords) * brightness;
+    })")
   {
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
     glGenFramebuffers(1, &FramebufferName);

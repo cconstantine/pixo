@@ -178,6 +178,7 @@ public class PixView extends GLSurfaceView {
             new File(pathToInternalDir + "/" + assetSet).mkdirs();
             try {
                 String files[] = {
+                        "paint.glsl",
                         "basic.glsl",
                         "blades.glsl",
                         "clouds.glsl",
@@ -188,12 +189,10 @@ public class PixView extends GLSurfaceView {
                         "flower.glsl",
                         "hypno_rings.glsl",
                         "lightning.glsl",
-                        "paint.glsl",
                         "plasam.glsl",
                         "pulsing_circles.glsl",
                         "rings.glsl",
                         "soccer.glsl",
-                        "spherical_polyhedra.glsl",
                         "spiral.glsl",
                         "star.glsl",
                         "swirl.glsl",
