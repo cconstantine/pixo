@@ -1,11 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-out vec4 color_out;
-
-// // #extension GL_OES_standard_derivatives : enable
-
 uniform float time;
 uniform vec2 mouse;
 uniform vec2 resolution;

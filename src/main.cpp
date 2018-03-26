@@ -25,6 +25,8 @@ GLFWwindow* window;
 #include <mongoose.h>
 #include <thread>
 
+std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
+
 using namespace glm;
 using namespace std;
 using namespace Pixlib;

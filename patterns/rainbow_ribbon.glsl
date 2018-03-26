@@ -1,8 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-
 // http://glslsandbox.com/e#32621.2
 
 uniform float time;

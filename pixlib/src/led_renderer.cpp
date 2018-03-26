@@ -8,13 +8,7 @@ namespace Pixlib {
      width(renderTo.width),
      height(renderTo.height),
      shader(
-  R"(#version 310 es
-
-  #ifdef GL_ES
-  precision highp float;
-  #endif
-
-  layout (location = 0) in vec3 position;
+  R"(layout (location = 0) in vec3 position;
   layout (location = 1) in vec3 normal;
   layout (location = 2) in vec3 texCoords;
   layout (location = 3) in vec3 framebuf_proj;
@@ -34,13 +28,7 @@ namespace Pixlib {
 
       //TexCoords = texCoords;
   })",
-  R"(#version 310 es
-
-  #ifdef GL_ES
-  precision highp float;
-  #endif
-
-  in vec2 TexCoords;
+  R"(in vec2 TexCoords;
 
   out vec4 color;
 

@@ -20,6 +20,12 @@ Pattern *pattern = nullptr;
 FadeCandy* fc = nullptr;
 int width, height;
 float brightness = 1.0f;
+std::string Pixlib::Shader::ShaderPreamble = R"(
+#version 310 es
+#ifdef GL_ES
+precision highp float;
+#endif
+)";
 
 extern "C" {
 JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj);

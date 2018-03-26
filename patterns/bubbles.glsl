@@ -1,8 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-
 // Colorful Voronoi
 // By: Brandon Fogerty
 // bfogerty at gmail dot com

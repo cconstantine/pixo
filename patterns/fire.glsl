@@ -1,8 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-
 // http://glslsandbox.com/e#30671.1
 // #extension GL_OES_standard_derivatives : enable
 

@@ -1,8 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-
 uniform float time;
 in vec2 surfacePosition;
 out vec4 color_out;

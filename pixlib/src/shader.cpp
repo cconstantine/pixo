@@ -8,6 +8,11 @@ namespace Pixlib {
     GLuint vertex, fragment;
     GLint success;
     GLchar infoLog[512];
+    std::string full_v_shader_code = std::string(ShaderPreamble) + std::string(vShaderCode);
+    std::string full_f_shader_code = std::string(ShaderPreamble) + std::string(fShaderCode);
+    vShaderCode = full_v_shader_code.c_str();
+    fShaderCode = full_f_shader_code.c_str();
+
     // Vertex Shader
     vertex = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex, 1, &vShaderCode, NULL);

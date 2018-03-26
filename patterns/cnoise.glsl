@@ -1,8 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-
 #define PI 3.1415926535897932384626433832795
 
 uniform float time;

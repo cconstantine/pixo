@@ -1,8 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-
 // BlobNeon   By @paulofalcao - some blobs modifications with symmetries. 
 // Shrunk to fit in a page; paul's orig is nicer!
 // https://github.com/fxlex/ProcessingGLSL/blob/master/ProcessingGLSL/src/data/glslsandbox/blobneon.glsl

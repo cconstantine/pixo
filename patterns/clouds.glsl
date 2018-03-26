@@ -1,9 +1,4 @@
-#version 310 es
 #extension GL_OES_standard_derivatives : enable
-
-#ifdef GL_ES
-precision highp float;
-#endif
 
 uniform float time;
 uniform vec2 mouse;

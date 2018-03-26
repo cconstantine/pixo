@@ -1,9 +1,3 @@
-#version 310 es
-#ifdef GL_ES
-precision highp float;
-#endif
-
-
 // Plasam by @Dorald
 // http://glslsandbox.com/e#31579.0
 

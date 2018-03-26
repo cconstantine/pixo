@@ -3,12 +3,7 @@
 namespace Pixlib {
   Pattern::Pattern(const std::string& fragment) :
    shader(
-  R"(#version 310 es
-
-  #ifdef GL_ES
-  precision highp float;
-  #endif
-
+  R"(
   layout (location = 0) in vec3 position;
   layout (location = 1) in vec2 surfacePosAttrib;
 
