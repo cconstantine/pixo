@@ -28,7 +28,7 @@ namespace Pixlib {
       glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
       // Retrieve texture number (the N in diffuse_textureN)
       stringstream ss;
-      ss << "texture" << i; // Transfer GLuint to stream   
+      ss << "texture" << i; // Transfer GLuint to stream
       glUniform1i(glGetUniformLocation(shader.Program,  ss.str().c_str()), i);
       glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
     }
@@ -52,8 +52,8 @@ namespace Pixlib {
     float position_distance = glm::length(position);
     float edge_distance = glm::length(edge);
 
-    glm::vec2 a = glm::normalize(glm::vec2(-position_distance, edge_distance ));
-    glm::vec2 b = glm::vec2(-1, 0.0f);
+    glm::vec2 a = glm::normalize(glm::vec2(position_distance, edge_distance ));
+    glm::vec2 b = glm::vec2(1, 0.0f);
 
 
     zoom = glm::angle(a, b)*2.5;

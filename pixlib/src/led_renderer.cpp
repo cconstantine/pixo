@@ -24,38 +24,36 @@ namespace Pixlib {
       gl_Position = projection * vec4(framebuf_proj, 1.0f);
 
       vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
-      TexCoords =  texPos.xy / texPos.z + 0.5;
-
-      //TexCoords = texCoords;
+      TexCoords =  vec2(texPos.x, -texPos.y) / texPos.z + 0.5;
   })",
   R"(in vec2 TexCoords;
 
   out vec4 color;
 
   uniform sampler2D texture0;
-  uniform sampler2D texture1;
 
   uniform float brightness;
 
   void main()
   {
-    color = texture(texture1, TexCoords) * brightness;
+    if (TexCoords.x >= 0.0f && TexCoords.x <= 1.0f &&
+        TexCoords.y >= 0.0f && TexCoords.y <= 1.0f)
+      color = texture(texture0, TexCoords) * brightness;
+    else
+      color = vec4(0.0f);
     })")
   {
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
     glGenFramebuffers(1, &FramebufferName);
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
+    // Set "renderedTexture" as our colour attachement #0
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture.id, 0);
 
     // Poor filtering
     glBindTexture(GL_TEXTURE_2D, renderedTexture.id);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT); 
-
-    // Set "renderedTexture" as our colour attachement #0
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, renderedTexture.id, 0);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
     // Set the list of draw buffers.
     GLenum DrawBuffers[1] = {GL_COLOR_ATTACHMENT0};
@@ -110,8 +108,6 @@ namespace Pixlib {
     GLubyte* src = (GLubyte*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0,size, GL_MAP_READ_BIT);
     if(src)
     {
-     // ALOGV("Byters: %02x %02x %02x\n", src[0], src[1], src[2]);
-
       memcpy(buffer, src, size);
       glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     }

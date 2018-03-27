@@ -31,6 +31,5 @@ namespace Pixlib {
     OrthoCamera camera;
 
     Shader shader;
-    void setupLights(const IsoCamera& perspective);
   };
 }

@@ -34,35 +34,12 @@ namespace Pixlib {
   out vec4 color;
 
   uniform sampler2D texture0;
-  uniform sampler2D texture1;
 
   void main()
   {
-    color = texture(texture1, TexCoords);
+    color = texture(texture0, TexCoords);
   })")
   { }
-
-  void ScreenRender::setupLights(const IsoCamera& perspective) {
-    {
-      GLint lightPosLoc        = glGetUniformLocation(shader.Program, "spot_light.position");
-      GLint lightSpotdirLoc    = glGetUniformLocation(shader.Program, "spot_light.direction");
-      GLint lightSpotCutOffLoc = glGetUniformLocation(shader.Program, "spot_light.cutOff");
-      glUniform3f(lightPosLoc,        perspective.Position.x, perspective.Position.y, perspective.Position.z);
-      glUniform3f(lightSpotdirLoc,    perspective.Front.x, perspective.Front.y, perspective.Front.z);
-      glUniform1f(lightSpotCutOffLoc, glm::cos(glm::radians(perspective.Zoom)));
-      glUniform1f(glGetUniformLocation(shader.Program, "spot_light.constant"),  1.0f);
-      glUniform1f(glGetUniformLocation(shader.Program, "spot_light.linear"),    0.19);
-      glUniform1f(glGetUniformLocation(shader.Program, "spot_light.quadratic"), 0.032);
-    }  {
-      GLint lightPosLoc        = glGetUniformLocation(shader.Program, "point_light.position");
-      GLint lightSpotColor     = glGetUniformLocation(shader.Program, "point_light.color");
-      glUniform3f(lightPosLoc,        perspective.Position.x, perspective.Position.y, perspective.Position.z);
-      glUniform3f(lightSpotColor,     0.2f, 0.4f, 0.5f);
-      glUniform1f(glGetUniformLocation(shader.Program, "point_light.constant"),  1.0f);
-      glUniform1f(glGetUniformLocation(shader.Program, "point_light.linear"),    0.009);
-      glUniform1f(glGetUniformLocation(shader.Program, "point_light.quadratic"), 0.232);
-    }
-  }
 
   void ScreenRender::render(const IsoCamera& perspective, int width, int height) {
 
@@ -92,8 +69,6 @@ namespace Pixlib {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     shader.Use(); 
-
-    setupLights(perspective);
 
     // Transformation matrices
     glm::mat4 projection = perspective.GetProjectionMatrix(width, height);
