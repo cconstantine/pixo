@@ -14,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.GestureDetector;
+import android.view.GestureDetector.SimpleOnGestureListener;
 import android.view.View;
 import android.opengl.GLSurfaceView;
 
@@ -42,6 +43,7 @@ public class PixView extends GLSurfaceView {
     Renderer renderer;
     private ScaleGestureDetector mScaleDetector;
     private GestureDetector mScrollDetector;
+    private GestureDetector mGestureListener;
 
     public PixView(Context context) {
         super(context);
@@ -57,6 +59,14 @@ public class PixView extends GLSurfaceView {
         setRenderMode(GLSurfaceView.RENDERMODE_CONTINUOUSLY);
         mScaleDetector = new ScaleGestureDetector(context, new ScaleListener());
         mScrollDetector = new GestureDetector(context, new ScrollListener());
+        mGestureListener = new GestureDetector(context, new SimpleOnGestureListener () {
+            @Override
+            public boolean onDoubleTap (MotionEvent e) {
+                GLES3JNILib.randomPattern();
+                return true;
+            }
+        });
+
         setFocusable(true);
         setFocusableInTouchMode(true);
 
@@ -70,6 +80,7 @@ public class PixView extends GLSurfaceView {
         super.onTouchEvent(e);
         mScaleDetector.onTouchEvent(e);
         mScrollDetector.onTouchEvent(e);
+        mGestureListener.onTouchEvent(e);
 
         return true;
     }

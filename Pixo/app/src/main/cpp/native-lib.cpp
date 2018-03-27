@@ -44,18 +44,19 @@ JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     ALOGV("OpenGL %s, GLSL %s", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
 
+    int cube_size = 16;
     glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
 
     if (fc == nullptr)
     {
-      fc = new FadeCandy("localhost", 8);
+      fc = new FadeCandy("localhost", cube_size);
     }
 
     if (application != nullptr) {
       delete application;
     }
 
-    application = new App(glm::vec2(64, 64));
+    application = new App(glm::vec2(cube_size*cube_size, cube_size*cube_size));
     application->addFadeCandy(fc);
 
 
