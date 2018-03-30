@@ -5,7 +5,7 @@ namespace Pixlib {
   FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
   {
     opc_client.resolve(hostname.c_str());
-    float spacing = .6;
+    float spacing = 43.18 / 1000.0f;
 
     int width = per_size;
     int height = per_size;

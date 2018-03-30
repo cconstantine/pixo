@@ -62,7 +62,10 @@ namespace Pixlib {
   // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
   void IsoCamera::ProcessMouseScroll(GLfloat yoffset)
   {
-    this->Zoom += -yoffset * 0.15;
+    this->Zoom += -yoffset * 0.15f;
+    if (this->Zoom < 0.15f) {
+      this->Zoom = 0.15f;
+    }
 
     this->updateCameraVectors();
   }

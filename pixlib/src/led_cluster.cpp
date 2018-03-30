@@ -33,7 +33,6 @@ namespace Pixlib {
 
       LedVertex vertex_calc;
       vertex_calc.Position = ballPosDelta;
-      vertex_calc.TexCoords = led_info.texture_coordinates;
       vertex_calc.framebuffer_proj = planePosDelta;
 
       leds_for_calc.addVertex(vertex_calc);

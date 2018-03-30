@@ -1,6 +1,5 @@
 #pragma once
 
-#include <opengl.h>
 #include <string>
 #include <vector>
 
@@ -12,13 +11,11 @@ namespace Pixlib {
   struct LedInfo {
     // Position
     glm::vec3 position;
-    // TexCoords
-    glm::vec3 texture_coordinates;
   };
 
   class FadeCandy {
   public:
-  	FadeCandy(const std::string& hostname, unsigned int per_size);
+  	FadeCandy(const std::string& hostname, unsigned int num_leds);
 
   	const std::vector<LedInfo>& getLeds();
   	glm::vec2 textureSize();

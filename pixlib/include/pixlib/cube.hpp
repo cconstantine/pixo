@@ -20,8 +20,6 @@ namespace Pixlib {
   {
   public:
     /*  Functions   */
-    // Constructor, expects a filepath to a 3D model.
-    Cube();
     Cube(const Texture& defaultTexture);
 
     // Draws the model, and thus all its meshes
