@@ -23,7 +23,7 @@ namespace Pixlib {
   }
 
 
-    Pattern::~Pattern() {
+  Pattern::~Pattern() {
     ALOGV("DESTROY pattern\n");
   }
 

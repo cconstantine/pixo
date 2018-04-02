@@ -13,11 +13,8 @@
 using namespace std;
 
 namespace Pixlib {
-  LedMesh::LedMesh(const Texture& texture) :
-   min_x(0.0f), max_x(0.0f),
-   min_y(0.0f), max_y(0.0f),
-   min_z(0.0f), max_z(0.0f)
-   {
+  LedMesh::LedMesh(const Texture& texture)
+  {
     addTexture(texture);
   }
   // Render the mesh
@@ -43,24 +40,6 @@ namespace Pixlib {
     return this->vertices.size();
   }
 
-  float LedMesh::getZoom(glm::vec3 position) 
-  {
-    float zoom = 0.0f;
-
-    glm::vec3 edge(min_x, min_y, min_z);
-
-    float position_distance = glm::length(position);
-    float edge_distance = glm::length(edge);
-
-    glm::vec2 a = glm::normalize(glm::vec2(position_distance, edge_distance ));
-    glm::vec2 b = glm::vec2(1, 0.0f);
-
-
-    zoom = glm::angle(a, b)*2.5;
-
-    return zoom;
-  }
-
   LedVertex LedMesh::getVertex(int idx) 
   {
     return vertices[idx];
@@ -68,22 +47,6 @@ namespace Pixlib {
 
   void LedMesh::addVertex(const LedVertex& vert) {
     vertices.push_back(vert);
-
-    if (max_x < vert.Position.x) {
-      max_x = vert.Position.x;
-    } else if (min_x >  vert.Position.x) {
-      min_x = vert.Position.x;
-    }
-    if (max_y < vert.Position.y) {
-      max_y = vert.Position.y;
-    } else if (min_y >  vert.Position.y) {
-      min_y = vert.Position.y;
-    }
-    if (max_z < vert.Position.z) {
-      max_z = vert.Position.z;
-    } else if (min_z >  vert.Position.z) {
-      min_z = vert.Position.z;
-    }
   }
 
   void LedMesh::addTexture(const Texture& texture) {

@@ -33,13 +33,13 @@ namespace Pixlib {
     virtual void Draw(const Shader& shader);
 
     size_t numVertices();
-    float getZoom(glm::vec3 position);
 
     LedVertex getVertex(int idx);
     void addVertex(const LedVertex& vert);
     void addTexture(const Texture& texture);
 
     void setupMesh();
+
   protected:
     /*  Render data  */
     GLuint VAO, VBO, EBO;
@@ -48,13 +48,5 @@ namespace Pixlib {
     std::vector<LedVertex> vertices;
     std::vector<Texture> textures;
 
-    float min_x;
-    float max_x;
-    
-    float min_y;
-    float max_y;
-    
-    float min_z;
-    float max_z;
   };
 }

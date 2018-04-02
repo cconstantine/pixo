@@ -79,8 +79,7 @@ namespace Pixlib {
 
 
 
-    for(std::vector<Drawable*>::iterator i = models.begin();i != models.end();i++) {
-      Drawable* m = *i;
+    for(Drawable* m : models) {
       m->Draw(shader);
     }
   }

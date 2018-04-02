@@ -102,7 +102,7 @@ int main( int argc, char** argv )
   std::string pattern;
 
   if(argc < 3) {
-    fprintf(stderr, "Usage: %s LEDS_PER_SIDE hostname [pattern file]*\n", argv[0]);
+    fprintf(stderr, "Usage: %s LEDS_PER_SIDE [hostname]* -- [pattern file]*\n", argv[0]);
     exit(1);
   }
     // Initialise GLFW
@@ -147,16 +147,23 @@ int main( int argc, char** argv )
   glEnable(GL_DEPTH_TEST);
   
   const int leds_per_side = atoi(argv[1]);
-  FadeCandy fc = FadeCandy(argv[2], leds_per_side);
+  std::vector<FadeCandy*> fadecandies;
+
+  unsigned int arg_i = 2;
+  while(strcmp(argv[arg_i], "--") != 0 && arg_i < argc) {
+    fadecandies.push_back(new FadeCandy(argv[arg_i]));
+
+    arg_i++;
+  } arg_i++;
 
   App application(glm::vec2(256, 256));
+  application.BuildPixo(fadecandies, leds_per_side);
 
-  application.addFadeCandy(&fc);
+
   glfwSetWindowUserPointer(window, &application);
 
 
-
-  for(int i = 3;i < argc;i++) {
+  for(int i = arg_i;i < argc;i++) {
     std::string fragmentCode;
     std::ifstream fShaderFile;
     // ensures ifstream objects can throw exceptions:
@@ -425,7 +432,9 @@ int main( int argc, char** argv )
 
   }
 
-  fc.clear();
+  for(FadeCandy* fc : fadecandies) {
+    fc->clear();
+  }
   
   running = false;
   webserver.join();

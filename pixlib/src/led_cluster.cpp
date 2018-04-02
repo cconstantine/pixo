@@ -18,13 +18,11 @@ namespace Pixlib {
    fadecandy(fadecandy),
    render_timer(120)
   {
-    //leds_for_calc.addTexture(pattern_render.getDepthTexture());
-    int width = leds_for_display.getDefaultTexture().width;
-    int height = leds_for_display.getDefaultTexture().height;
+    int width = led_texture.width;
+    int height = led_texture.height;
 
-    for(int i = 0;i < this->fadecandy->getLeds().size();i++) {
+    for(LedInfo led_info : this->fadecandy->getLeds()) {
 
-      LedInfo led_info = this->fadecandy->getLeds()[i];
       glm::vec3 ballPosDelta = led_info.position;
       int count = numLeds();
       int x = count % width;
@@ -48,6 +46,7 @@ namespace Pixlib {
   GLuint LedCluster::numLeds() {
     return leds_for_calc.numVertices();
   }
+
 
   void LedCluster::Draw(const Shader& shader) 
   {

@@ -4,7 +4,6 @@ namespace Pixlib {
   App::App(glm::vec2 canvas_size) :
    scene(),
    pattern_render(canvas_size)
-
   {  }
 
   App::~App() {
@@ -12,6 +11,47 @@ namespace Pixlib {
       delete i;
     }
     led_clusters.clear();
+  }
+
+
+  void App::BuildPixo(const std::vector<FadeCandy*>& fadecandies, unsigned int per_size) {
+    float spacing = 43.18 / 1000.0f;
+
+    int width = per_size;
+    int height = per_size;
+    int depth = per_size;
+
+    float x_offset = -(float)width  / 2.0f  + 0.5f;
+    float y_offset = -(float)height / 2.0f - 0.5f;
+    float z_offset = -(float)depth  / 2.0f  + 0.5f;
+
+    viewed_from.scope = glm::vec3(x_offset, y_offset, z_offset)*spacing;
+
+    int num_fadecandies = fadecandies.size();
+    int per_fc = height / num_fadecandies;
+
+    for(int y = height;y > 0;y--) {
+      int direction = 1;
+      int selection = (y-1) / per_fc;
+
+      FadeCandy* fc = fadecandies[selection];
+
+      for(int z = 0;z < height;z++) {
+        for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
+          fc->addLed(glm::vec3( ((float)x + x_offset)*spacing,
+                                ((float)z + z_offset)*spacing,
+                                ((float)y + y_offset)*spacing));
+        }
+        direction *= -1;
+      }
+    }
+
+    for(int i = 0;i < num_fadecandies;i++) {
+      fadecandies[i]->finalize();
+
+      addFadeCandy(fadecandies[i]);
+    }
+
   }
 
   void App::addFadeCandy(FadeCandy* fc) {

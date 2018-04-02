@@ -1,35 +1,19 @@
 #include <pixlib/fade_candy.hpp>
-
+#include <opengl.h>
 
 namespace Pixlib {
-  FadeCandy::FadeCandy(const std::string& hostname, unsigned int per_size)
+
+
+  FadeCandy::FadeCandy(const std::string& hostname)
   {
+    ALOGV("hostname: %s\n", hostname.c_str());
     opc_client.resolve(hostname.c_str());
-    float spacing = 43.18 / 1000.0f;
+  }
 
-    int width = per_size;
-    int height = per_size;
-    int depth = per_size;
-
-    float x_offset = -(float)width / 2.0f  + 0.5f;
-    float y_offset = -(float)height / 2.0f - 0.5f;
-    float z_offset = -(float)depth / 2.0f  + 0.5f;
-
-    for(int y = height;y > 0;y--) {
-      int direction = 1;
-      for(int z = 0;z < height;z++) {
-        for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
-          LedInfo li;
-          li.position = glm::vec3(((float)x + x_offset)*spacing, ((float)z+z_offset)*spacing, ((float)y+y_offset)*spacing);
-          
-          leds.push_back(li);
-        }  
-        
-        direction *= -1;
-      }
-    }
-
-    finalize();
+  void FadeCandy::addLed(const glm::vec3& position)
+  {
+    LedInfo li({position});
+    leds.push_back(li);
   }
 
 
@@ -39,12 +23,6 @@ namespace Pixlib {
     framebuffer.resize(sizeof(OPCClient::Header) + frameBytes);
 
     OPCClient::Header::view(framebuffer).init(0, opc_client.SET_PIXEL_COLORS, frameBytes);
-  }
-
-  glm::vec2 FadeCandy::textureSize()
-  {
-    int canvasSize = sqrt(getLeds().size())*2;
-    return glm::vec2(canvasSize, canvasSize);
   }
 
   const std::vector<LedInfo>& FadeCandy::getLeds()

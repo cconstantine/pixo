@@ -5,18 +5,6 @@
 #include <vector>
 
 namespace Pixlib {
-  glm::mat4 OrthoCamera::GetViewMatrix() {
-    return glm::mat4(
-       1.000000, 0.000000, 0.000000, 0.000000,
-       0.000000, 1.000000, 0.000000, 0.000000,
-       0.000000, 0.000000, 1.000000, 0.000000,
-       0.000000, 0.000000, 0.000000, 1.000000);
-  }
-
-  glm::mat4 OrthoCamera::GetProjectionMatrix(int width, int height) {
-    return glm::ortho(0.0f, (float)width, 0.0f, (float)height);
-  }
-
 
   // Constructor with vectors
   IsoCamera::IsoCamera(GLfloat yaw, GLfloat pitch) :
@@ -94,6 +82,26 @@ namespace Pixlib {
     this->Up    = glm::normalize(glm::cross(this->Right, this->Front));  
   }
 
+
+
+
+  float IsoCamera::getZoom() const
+  {
+    float zoom = 0.0f;
+
+    glm::vec3 edge(scope.x, scope.y, scope.z);
+
+    float position_distance = glm::length(Position);
+    float edge_distance = glm::length(edge);
+
+    glm::vec2 a = glm::normalize(glm::vec2(position_distance, edge_distance ));
+    glm::vec2 b = glm::vec2(1, 0.0f);
+
+
+    zoom = glm::angle(a, b)*2.5;
+
+    return zoom;
+  }
 
   void IsoCamera::rotate(const float rads)
   {

@@ -17,7 +17,8 @@ namespace Pixlib {
     App(glm::vec2 canvas_size);
     ~App();
 
-    void addFadeCandy(FadeCandy* fc);
+    void BuildPixo(const std::vector<FadeCandy*>& fadecandies, unsigned int per_size);
+
     
     float scene_fps();
     float scene_render_time();
@@ -34,6 +35,8 @@ namespace Pixlib {
 
     void tick(Pattern* pattern, float brightness, int width, int height);
   private:
+    void addFadeCandy(FadeCandy* fc);
+
     Scene scene;
     PatternRender pattern_render;
 
@@ -43,6 +46,5 @@ namespace Pixlib {
     IsoCamera camera;
 
     FadeCandy *fc;
-
   };
 }

@@ -88,10 +88,10 @@ namespace Pixlib {
     shader.Use();
     
     // Transformation matrices
-    glm::mat4 projection = camera.GetProjectionMatrix(width, height);
+    glm::mat4 projection = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-    glm::mat4 led_projection = glm::perspective(leds->getZoom(perspective.Position), (float)width/(float)height, 0.1f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
+    glm::mat4 led_projection = glm::perspective(perspective.getZoom(), (float)width/(float)height, 0.1f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
     glm::mat4 led_view = perspective.GetViewMatrix();
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));

@@ -31,13 +31,6 @@ namespace Pixlib {
   const GLfloat SENSITIVTY =  0.25f;
   const GLfloat ZOOM       =  2.4f;
 
-  class OrthoCamera {
-  public:
-    glm::mat4 GetViewMatrix();
-    glm::mat4 GetProjectionMatrix(int width, int height);
-  };
-
-  // An abstract camera class that processes input and calculates the corresponding Eular Angles, Vectors and Matrices for use in OpenGL
   class IsoCamera 
   {
   public:
@@ -54,6 +47,8 @@ namespace Pixlib {
     GLfloat MouseSensitivity;
     GLfloat Zoom;
 
+    glm::vec3 scope;
+
     // Constructor with vectors
     IsoCamera( GLfloat yaw = YAW, GLfloat pitch = PITCH);
 
@@ -69,6 +64,8 @@ namespace Pixlib {
     void ProcessMouseScroll(GLfloat yoffset);
 
     void moveTowards(const IsoCamera& camera, float timeScale);
+
+    float getZoom() const;
 
     void rotate(const float rads);
   private:

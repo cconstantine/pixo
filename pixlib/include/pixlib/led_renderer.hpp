@@ -20,7 +20,6 @@ namespace Pixlib {
 
     LedMesh* leds;
 
-
   private:
     GLuint FramebufferName;
     Texture renderedTexture;
@@ -28,8 +27,8 @@ namespace Pixlib {
 
     GLuint pbos[2];
     GLuint active_pbo;
-    OrthoCamera camera;
 
     Shader shader;
+
   };
 }
