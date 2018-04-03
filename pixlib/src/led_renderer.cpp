@@ -24,7 +24,7 @@ namespace Pixlib {
       gl_Position = projection * vec4(framebuf_proj, 1.0f);
 
       vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
-      TexCoords =  vec2(texPos.x, -texPos.y) / texPos.z + 0.5;
+      TexCoords =  (vec2(texPos.x, -texPos.y) / texPos.z + 1) / 2;
   })",
   R"(in vec2 TexCoords;
 
@@ -91,7 +91,7 @@ namespace Pixlib {
     glm::mat4 projection = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
 
-    glm::mat4 led_projection = glm::perspective(perspective.getZoom(), (float)width/(float)height, 0.1f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
+    glm::mat4 led_projection = glm::perspective(perspective.getZoom(), (float)width/(float)height, 0.001f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
     glm::mat4 led_view = perspective.GetViewMatrix();
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));

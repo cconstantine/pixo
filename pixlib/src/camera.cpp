@@ -26,7 +26,7 @@ namespace Pixlib {
 
   glm::mat4 IsoCamera::GetProjectionMatrix(int width, int height) const
   {
-    return glm::perspective(45.f, (float)width/(float)height, 0.1f, 1000.0f);
+    return glm::perspective(45.f, (float)width/(float)height, 0.0001f, 10000.0f);
   }
 
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
@@ -84,21 +84,15 @@ namespace Pixlib {
 
 
 
-
+  // http://elvers.us/perception/visualAngle/
   float IsoCamera::getZoom() const
   {
     float zoom = 0.0f;
 
-    glm::vec3 edge(scope.x, scope.y, scope.z);
+    float edge_distance = 2*(scope.x + scope.y + scope.z) / 3;
+    float position_distance = glm::length(Position) - edge_distance/3;
 
-    float position_distance = glm::length(Position);
-    float edge_distance = glm::length(edge);
-
-    glm::vec2 a = glm::normalize(glm::vec2(position_distance, edge_distance ));
-    glm::vec2 b = glm::vec2(1, 0.0f);
-
-
-    zoom = glm::angle(a, b)*2.5;
+    zoom = 2*glm::atan((edge_distance/2) / position_distance);
 
     return zoom;
   }

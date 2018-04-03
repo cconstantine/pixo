@@ -10,12 +10,11 @@ namespace Pixlib {
     for (LedCluster* i : led_clusters) {
       delete i;
     }
-    led_clusters.clear();
   }
 
 
   void App::BuildPixo(const std::vector<FadeCandy*>& fadecandies, unsigned int per_size) {
-    float spacing = 43.18 / 1000.0f;
+    float spacing = 0.04318;
 
     int width = per_size;
     int height = per_size;
@@ -25,7 +24,8 @@ namespace Pixlib {
     float y_offset = -(float)height / 2.0f - 0.5f;
     float z_offset = -(float)depth  / 2.0f  + 0.5f;
 
-    viewed_from.scope = glm::vec3(x_offset, y_offset, z_offset)*spacing;
+    viewed_from.scope = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
+    camera.scope      = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
 
     int num_fadecandies = fadecandies.size();
     int per_fc = height / num_fadecandies;
