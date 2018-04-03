@@ -39,6 +39,7 @@ JNIEXPORT void JNICALL Java_org_sillypants_pixo_GLES3JNILib_setBrightness(JNIEnv
 
 
 };
+std::vector<FadeCandy*> fadecandies;
 
 JNIEXPORT void JNICALL
 Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
@@ -47,17 +48,18 @@ Java_org_sillypants_pixo_GLES3JNILib_init(JNIEnv* env, jobject obj) {
     int cube_size = 16;
     glClearColor(1.0f, 0.2f, 0.3f, 1.0f);
 
-    if (fc == nullptr)
-    {
-      fc = new FadeCandy("localhost", cube_size);
+    for(FadeCandy* fc : fadecandies) {
+        delete fc;
     }
+    fadecandies.clear();
+    fadecandies.push_back(new FadeCandy("localhost"));
 
     if (application != nullptr) {
       delete application;
     }
 
-    application = new App(glm::vec2(cube_size*cube_size, cube_size*cube_size));
-    application->addFadeCandy(fc);
+    application = new App(glm::vec2(cube_size*cube_size));
+    application->BuildPixo(fadecandies, cube_size);
 
 
     if(pattern != nullptr) {
