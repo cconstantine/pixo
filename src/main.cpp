@@ -156,7 +156,7 @@ int main( int argc, char** argv )
     arg_i++;
   } arg_i++;
 
-  App application(glm::vec2(256, 256));
+  App application(glm::vec2(leds_per_side*leds_per_side));
   application.BuildPixo(fadecandies, leds_per_side);
 
 
