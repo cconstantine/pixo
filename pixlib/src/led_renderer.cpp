@@ -6,42 +6,7 @@ namespace Pixlib {
   LedRender::LedRender(const Texture& renderTo) :
     renderedTexture(renderTo),
      width(renderTo.width),
-     height(renderTo.height),
-     shader(
-  R"(layout (location = 0) in vec3 position;
-  layout (location = 1) in vec3 normal;
-  layout (location = 2) in vec3 texCoords;
-  layout (location = 3) in vec3 framebuf_proj;
-
-  out vec2 TexCoords;
-
-  uniform mat4 projection;
-  uniform mat4 view_from;
-  uniform mat4 proj_from;
-
-  void main()
-  {
-      gl_Position = projection * vec4(framebuf_proj, 1.0f);
-
-      vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
-      TexCoords =  vec2(texPos.x, -texPos.y) / texPos.z * 0.5 + 0.5 ;
-  })",
-  R"(in vec2 TexCoords;
-
-  out vec4 color;
-
-  uniform sampler2D texture0;
-
-  uniform float brightness;
-
-  void main()
-  {
-    if (TexCoords.x >= 0.0f && TexCoords.x <= 1.0f &&
-        TexCoords.y >= 0.0f && TexCoords.y <= 1.0f)
-      color = texture(texture0, TexCoords) * brightness;
-    else
-      color = vec4(0.0f);
-    })")
+     height(renderTo.height)
   {
     // The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
     glGenFramebuffers(1, &FramebufferName);
@@ -85,19 +50,7 @@ namespace Pixlib {
     glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader.Use();
-    
-    // Transformation matrices
-    glm::mat4 projection = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
-    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    glm::mat4 led_projection = glm::perspective(perspective.getZoom(), (float)width/(float)height, 0.001f, 1000.0f);// perspective.GetProjectionMatrix(width, height);
-    glm::mat4 led_view = perspective.GetViewMatrix();
-    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
-    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));
-
-    glUniform1f(glGetUniformLocation(shader.Program, "brightness"), brightness);
-
-    leds->Draw(shader);
+    leds->Draw(perspective, brightness);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, 0);

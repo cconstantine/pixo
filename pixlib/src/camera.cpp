@@ -7,12 +7,14 @@
 namespace Pixlib {
 
   // Constructor with vectors
-  IsoCamera::IsoCamera(GLfloat yaw, GLfloat pitch) :
+  IsoCamera::IsoCamera() :
           WorldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
-          Yaw(yaw),
-          Pitch(pitch),
+          Yaw(YAW),
+          Pitch(PITCH),
           MouseSensitivity(SENSITIVTY),
-          Zoom(ZOOM)
+          Zoom(ZOOM),
+          width(1),
+          height(1)
   {
     this->updateCameraVectors();
   }
@@ -24,10 +26,11 @@ namespace Pixlib {
       return glm::lookAt(this->Position, this->Front, glm::vec3(0.0f, 1.0f, 0.0f));
   }
 
-  glm::mat4 IsoCamera::GetProjectionMatrix(int width, int height) const
+  glm::mat4 IsoCamera::GetProjectionMatrix(float zoom) const
   {
-    return glm::perspective(45.f, (float)width/(float)height, 0.0001f, 10000.0f);
+    return glm::perspective(zoom, (float)width/(float)height, 0.0001f, 10000.0f);
   }
+
 
   // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
   void IsoCamera::ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset)

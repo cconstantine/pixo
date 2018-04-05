@@ -21,16 +21,16 @@ namespace Pixlib {
     // TexCoords
     glm::vec3 TexCoords;
     // Projection for led rendering
-    glm::vec3 framebuffer_proj;
+    glm::vec4 framebuffer_proj;
   };
 
-  class LedMesh : public Drawable {
+  class LedMesh {
   public:
     LedMesh(const Texture& textures);
 
     
     // Render the mesh
-    virtual void Draw(const Shader& shader);
+    void Draw(const IsoCamera& perspective, float brightness);
 
     size_t numVertices();
 
@@ -43,6 +43,8 @@ namespace Pixlib {
   protected:
     /*  Render data  */
     GLuint VAO, VBO, EBO;
+
+    Shader shader;
 
     /*  Mesh Data  */
     std::vector<LedVertex> vertices;

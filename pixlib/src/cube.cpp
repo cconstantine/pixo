@@ -14,7 +14,38 @@ using namespace std;
 namespace Pixlib {
 
   // Constructor, expects a filepath to a 3D model.
-  Cube::Cube(const Texture& defaultTexture ) : defaultTexture(defaultTexture)
+  Cube::Cube(const Texture& defaultTexture ) :defaultTexture(defaultTexture),
+     shader(
+  R"(
+  layout (location = 0) in vec3 position;
+  layout (location = 1) in vec3 normal;
+  layout (location = 2) in vec2 texCoords;
+  layout (location = 3) in vec2 texCoordsOffset;
+  layout (location = 4) in mat4 positionOffset;
+
+  out vec2 TexCoords;
+
+  uniform mat4 view;
+  uniform mat4 projection;
+
+  uniform mat4 MVP;
+
+  void main()
+  {
+      gl_Position = projection * view  * positionOffset * vec4(position, 1.0f);
+      TexCoords = texCoords + texCoordsOffset;
+  })",
+  R"(
+  in vec2 TexCoords;
+
+  out vec4 color;
+
+  uniform sampler2D texture0;
+
+  void main()
+  {
+    color = texture(texture0, TexCoords);
+  })")
   {
     this->loadModel();
   }
@@ -38,8 +69,16 @@ namespace Pixlib {
   }
 
   // Draws the model, and thus all its meshes
-  void Cube::Draw(const Shader& shader)
+  void Cube::Draw(const IsoCamera& perspective)
   {
+    shader.Use();
+
+    // Transformation matrices
+    glm::mat4 projection = perspective.GetProjectionMatrix();
+    glm::mat4 view = perspective.GetViewMatrix();
+
+    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
     for(GLuint i = 0; i < this->meshes.size(); i++) {
       this->meshes[i].Draw(shader);
     }

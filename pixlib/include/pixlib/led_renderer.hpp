@@ -28,7 +28,5 @@ namespace Pixlib {
     GLuint pbos[2];
     GLuint active_pbo;
 
-    Shader shader;
-
   };
 }

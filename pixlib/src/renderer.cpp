@@ -7,41 +7,10 @@
 namespace Pixlib {
   SceneRender::SceneRender() {}
 
-  ScreenRender::ScreenRender() :
-   shader(
-  R"(
-  layout (location = 0) in vec3 position;
-  layout (location = 1) in vec3 normal;
-  layout (location = 2) in vec2 texCoords;
-  layout (location = 3) in vec2 texCoordsOffset;
-  layout (location = 4) in mat4 positionOffset;
-
-  out vec2 TexCoords;
-
-  uniform mat4 view;
-  uniform mat4 projection;
-
-  uniform mat4 MVP;
-
-  void main()
-  {
-      gl_Position = projection * view  * positionOffset * vec4(position, 1.0f);
-      TexCoords = texCoords + texCoordsOffset;
-  })",
-  R"(
-  in vec2 TexCoords;
-
-  out vec4 color;
-
-  uniform sampler2D texture0;
-
-  void main()
-  {
-    color = texture(texture0, TexCoords);
-  })")
+  ScreenRender::ScreenRender()
   { }
 
-  void ScreenRender::render(const IsoCamera& perspective, int width, int height) {
+  void ScreenRender::render(const IsoCamera& perspective) {
 
     std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
     std::chrono::duration<float> delta = now - lastRender;
@@ -60,27 +29,17 @@ namespace Pixlib {
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-
-    glViewport(0,0,width,height);
+    glViewport(0,0,perspective.width,perspective.height);
 
     // Clear the colorbuffer
     glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    shader.Use(); 
-
-    // Transformation matrices
-    glm::mat4 projection = perspective.GetProjectionMatrix(width, height);
-    glm::mat4 view = perspective.GetViewMatrix();
-
-    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
-    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
 
 
 
     for(Drawable* m : models) {
-      m->Draw(shader);
+      m->Draw(perspective);
     }
   }
 }

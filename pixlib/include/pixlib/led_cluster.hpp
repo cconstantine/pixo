@@ -22,18 +22,17 @@
 
 
 namespace Pixlib {
-  class LedCluster: public Drawable {
+  class LedCluster {
   public:
     LedCluster(FadeCandy *fadecandy, const Texture& pattern_texture);
-
-    // Render the mesh
-    virtual void Draw(const Shader& shader);
 
     void render(const IsoCamera& viewed_from, const Pattern& pattern, float brightness);
 
     GLuint numLeds();
 
     float render_time();
+
+    Drawable* getDrawable();
 
   private:
 

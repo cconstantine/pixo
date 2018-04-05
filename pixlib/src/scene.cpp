@@ -8,10 +8,10 @@ namespace Pixlib {
 
   void Scene::addCluster(LedCluster* leds)
   {
-    screen.models.push_back(leds);
+    screen.models.push_back(leds->getDrawable());
   }
 
-  void Scene::render(const IsoCamera& perspective, int width, int height)
+  void Scene::render(const IsoCamera& perspective)
   {
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     ++frames;
@@ -30,7 +30,7 @@ namespace Pixlib {
     lastTime = currentTime;
 
     render_timer.start();
-    screen.render(perspective, width, height);
+    screen.render(perspective);
     render_timer.end();
 
   }

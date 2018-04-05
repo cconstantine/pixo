@@ -94,12 +94,17 @@ namespace Pixlib {
     return pattern_render.getTexture();
   }
 
-  void App::tick(Pattern* pattern, float brightness, int width, int height) {
+  void App::setScreenSize(int width, int height) {
+    camera.width = width;
+    camera.height = height;
+  }
+
+  void App::tick(Pattern* pattern, float brightness) {
     pattern_render.render(*pattern);
 
     for (LedCluster* led_cluster : led_clusters) {
       led_cluster->render(viewed_from, *pattern, brightness);
     }
-    scene.render(camera, width, height);
+    scene.render(camera);
   }
 }

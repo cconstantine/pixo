@@ -48,14 +48,15 @@ namespace Pixlib {
     GLfloat Zoom;
 
     glm::vec3 scope;
+    int width, height;
 
     // Constructor with vectors
-    IsoCamera( GLfloat yaw = YAW, GLfloat pitch = PITCH);
+    IsoCamera( );
 
 
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
     glm::mat4 GetViewMatrix() const;
-    glm::mat4 GetProjectionMatrix(int width, int height) const;
+    glm::mat4 GetProjectionMatrix(float zoom = 45.0f) const;
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
     void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset);

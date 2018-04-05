@@ -375,7 +375,10 @@ int main( int argc, char** argv )
 
   glfwSetFramebufferSizeCallback(window,
       [](GLFWwindow *window, int width, int height) {
-          screen->resizeCallbackEvent(width, height);
+        App* app = (App*)glfwGetWindowUserPointer(window);
+
+        app->setScreenSize(width, height);
+        screen->resizeCallbackEvent(width, height);
       }
   );
 
@@ -395,15 +398,17 @@ int main( int argc, char** argv )
   sigIntHandler.sa_flags = 0;
   sigaction(SIGINT, &sigIntHandler, NULL);
 
+  int width, height;
+  glfwGetFramebufferSize(window, &width, &height);
+  application.setScreenSize(width, height);
+
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();
 
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
 
-    application.tick(patterns[pattern], 1.0, width, height);
+    application.tick(patterns[pattern], 1.0);
     application.move_perspective_to_camera();
 
     gui->refresh();

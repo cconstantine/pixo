@@ -9,16 +9,62 @@
 
 #include <pixlib/led_mesh.hpp>
 #include <pixlib/shader.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 using namespace std;
 
 namespace Pixlib {
-  LedMesh::LedMesh(const Texture& texture)
+  LedMesh::LedMesh(const Texture& texture) :
+       shader(
+  R"(layout (location = 0) in vec3 position;
+  layout (location = 1) in vec3 normal;
+  layout (location = 2) in vec3 texCoords;
+  layout (location = 3) in vec4 framebuf_proj;
+
+  out vec2 TexCoords;
+
+  uniform mat4 view_from;
+  uniform mat4 proj_from;
+
+  void main()
+  {
+      gl_Position = framebuf_proj;
+
+      vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
+      TexCoords =  vec2(texPos.x, -texPos.y) / texPos.z * 0.5 + 0.5 ;
+  })",
+  R"(in vec2 TexCoords;
+
+  out vec4 color;
+
+  uniform sampler2D texture0;
+
+  uniform float brightness;
+
+  void main()
+  {
+    if (TexCoords.x >= 0.0f && TexCoords.x <= 1.0f &&
+        TexCoords.y >= 0.0f && TexCoords.y <= 1.0f)
+      color = texture(texture0, TexCoords) * brightness;
+    else
+      color = vec4(0.0f);
+    })")
   {
     addTexture(texture);
   }
   // Render the mesh
-  void LedMesh::Draw(const Shader& shader) {
+  void LedMesh::Draw(const IsoCamera& perspective, float brightness) {
+
+    shader.Use();
+
+    glUniform1f(glGetUniformLocation(shader.Program, "brightness"), brightness);
+
+    // Transformation matrices
+    glm::mat4 led_projection = perspective.GetProjectionMatrix(perspective.getZoom());
+    glm::mat4 led_view = perspective.GetViewMatrix();
+    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
+    glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));
+
     // Bind appropriate textures
     for(GLuint i = 0; i < this->textures.size(); i++)
     {

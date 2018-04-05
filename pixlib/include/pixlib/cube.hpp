@@ -23,7 +23,7 @@ namespace Pixlib {
     Cube(const Texture& defaultTexture);
 
     // Draws the model, and thus all its meshes
-    virtual void Draw(const Shader& shader);
+    virtual void Draw(const IsoCamera& perspective);
     
     int  addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
     void moveInstance(int instance, const glm::vec3& position);
@@ -36,6 +36,7 @@ namespace Pixlib {
     std::vector<Mesh> meshes;
     Texture defaultTexture;
 
+    Shader shader;
     /*  Functions   */
     // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
     void loadModel();

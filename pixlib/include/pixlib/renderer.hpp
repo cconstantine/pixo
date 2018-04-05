@@ -19,12 +19,11 @@ namespace Pixlib {
   public:
     ScreenRender();
 
-    void render(const IsoCamera& perspective, int width, int height);
+    void render(const IsoCamera& perspective);
     std::vector<Drawable*> models;
 
   private:
 
-    Shader shader;
     void setupLights(const IsoCamera& perspective);
     std::chrono::time_point<std::chrono::steady_clock> lastRender;
 

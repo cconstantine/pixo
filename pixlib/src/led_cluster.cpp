@@ -21,17 +21,19 @@ namespace Pixlib {
     int width = led_texture.width;
     int height = led_texture.height;
 
+    glm::mat4 projection = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
+
     for(LedInfo led_info : this->fadecandy->getLeds()) {
 
       glm::vec3 ballPosDelta = led_info.position;
       int count = numLeds();
       int x = count % width;
       int y = count / height;
-      glm::vec3 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f);
+      glm::vec4 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f, 1.0f);
 
       LedVertex vertex_calc;
       vertex_calc.Position = ballPosDelta;
-      vertex_calc.framebuffer_proj = planePosDelta;
+      vertex_calc.framebuffer_proj = projection * planePosDelta;
 
       leds_for_calc.addVertex(vertex_calc);
 
@@ -47,11 +49,11 @@ namespace Pixlib {
     return leds_for_calc.numVertices();
   }
 
-
-  void LedCluster::Draw(const Shader& shader) 
+  Drawable* LedCluster::getDrawable()
   {
-    leds_for_display.Draw(shader);
+    return &leds_for_display;
   }
+
 
   void LedCluster::render(const IsoCamera& viewed_from, const Pattern& pattern, float brightness) 
   {

@@ -16,7 +16,7 @@ namespace Pixlib {
 
     void addCluster(LedCluster* leds);
 
-    void render(const IsoCamera& perspective, int width, int height);
+    void render(const IsoCamera& perspective);
 
     float getFps();
 
