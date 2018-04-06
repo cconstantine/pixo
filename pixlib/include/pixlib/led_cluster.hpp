@@ -28,13 +28,13 @@ namespace Pixlib {
   public:
     LedCluster(std::shared_ptr<FadeCandy> fadecandy, const Texture& pattern_texture);
 
+    std::shared_ptr<Drawable> get_drawable();
+
     void render(const IsoCamera& viewed_from, float brightness);
 
     GLuint num_leds();
 
     float render_time();
-
-    Drawable* get_drawable();
 
   private:
 
@@ -45,7 +45,7 @@ namespace Pixlib {
     /*  Model Data  */
     LedMesh leds_for_calc;
 
-    Cube leds_for_display;
+    std::shared_ptr<Drawable> leds_for_display;
     Timer render_timer;
 
     static size_t led_canvas_size(size_t leds);

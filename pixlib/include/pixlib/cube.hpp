@@ -24,8 +24,8 @@ namespace Pixlib {
 
     // Draws the model, and thus all its meshes
     virtual void draw(const IsoCamera& perspective);
-    
-    int  add_instance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
+    virtual int  add_instance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
+
     void move_instance(int instance, const glm::vec3& position);
 
     int num_instances();

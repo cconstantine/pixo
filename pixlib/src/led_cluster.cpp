@@ -13,7 +13,7 @@ namespace Pixlib {
   LedCluster::LedCluster(std::shared_ptr<FadeCandy> fadecandy, const Texture& pattern_texture) :
    led_texture(led_canvas_size(fadecandy->get_leds().size()), led_canvas_size(fadecandy->get_leds().size())),
    leds_for_calc(pattern_texture),
-   leds_for_display(led_texture),
+   leds_for_display(std::make_shared<Cube>(led_texture)),
    led_renderer(led_texture),
    fadecandy(fadecandy),
    render_timer(120)
@@ -37,7 +37,7 @@ namespace Pixlib {
 
       leds_for_calc.add_vertex(vertex_calc);
 
-      leds_for_display.add_instance(ballPosDelta, glm::vec2(((float)x + 0.5) / width, ((float)y + 0.5) / height), glm::vec3());
+      leds_for_display->add_instance(ballPosDelta, glm::vec2(((float)x + 0.5) / width, ((float)y + 0.5) / height), glm::vec3());
     }
 
 
@@ -49,11 +49,9 @@ namespace Pixlib {
     return leds_for_calc.num_vertices();
   }
 
-  Drawable* LedCluster::get_drawable()
-  {
-    return &leds_for_display;
+  std::shared_ptr<Drawable> LedCluster::get_drawable() {
+    return leds_for_display;
   }
-
 
   void LedCluster::render(const IsoCamera& viewed_from, float brightness)
   {

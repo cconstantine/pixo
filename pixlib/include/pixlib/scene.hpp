@@ -14,7 +14,7 @@ namespace Pixlib {
   public:
     Scene();
 
-    void add_cluster(LedCluster* leds);
+    void add_cluster(std::shared_ptr<Drawable> leds);
 
     void render(const IsoCamera& perspective);
 

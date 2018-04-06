@@ -1,6 +1,7 @@
 #pragma once
 #include <vector>
 #include <chrono>
+#include <memory>
 
 #include <opengl.h>
 
@@ -12,7 +13,7 @@ namespace Pixlib {
   class ScreenRender {
   public:
     void render(const IsoCamera& perspective);
-    std::vector<Drawable*> models;
+    std::vector<std::shared_ptr<Drawable>> models;
 
   private:
     std::chrono::time_point<std::chrono::steady_clock> lastRender;

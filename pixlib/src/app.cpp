@@ -45,7 +45,7 @@ namespace Pixlib {
   void App::add_fadecandy(std::shared_ptr<FadeCandy> fc) {
     std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(fc, pattern_render.get_texture());
 
-    scene.add_cluster(lc.get());
+    scene.add_cluster(lc->get_drawable());
     led_clusters.push_back(lc);
   }
 

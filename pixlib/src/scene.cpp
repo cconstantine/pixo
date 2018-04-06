@@ -6,9 +6,9 @@ namespace Pixlib {
     fps(0),frames(0), render_timer(120)
   { }
 
-  void Scene::add_cluster(LedCluster* leds)
+  void Scene::add_cluster(std::shared_ptr<Drawable> leds)
   {
-    screen.models.push_back(leds->get_drawable());
+    screen.models.push_back(leds);
   }
 
   void Scene::render(const IsoCamera& perspective)
