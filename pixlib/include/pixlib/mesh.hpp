@@ -30,12 +30,6 @@ namespace Pixlib {
 
     /*  Render data  */
     GLuint VAO, VBO, EBO, POS, TPOS;
-
-    /*  Mesh Data  */
-    std::vector<Vertex> vertices;
-    std::vector<GLuint> indices;
-    std::vector<Texture> textures;
-
     int  add_instance(const glm::vec3& position, const glm::vec2& textureCoords);
     void move_instance(int instance, const glm::vec3& position);
 
@@ -48,6 +42,12 @@ namespace Pixlib {
     void setup_mesh();
 
     void update_data();
+
+
+    /*  Mesh Data  */
+    std::vector<Vertex> vertices;
+    std::vector<GLuint> indices;
+    std::vector<Texture> textures;
 
 
     std::vector<glm::mat4> instancePositionOffset;

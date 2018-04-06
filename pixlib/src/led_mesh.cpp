@@ -17,9 +17,8 @@ namespace Pixlib {
   LedMesh::LedMesh(const Texture& texture) :
        shader(
   R"(layout (location = 0) in vec3 position;
-  layout (location = 1) in vec3 normal;
-  layout (location = 2) in vec3 texCoords;
-  layout (location = 3) in vec4 framebuf_proj;
+  layout (location = 1) in vec3 texCoords;
+  layout (location = 2) in vec4 framebuf_proj;
 
   out vec2 TexCoords;
 
@@ -116,17 +115,11 @@ namespace Pixlib {
     glEnableVertexAttribArray(0); 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(LedVertex), (GLvoid*)0);
 
-    // Vertex Normals
-    glEnableVertexAttribArray(1); 
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LedVertex), (GLvoid*)offsetof(LedVertex, Normal));
-
     // Vertex Texture Coords
+    glEnableVertexAttribArray(1); 
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(LedVertex), (GLvoid*)offsetof(LedVertex, TexCoords));
+
     glEnableVertexAttribArray(2); 
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(LedVertex), (GLvoid*)offsetof(LedVertex, TexCoords));
-
-    glEnableVertexAttribArray(3); 
-    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(LedVertex), (GLvoid*)offsetof(LedVertex, framebuffer_proj));
-
-    // Instance projection offset
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(LedVertex), (GLvoid*)offsetof(LedVertex, framebuffer_proj));
   }
 }

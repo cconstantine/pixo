@@ -14,6 +14,7 @@ add_library(pixlib STATIC
  src/scene.cpp
  src/texture.cpp
  src/cube.cpp
+ src/dot.cpp
  src/mesh.cpp
  src/camera.cpp
  src/led_mesh.cpp

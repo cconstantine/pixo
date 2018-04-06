@@ -16,8 +16,6 @@ namespace Pixlib {
   struct LedVertex {
     // Position
     glm::vec3 Position;
-    // Normal
-    glm::vec3 Normal;
     // TexCoords
     glm::vec3 TexCoords;
     // Projection for led rendering

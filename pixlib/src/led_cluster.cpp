@@ -1,6 +1,8 @@
 #include <pixlib/led_cluster.hpp>
 #include <math.h>
 
+#include <pixlib/dot.hpp>
+
 using namespace std;
 
 namespace Pixlib {
