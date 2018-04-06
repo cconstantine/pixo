@@ -56,7 +56,7 @@ namespace Pixlib {
     }
   }
 
-  const Texture& PatternRender::getTexture() {
+  const Texture& PatternRender::get_texture() {
     return renderedTexture;
   }
 
@@ -65,10 +65,10 @@ namespace Pixlib {
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
     glViewport(0,0,width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
 
-    float time_elapsed = pattern.getTimeElapsed();
+    float time_elapsed = pattern.get_time_elapsed();
 
     // Use our shader
-    pattern.shader.Use();
+    pattern.shader.use();
 
 
     GLuint time_id = glGetUniformLocation(pattern.shader.Program, "time");

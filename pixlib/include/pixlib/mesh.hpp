@@ -26,7 +26,7 @@ namespace Pixlib {
     Mesh(std::vector<Vertex> vertices, std::vector<GLuint> indices, std::vector<Texture> textures);
 
     // Render the mesh
-    void Draw(const Shader& shader);
+    void draw(const Shader& shader);
 
     /*  Render data  */
     GLuint VAO, VBO, EBO, POS, TPOS;
@@ -36,18 +36,18 @@ namespace Pixlib {
     std::vector<GLuint> indices;
     std::vector<Texture> textures;
 
-    int  addInstance(const glm::vec3& position, const glm::vec2& textureCoords);
-    void moveInstance(int instance, const glm::vec3& position);
+    int  add_instance(const glm::vec3& position, const glm::vec2& textureCoords);
+    void move_instance(int instance, const glm::vec3& position);
 
-    int numInstances();
+    int num_instances();
   private:
     void Draw(GLuint program);
     bool dirty;
     /*  Functions    */
     // Initializes all the buffer objects/arrays
-    void setupMesh();
+    void setup_mesh();
 
-    void updateData();
+    void update_data();
 
 
     std::vector<glm::mat4> instancePositionOffset;

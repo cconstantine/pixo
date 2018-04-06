@@ -23,11 +23,11 @@ namespace Pixlib {
     this->indices = indices;
     this->textures = textures;
 
-    setupMesh();
+    setup_mesh();
   }
 
   // Render the mesh
-  void Mesh::Draw(const Shader& shader) {
+  void Mesh::draw(const Shader& shader) {
     // Bind appropriate textures
     for(GLuint i = 0; i < this->textures.size(); i++)
     {
@@ -39,7 +39,7 @@ namespace Pixlib {
       glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
     }
     if (dirty) {
-      updateData();
+      update_data();
     }
     // Draw mesh
     glBindVertexArray(this->VAO);
@@ -49,7 +49,7 @@ namespace Pixlib {
   }
   /*  Functions    */
   // Initializes all the buffer objects/arrays
-  void Mesh::setupMesh()
+  void Mesh::setup_mesh()
   {
     // Create buffers/arrays
     glGenVertexArrays(1, &this->VAO);
@@ -114,7 +114,7 @@ namespace Pixlib {
 
   }
 
-  void Mesh::updateData()
+  void Mesh::update_data()
   {
     dirty = false;
     glBindVertexArray(this->VAO);
@@ -126,12 +126,12 @@ namespace Pixlib {
     glBufferData(GL_ARRAY_BUFFER, instanceTextureOffset.size() * sizeof(glm::vec2), &instanceTextureOffset[0], GL_STATIC_DRAW);
   }
 
-  void Mesh::moveInstance(int i, const glm::vec3& position) {
+  void Mesh::move_instance(int i, const glm::vec3& position) {
     instancePositionOffset[i] = glm::translate(glm::mat4(), position );
     dirty = true;
   }
 
-  int Mesh::addInstance(const glm::vec3& position, const glm::vec2& textureCoords)
+  int Mesh::add_instance(const glm::vec3& position, const glm::vec2& textureCoords)
   {
     dirty = true;
     instancePositionOffset.push_back(glm::translate(glm::mat4(), position ));
@@ -139,7 +139,7 @@ namespace Pixlib {
     return 0;//numInstances() - 1;
   }
 
-  int Mesh::numInstances()
+  int Mesh::num_instances()
   {
     instancePositionOffset.size();
   }

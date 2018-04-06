@@ -55,22 +55,22 @@ namespace Pixlib {
 
 
     // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
-    glm::mat4 GetViewMatrix() const;
-    glm::mat4 GetProjectionMatrix(float zoom = 45.0f) const;
+    glm::mat4 get_view_matrix() const;
+    glm::mat4 get_projection_matrix(float zoom = 45.0f) const;
 
     // Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
-    void ProcessMouseMovement(GLfloat xoffset, GLfloat yoffset);
+    void process_mouse_movement(GLfloat xoffset, GLfloat yoffset);
 
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
-    void ProcessMouseScroll(GLfloat yoffset);
+    void process_mouse_scroll(GLfloat yoffset);
 
-    void moveTowards(const IsoCamera& camera, float timeScale);
+    void move_towards(const IsoCamera& camera, float timeScale);
 
-    float getZoom() const;
+    float get_zoom() const;
 
     void rotate(const float rads);
   private:
     // Calculates the front vector from the Camera's (updated) Eular Angles
-    void updateCameraVectors();
+    void update_camera_vectors();
   };
 }

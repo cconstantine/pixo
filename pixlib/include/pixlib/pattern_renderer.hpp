@@ -14,7 +14,7 @@ namespace Pixlib {
 
     void render(const Pattern& pattern);
 
-    const Texture& getTexture();
+    const Texture& get_texture();
   private:
     GLuint VertexArrayID;
     GLuint vertexbuffer;

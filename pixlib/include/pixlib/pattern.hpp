@@ -9,15 +9,12 @@ namespace Pixlib {
   class Pattern {
   public:
     Pattern(const std::string& fragment);
-    Pattern(const Pattern& copy);
-
     ~Pattern();
 
+    float get_time_elapsed() const;
+    void reset_start();
+
     Shader shader;
-
-    float getTimeElapsed() const;
-
-    void resetStart();  
   private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
   };

@@ -16,19 +16,20 @@ namespace Pixlib {
   class FadeCandy {
   public:
     FadeCandy(const std::string& hostname);
+    ~FadeCandy();
 
-    void addLed(const glm::vec3& position);
+    void add_led(const glm::vec3& position);
 
     void finalize();
 
-  	const std::vector<LedInfo>& getLeds();
+    const std::vector<LedInfo>& get_leds();
   	void update();
     void clear();
 
-  	uint8_t* getData();
+    uint8_t* get_data();
   private:
 
-
+    std::string hostname;
   	std::vector<LedInfo> leds;
   	std::vector<uint8_t> framebuffer;
   	OPCClient opc_client;

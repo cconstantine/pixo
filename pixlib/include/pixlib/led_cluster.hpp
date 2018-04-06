@@ -8,6 +8,8 @@
 #include <iostream>
 #include <map>
 #include <vector>
+#include <memory>
+
 
 #include <pixlib/cube.hpp>
 #include <pixlib/fade_candy.hpp>
@@ -24,21 +26,21 @@
 namespace Pixlib {
   class LedCluster {
   public:
-    LedCluster(FadeCandy *fadecandy, const Texture& pattern_texture);
+    LedCluster(std::shared_ptr<FadeCandy> fadecandy, const Texture& pattern_texture);
 
-    void render(const IsoCamera& viewed_from, const Pattern& pattern, float brightness);
+    void render(const IsoCamera& viewed_from, float brightness);
 
-    GLuint numLeds();
+    GLuint num_leds();
 
     float render_time();
 
-    Drawable* getDrawable();
+    Drawable* get_drawable();
 
   private:
 
     Texture led_texture;
     LedRender led_renderer;
-    FadeCandy *fadecandy;
+    std::shared_ptr<FadeCandy> fadecandy;
 
     /*  Model Data  */
     LedMesh leds_for_calc;

@@ -6,9 +6,9 @@ namespace Pixlib {
     fps(0),frames(0), render_timer(120)
   { }
 
-  void Scene::addCluster(LedCluster* leds)
+  void Scene::add_cluster(LedCluster* leds)
   {
-    screen.models.push_back(leds->getDrawable());
+    screen.models.push_back(leds->get_drawable());
   }
 
   void Scene::render(const IsoCamera& perspective)
@@ -35,13 +35,13 @@ namespace Pixlib {
 
   }
 
-  float Scene::getTimeDelta()
+  float Scene::get_time_delta()
   {
     return deltaTime.count();
   }
 
 
-  float Scene::getFps() {
+  float Scene::get_fps() {
     return fps;
   }
 

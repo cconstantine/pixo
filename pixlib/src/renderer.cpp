@@ -5,10 +5,6 @@
 #include <thread>
 
 namespace Pixlib {
-  SceneRender::SceneRender() {}
-
-  ScreenRender::ScreenRender()
-  { }
 
   void ScreenRender::render(const IsoCamera& perspective) {
 
@@ -22,7 +18,6 @@ namespace Pixlib {
     if (remainder > 0)
     {
       std::this_thread::sleep_for(std::chrono::duration<float>(remainder));
-
     }
 
     glEnable(GL_DEPTH_TEST);
@@ -35,11 +30,8 @@ namespace Pixlib {
     glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-
-
     for(Drawable* m : models) {
-      m->Draw(perspective);
+      m->draw(perspective);
     }
   }
 }

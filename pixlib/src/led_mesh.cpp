@@ -50,18 +50,18 @@ namespace Pixlib {
       color = vec4(0.0f);
     })")
   {
-    addTexture(texture);
+    add_texture(texture);
   }
   // Render the mesh
-  void LedMesh::Draw(const IsoCamera& perspective, float brightness) {
+  void LedMesh::draw(const IsoCamera& perspective, float brightness) {
 
-    shader.Use();
+    shader.use();
 
     glUniform1f(glGetUniformLocation(shader.Program, "brightness"), brightness);
 
     // Transformation matrices
-    glm::mat4 led_projection = perspective.GetProjectionMatrix(perspective.getZoom());
-    glm::mat4 led_view = perspective.GetViewMatrix();
+    glm::mat4 led_projection = perspective.get_projection_matrix(perspective.get_zoom());
+    glm::mat4 led_view = perspective.get_view_matrix();
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));
 
@@ -81,27 +81,27 @@ namespace Pixlib {
     glBindVertexArray(0);
   }
 
-  size_t LedMesh::numVertices() 
+  size_t LedMesh::num_vertices()
   {
     return this->vertices.size();
   }
 
-  LedVertex LedMesh::getVertex(int idx) 
+  LedVertex LedMesh::get_vertex(int idx)
   {
     return vertices[idx];
   }
 
-  void LedMesh::addVertex(const LedVertex& vert) {
+  void LedMesh::add_vertex(const LedVertex& vert) {
     vertices.push_back(vert);
   }
 
-  void LedMesh::addTexture(const Texture& texture) {
+  void LedMesh::add_texture(const Texture& texture) {
     textures.push_back(texture);
   }
 
   /*  Functions    */
   // Initializes all the buffer objects/arrays
-  void LedMesh::setupMesh()
+  void LedMesh::setup_mesh()
   {
     // Create buffers/arrays
     glGenVertexArrays(1, &this->VAO);

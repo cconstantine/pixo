@@ -14,13 +14,13 @@ namespace Pixlib {
   public:
     Scene();
 
-    void addCluster(LedCluster* leds);
+    void add_cluster(LedCluster* leds);
 
     void render(const IsoCamera& perspective);
 
-    float getFps();
+    float get_fps();
 
-    float getTimeDelta();
+    float get_time_delta();
 
     float get_render_time();
   private:

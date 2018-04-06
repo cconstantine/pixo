@@ -47,50 +47,50 @@ namespace Pixlib {
     color = texture(texture0, TexCoords);
   })")
   {
-    this->loadModel();
+    this->load_model();
   }
 
-  int Cube::addInstance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta) {
+  int Cube::add_instance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta) {
     int instance = 0;
     for(GLuint i = 0; i < this->meshes.size(); i++) {
-      instance = meshes[i].addInstance(posDelta, texDelta);
+      instance = meshes[i].add_instance(posDelta, texDelta);
     }
     return instance;
   }
 
-  void Cube::moveInstance(int instance, const glm::vec3& position) {
+  void Cube::move_instance(int instance, const glm::vec3& position) {
     for(GLuint i = 0; i < this->meshes.size(); i++) {
-      meshes[i].moveInstance(instance, position);
+      meshes[i].move_instance(instance, position);
     }
   }
 
-  int Cube::numInstances() {
-    return meshes[0].numInstances();
+  int Cube::num_instances() {
+    return meshes[0].num_instances();
   }
 
   // Draws the model, and thus all its meshes
-  void Cube::Draw(const IsoCamera& perspective)
+  void Cube::draw(const IsoCamera& perspective)
   {
-    shader.Use();
+    shader.use();
 
     // Transformation matrices
-    glm::mat4 projection = perspective.GetProjectionMatrix();
-    glm::mat4 view = perspective.GetViewMatrix();
+    glm::mat4 projection = perspective.get_projection_matrix();
+    glm::mat4 view = perspective.get_view_matrix();
 
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
     for(GLuint i = 0; i < this->meshes.size(); i++) {
-      this->meshes[i].Draw(shader);
+      this->meshes[i].draw(shader);
     }
   }
 
-  Texture Cube::getDefaultTexture() {
+  Texture Cube::get_default_texture() {
     return defaultTexture;
   }
 
   /*  Functions   */
   // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
-  void Cube::loadModel()
+  void Cube::load_model()
   {
 
     std::vector<Vertex> vertices = std::vector<Vertex>(
@@ -126,7 +126,7 @@ namespace Pixlib {
       { 0, 1, 2, 0, 2, 3, 4, 5, 6, 4, 6, 7, 8, 9,10, 8,10,11,12,13,14,12,14,15,16,17,18,16,18,19,20,21,22,20,22,23}
      );
 
-    std::vector<Texture> textures = std::vector<Texture>({getDefaultTexture()});
+    std::vector<Texture> textures = std::vector<Texture>({get_default_texture()});
 
     this->meshes.push_back(Mesh(vertices, indices, textures));
     return;

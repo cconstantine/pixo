@@ -11,37 +11,47 @@
 #include <pixlib/fade_candy.hpp>
 
 namespace Pixlib {
+
+  typedef  std::vector<std::shared_ptr<FadeCandy>>  FadeCandyCluster;
+  typedef  std::vector<std::shared_ptr<LedCluster>> LedClusterCluster;
+
   class App {
   public:
 
     App(glm::vec2 canvas_size);
-    ~App();
 
-    void BuildPixo(const std::vector<FadeCandy*>& fadecandies, unsigned int per_size);
-
+    void BuildPixo(const FadeCandyCluster& fadecandies, unsigned int per_size);
+    void add_fadecandy(std::shared_ptr<FadeCandy> fc);
     
     float scene_fps();
     float scene_render_time();
     float led_render_time();
 
-    const Texture& getPatternTexture();
+    const Texture& get_pattern_texture();
 
-    void ProcessMouseMovement(int xoffset, int yoffset);
-    void ProcessMouseScroll(float x);
+    void process_mouse_movement(int xoffset, int yoffset);
+    void process_mouse_scroll(float x);
 
     void move_perspective_to_camera();
-    void setScreenSize(int width, int height);
+    void set_screen_size(int width, int height);
 
-    std::map<std::string, std::shared_ptr<Pattern> > patterns;
+    void register_pattern(std::string name, std::shared_ptr<Pattern> pattern);
 
-    void tick(Pattern* pattern, float brightness);
+    void set_random_pattern();
+
+    const std::string& get_pattern();
+
+    void tick();
+
+    float brightness;
   private:
-    void addFadeCandy(FadeCandy* fc);
+    std::map<std::string, std::shared_ptr<Pattern> > patterns;
+    std::string pattern_name;
 
     Scene scene;
     PatternRender pattern_render;
 
-    std::vector<LedCluster*> led_clusters;
+    LedClusterCluster led_clusters;
 
     IsoCamera viewed_from;
     IsoCamera camera;

@@ -16,8 +16,6 @@ namespace Pixlib {
 
     void render(const IsoCamera& perspective, float brightness, uint8_t* data, size_t size);
 
-    Texture getTexture();
-
     LedMesh* leds;
 
   private:

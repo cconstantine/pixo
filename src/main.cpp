@@ -98,9 +98,6 @@ void web_listen() {
 std::thread webserver (web_listen); 
 int main( int argc, char** argv )
 {  
-  std::map<std::string, Pattern*> patterns;
-  std::string pattern;
-
   if(argc < 3) {
     fprintf(stderr, "Usage: %s LEDS_PER_SIDE [hostname]* -- [pattern file]*\n", argv[0]);
     exit(1);
@@ -147,17 +144,22 @@ int main( int argc, char** argv )
   glEnable(GL_DEPTH_TEST);
   
   const int leds_per_side = atoi(argv[1]);
-  std::vector<FadeCandy*> fadecandies;
+  FadeCandyCluster fadecandies;
 
   unsigned int arg_i = 2;
   while(strcmp(argv[arg_i], "--") != 0 && arg_i < argc) {
-    fadecandies.push_back(new FadeCandy(argv[arg_i]));
+    fadecandies.push_back(std::make_shared<FadeCandy>(argv[arg_i]));
 
     arg_i++;
   } arg_i++;
 
   App application(glm::vec2(leds_per_side*leds_per_side));
   application.BuildPixo(fadecandies, leds_per_side);
+
+  for(std::shared_ptr<FadeCandy> fc : fadecandies) {
+    fc->finalize();
+    application.add_fadecandy(fc);
+  }
 
 
   glfwSetWindowUserPointer(window, &application);
@@ -187,11 +189,8 @@ int main( int argc, char** argv )
       }
       name = fulLFragmentath[i] + name;
     }
-    patterns[name] = new Pattern(fragmentCode.c_str());
+    application.register_pattern(name, std::make_shared<Pattern>(fragmentCode.c_str()));
   }
-  auto it = patterns.begin();
-  std::advance(it, rand() % patterns.size());
-  pattern = it->first;
 
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new nanogui::Screen();
@@ -251,11 +250,13 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      return pattern.c_str();
+      App* app = (App*)glfwGetWindowUserPointer(window);
+
+      return app->get_pattern().c_str();
     },
     false)->setValue("                 ");
 
-  nanogui::ImageView *imageWidget = new nanogui::ImageView(nanoguiWindow, application.getPatternTexture().id);
+  nanogui::ImageView *imageWidget = new nanogui::ImageView(nanoguiWindow, application.get_pattern_texture().id);
   imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
   imageWidget->setFixedScale(true);
   gui->addWidget("", imageWidget);
@@ -286,7 +287,7 @@ int main( int argc, char** argv )
             lastX = x;
             lastY = y;
 
-            app->ProcessMouseMovement(xoffset, yoffset);
+            app->process_mouse_movement(xoffset, yoffset);
           }
       }
   );
@@ -368,7 +369,7 @@ int main( int argc, char** argv )
           if (!screen->scrollCallbackEvent(x, y)) {
             App* app = (App*)glfwGetWindowUserPointer(window);
 
-            app->ProcessMouseScroll(y);
+            app->process_mouse_scroll(y);
           }
      }
   );
@@ -377,7 +378,7 @@ int main( int argc, char** argv )
       [](GLFWwindow *window, int width, int height) {
         App* app = (App*)glfwGetWindowUserPointer(window);
 
-        app->setScreenSize(width, height);
+        app->set_screen_size(width, height);
         screen->resizeCallbackEvent(width, height);
       }
   );
@@ -400,7 +401,7 @@ int main( int argc, char** argv )
 
   int width, height;
   glfwGetFramebufferSize(window, &width, &height);
-  application.setScreenSize(width, height);
+  application.set_screen_size(width, height);
 
   while(!glfwWindowShouldClose(window)) {
     global_timer.start();
@@ -408,7 +409,7 @@ int main( int argc, char** argv )
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    application.tick(patterns[pattern], 1.0);
+    application.tick();
     application.move_perspective_to_camera();
 
     gui->refresh();
@@ -419,9 +420,7 @@ int main( int argc, char** argv )
     if(keys[NEXT_PATTERN]) {
       keys[NEXT_PATTERN] = false;
 
-      auto it = patterns.begin();
-      std::advance(it, rand() % patterns.size());
-      pattern = it->first;
+      application.set_random_pattern();
     }
 
     global_timer.end();
@@ -435,10 +434,6 @@ int main( int argc, char** argv )
         glErr = glGetError();
     }
 
-  }
-
-  for(FadeCandy* fc : fadecandies) {
-    fc->clear();
   }
   
   running = false;

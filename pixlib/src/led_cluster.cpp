@@ -10,8 +10,8 @@ namespace Pixlib {
   }
 
 
-  LedCluster::LedCluster(FadeCandy *fadecandy, const Texture& pattern_texture) :
-   led_texture(led_canvas_size(fadecandy->getLeds().size()), led_canvas_size(fadecandy->getLeds().size())),
+  LedCluster::LedCluster(std::shared_ptr<FadeCandy> fadecandy, const Texture& pattern_texture) :
+   led_texture(led_canvas_size(fadecandy->get_leds().size()), led_canvas_size(fadecandy->get_leds().size())),
    leds_for_calc(pattern_texture),
    leds_for_display(led_texture),
    led_renderer(led_texture),
@@ -23,10 +23,10 @@ namespace Pixlib {
 
     glm::mat4 projection = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
 
-    for(LedInfo led_info : this->fadecandy->getLeds()) {
+    for(LedInfo led_info : this->fadecandy->get_leds()) {
 
       glm::vec3 ballPosDelta = led_info.position;
-      int count = numLeds();
+      int count = num_leds();
       int x = count % width;
       int y = count / height;
       glm::vec4 planePosDelta((float)x + 0.5f, (float)y + 0.5f, 0.0f, 1.0f);
@@ -35,30 +35,30 @@ namespace Pixlib {
       vertex_calc.Position = ballPosDelta;
       vertex_calc.framebuffer_proj = projection * planePosDelta;
 
-      leds_for_calc.addVertex(vertex_calc);
+      leds_for_calc.add_vertex(vertex_calc);
 
-      leds_for_display.addInstance(ballPosDelta, glm::vec2(((float)x + 0.5) / width, ((float)y + 0.5) / height), glm::vec3());
+      leds_for_display.add_instance(ballPosDelta, glm::vec2(((float)x + 0.5) / width, ((float)y + 0.5) / height), glm::vec3());
     }
 
 
-    leds_for_calc.setupMesh();
+    leds_for_calc.setup_mesh();
     led_renderer.leds = &leds_for_calc;
   }
 
-  GLuint LedCluster::numLeds() {
-    return leds_for_calc.numVertices();
+  GLuint LedCluster::num_leds() {
+    return leds_for_calc.num_vertices();
   }
 
-  Drawable* LedCluster::getDrawable()
+  Drawable* LedCluster::get_drawable()
   {
     return &leds_for_display;
   }
 
 
-  void LedCluster::render(const IsoCamera& viewed_from, const Pattern& pattern, float brightness) 
+  void LedCluster::render(const IsoCamera& viewed_from, float brightness)
   {
     render_timer.start();
-    led_renderer.render(viewed_from, brightness, fadecandy->getData(), numLeds()*3);
+    led_renderer.render(viewed_from, brightness, fadecandy->get_data(), num_leds()*3);
     render_timer.end();
 
     fadecandy->update();

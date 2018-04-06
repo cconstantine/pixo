@@ -3,17 +3,11 @@
 namespace Pixlib {
   App::App(glm::vec2 canvas_size) :
    scene(),
-   pattern_render(canvas_size)
+   pattern_render(canvas_size),
+   brightness(1.0f)
   {  }
 
-  App::~App() {
-    for (LedCluster* i : led_clusters) {
-      delete i;
-    }
-  }
-
-
-  void App::BuildPixo(const std::vector<FadeCandy*>& fadecandies, unsigned int per_size) {
+  void App::BuildPixo(const FadeCandyCluster& fadecandies, unsigned int per_size) {
     float spacing = 0.04318;
 
     int width = per_size;
@@ -34,11 +28,11 @@ namespace Pixlib {
       int direction = 1;
       int selection = (y-1) / per_fc;
 
-      FadeCandy* fc = fadecandies[selection];
+      std::shared_ptr<FadeCandy> fc = fadecandies[selection];
 
       for(int z = 0;z < height;z++) {
         for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
-          fc->addLed(glm::vec3( ((float)x + x_offset)*spacing,
+          fc->add_led(glm::vec3( ((float)x + x_offset)*spacing,
                                 ((float)z + z_offset)*spacing,
                                 ((float)y + y_offset)*spacing));
         }
@@ -46,23 +40,17 @@ namespace Pixlib {
       }
     }
 
-    for(int i = 0;i < num_fadecandies;i++) {
-      fadecandies[i]->finalize();
-
-      addFadeCandy(fadecandies[i]);
-    }
-
   }
 
-  void App::addFadeCandy(FadeCandy* fc) {
-    LedCluster *lc = new LedCluster(fc, pattern_render.getTexture());
+  void App::add_fadecandy(std::shared_ptr<FadeCandy> fc) {
+    std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(fc, pattern_render.get_texture());
 
-    scene.addCluster(lc);
+    scene.add_cluster(lc.get());
     led_clusters.push_back(lc);
   }
 
   float App::scene_fps() {
-    return scene.getFps();
+    return scene.get_fps();
   }
 
   float App::scene_render_time() {
@@ -71,39 +59,58 @@ namespace Pixlib {
 
   float App::led_render_time() {
     float total = 0;
-    for (LedCluster* i : led_clusters) {
+    for (std::shared_ptr<LedCluster> i : led_clusters) {
       total += i->render_time();
     }
     return total;
   }
 
-  void App::ProcessMouseMovement(int xoffset, int yoffset) {
-    camera.ProcessMouseMovement(xoffset, yoffset);
+  void App::process_mouse_movement(int xoffset, int yoffset) {
+    camera.process_mouse_movement(xoffset, yoffset);
   }
 
-
-  void App::ProcessMouseScroll(float x) {
-    camera.ProcessMouseScroll(x);
+  void App::process_mouse_scroll(float x) {
+    camera.process_mouse_scroll(x);
   }
 
   void App::move_perspective_to_camera() {
-    viewed_from.moveTowards(camera, scene.getTimeDelta()*0.8);
+    viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
   }
 
-  const Texture& App::getPatternTexture() {
-    return pattern_render.getTexture();
+  const Texture& App::get_pattern_texture() {
+    return pattern_render.get_texture();
   }
 
-  void App::setScreenSize(int width, int height) {
+  void App::register_pattern(std::string name, std::shared_ptr<Pattern> pattern)
+  {
+    if(patterns.size() == 0) {
+      pattern_name = name;
+    }
+    patterns[name] = pattern;
+  }
+
+  void App::set_random_pattern()
+  {
+    auto it = patterns.begin();
+    std::advance(it, rand() % patterns.size());
+    pattern_name = it->first;
+  }
+
+  const std::string& App::get_pattern()
+  {
+    return pattern_name;
+  }
+
+  void App::set_screen_size(int width, int height) {
     camera.width = width;
     camera.height = height;
   }
 
-  void App::tick(Pattern* pattern, float brightness) {
-    pattern_render.render(*pattern);
+  void App::tick() {
+    pattern_render.render(*patterns[pattern_name].get());
 
-    for (LedCluster* led_cluster : led_clusters) {
-      led_cluster->render(viewed_from, *pattern, brightness);
+    for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
+      led_cluster->render(viewed_from, brightness);
     }
     scene.render(camera);
   }

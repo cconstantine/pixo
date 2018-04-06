@@ -7,6 +7,6 @@
 namespace Pixlib {
   class Drawable {
   public:
-    virtual void Draw(const IsoCamera& perspective) = 0;
+    virtual void draw(const IsoCamera& perspective) = 0;
   };
 }

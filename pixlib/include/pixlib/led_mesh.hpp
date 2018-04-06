@@ -30,15 +30,15 @@ namespace Pixlib {
 
     
     // Render the mesh
-    void Draw(const IsoCamera& perspective, float brightness);
+    void draw(const IsoCamera& perspective, float brightness);
 
-    size_t numVertices();
+    size_t num_vertices();
 
-    LedVertex getVertex(int idx);
-    void addVertex(const LedVertex& vert);
-    void addTexture(const Texture& texture);
+    LedVertex get_vertex(int idx);
+    void add_vertex(const LedVertex& vert);
+    void add_texture(const Texture& texture);
 
-    void setupMesh();
+    void setup_mesh();
 
   protected:
     /*  Render data  */

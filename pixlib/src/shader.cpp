@@ -58,7 +58,7 @@ namespace Pixlib {
   }
 
   // Uses the current shader
-  void Shader::Use() const { 
+  void Shader::use() const {
     glUseProgram(this->Program); 
   }
 }

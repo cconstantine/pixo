@@ -15,6 +15,6 @@ namespace Pixlib {
       ~Shader();
 
       // Uses the current shader
-      void Use() const;
+      void use() const;
   };
 }

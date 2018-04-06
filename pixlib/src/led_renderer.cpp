@@ -50,7 +50,7 @@ namespace Pixlib {
     glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    leds->Draw(perspective, brightness);
+    leds->draw(perspective, brightness);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, 0);
@@ -63,10 +63,5 @@ namespace Pixlib {
       memcpy(buffer, src, size);
       glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
     }
-
-  }
-
-  Texture LedRender::getTexture() {
-    return renderedTexture;
   }
 }
