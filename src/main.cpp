@@ -17,7 +17,7 @@ GLFWwindow* window;
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include <glm/gtx/string_cast.hpp>
 #include <pixlib.hpp>
 
 
@@ -153,13 +153,23 @@ int main( int argc, char** argv )
     arg_i++;
   } arg_i++;
 
-  App application(glm::vec2(leds_per_side*leds_per_side));
-  application.BuildPixo(fadecandies, leds_per_side);
+  App application("db.sqite3", glm::vec2(leds_per_side*leds_per_side));
+  App::BuildPixo(fadecandies, leds_per_side);
 
+  application.storage.remove_all<FadeCandy>();
+  int inserted;
   for(std::shared_ptr<FadeCandy> fc : fadecandies) {
     fc->finalize();
-    application.add_fadecandy(fc);
+    int inserted = application.storage.insert(*fc.get());
+    ALOGV("inserted: %d\n", inserted);
+    FadeCandy derp = application.storage.get<FadeCandy>(inserted);
+    ALOGV("derped\n");
+    ALOGV("IFC size: %d\n", fc->leds.size());
+    ALOGV("SFC size: %d\n", derp.leds.size());
+    ALOGV("IFC first: %s\n", glm::to_string(fc->leds[0].position).c_str());
+    ALOGV("SFC first: %s\n", glm::to_string(derp.leds[0].position).c_str());
   }
+  application.add_fadecandy(fadecandies);
 
 
   glfwSetWindowUserPointer(window, &application);

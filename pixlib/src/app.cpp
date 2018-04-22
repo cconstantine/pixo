@@ -1,13 +1,18 @@
 #include <pixlib/app.hpp>
 
+using namespace sqlite_orm;
+
 namespace Pixlib {
-  App::App(glm::vec2 canvas_size) :
+  App::App(const std::string& db_filename, glm::vec2 canvas_size) :
    scene(),
    pattern_render(canvas_size),
-   brightness(1.0f)
-  {  }
+   brightness(1.0f),
+   storage(initStorage(db_filename.c_str()))
+  {
+    storage.sync_schema();
+  }
 
-  void App::BuildPixo(const FadeCandyCluster& fadecandies, unsigned int per_size) {
+  void App::BuildPixo(FadeCandyCluster& fadecandies, unsigned int per_size) {
     float spacing = 0.04318;
 
     int width = per_size;
@@ -18,8 +23,7 @@ namespace Pixlib {
     float y_offset = -(float)height / 2.0f - 0.5f;
     float z_offset = -(float)depth  / 2.0f  + 0.5f;
 
-    viewed_from.scope = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
-    camera.scope      = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
+    fadecandies.scope = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
 
     int num_fadecandies = fadecandies.size();
     int per_fc = height / num_fadecandies;
@@ -42,11 +46,16 @@ namespace Pixlib {
 
   }
 
-  void App::add_fadecandy(std::shared_ptr<FadeCandy> fc) {
-    std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(fc, pattern_render.get_texture());
+  void App::add_fadecandy(const FadeCandyCluster& fadecandies) {
+    viewed_from.scope = fadecandies.scope;
+    camera.scope      = fadecandies.scope;
 
-    scene.add_cluster(lc->get_drawable());
-    led_clusters.push_back(lc);
+    for(std::shared_ptr<FadeCandy> fc : fadecandies) {
+      std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(fc, pattern_render.get_texture());
+
+      scene.add_cluster(lc->get_drawable());
+      led_clusters.push_back(lc);
+    }
   }
 
   float App::scene_fps() {

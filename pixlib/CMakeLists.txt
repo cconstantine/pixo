@@ -6,7 +6,6 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
 ###################### GLM     ###############################
 include_directories( ../ext/glm/ )
-
 include_directories(include)
 
 add_library(pixlib STATIC
@@ -28,8 +27,8 @@ add_library(pixlib STATIC
  src/app.cpp
  )
 
- target_link_libraries(pixlib) # realsense)
+ target_link_libraries(pixlib sqlite3)
 
 
-set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
+set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../ext/sqlite_orm/include PARENT_SCOPE)
 

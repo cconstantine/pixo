@@ -3,6 +3,9 @@
 
 namespace Pixlib {
 
+  FadeCandy::FadeCandy() {
+    ALOGV("Create fc %p\n", this);
+  }
 
   FadeCandy::FadeCandy(const std::string& hostname) : hostname(hostname)
   {
@@ -12,8 +15,21 @@ namespace Pixlib {
 
   FadeCandy::~FadeCandy()
   {
-    ALOGV("clearing: %s\n", hostname.c_str());
-    clear();
+    ALOGV("size: %d\n", leds.size());
+    ALOGV("Destroy fc %p\n", this);
+    //clear();
+  }
+
+
+  void FadeCandy::set_hostname(const std::string& hostname) {
+    ALOGV("hostname: %s\n", hostname.c_str());
+
+    this->hostname = hostname;
+    opc_client.resolve(hostname.c_str());
+  }
+
+  const std::string& FadeCandy::get_hostname() {
+    return hostname;
   }
 
   void FadeCandy::add_led(const glm::vec3& position)
@@ -31,10 +47,6 @@ namespace Pixlib {
     OPCClient::Header::view(framebuffer).init(0, opc_client.SET_PIXEL_COLORS, frameBytes);
   }
 
-  const std::vector<LedInfo>& FadeCandy::get_leds()
-  {
-    return leds;
-  }
 
   void FadeCandy::update()
   {
@@ -43,7 +55,7 @@ namespace Pixlib {
 
   void FadeCandy::clear()
   {
-    memset(get_data(), 0, get_leds().size()*3);
+    memset(get_data(), 0, leds.size()*3);
     update();
   }
 

@@ -13,7 +13,7 @@ namespace Pixlib {
 
 
   LedCluster::LedCluster(std::shared_ptr<FadeCandy> fadecandy, const Texture& pattern_texture) :
-   led_texture(led_canvas_size(fadecandy->get_leds().size()), led_canvas_size(fadecandy->get_leds().size())),
+   led_texture(led_canvas_size(fadecandy->leds.size()), led_canvas_size(fadecandy->leds.size())),
    leds_for_calc(pattern_texture),
    leds_for_display(std::make_shared<Cube>(led_texture)),
    led_renderer(led_texture),
@@ -25,7 +25,7 @@ namespace Pixlib {
 
     glm::mat4 projection = glm::ortho(0.0f, (float)width, 0.0f, (float)height);
 
-    for(LedInfo led_info : this->fadecandy->get_leds()) {
+    for(LedInfo led_info : this->fadecandy->leds) {
 
       glm::vec3 ballPosDelta = led_info.position;
       int count = num_leds();
