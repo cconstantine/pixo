@@ -17,7 +17,7 @@ namespace Pixlib {
   class App {
   public:
 
-    App(std::shared_ptr<Sculpture> sculpture);
+    App(const Sculpture& sculpture);
     
     float scene_fps();
     float scene_render_time();

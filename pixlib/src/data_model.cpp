@@ -4,6 +4,7 @@
 
 
 #include <sqlite_orm/sqlite_orm.h>
+#include <glm/gtx/string_cast.hpp>
 
 namespace sqlite_orm {
 
@@ -17,7 +18,7 @@ namespace sqlite_orm {
             std::string s_value;
             {
               std::ostringstream stream;
-              for(Pixlib::Point point : value) {
+              for(Pixlib::Point point : *value.get()) {
                 char buff[265];
                 snprintf(buff, sizeof(buff), "v %f %f %f\n", point.x, point.y, point.z);
                 stream << std::string(buff);
@@ -30,11 +31,11 @@ namespace sqlite_orm {
 
     template<>
     struct field_printer<Pixlib::PointSpace> {
-        std::string operator()(const Pixlib::PointSpace &t) const {
+        std::string operator()(const Pixlib::PointSpace &value) const {
             std::string s_value;
             {
               std::ostringstream stream;
-              for(Pixlib::Point point : t) {
+              for(Pixlib::Point point : *value.get()) {
                 char buff[265];
                 snprintf(buff, sizeof(buff), "v %f %f %f\n", point.x, point.y, point.z);
                 stream << std::string(buff);
@@ -48,17 +49,16 @@ namespace sqlite_orm {
     template<>
     struct row_extractor<Pixlib::PointSpace> {
         Pixlib::PointSpace extract(sqlite3_stmt *stmt, int columnIndex) {
-            Pixlib::PointSpace leds;
+            Pixlib::PointSpace leds(std::make_shared<std::vector<Pixlib::Point>>());
+
             std::string s_value = row_extractor<std::string>().extract(stmt, columnIndex);//(reinterpret_cast<const char*>(sqlite3_column_text(stmt, columnIndex)));
             std::istringstream iss(s_value);
-
 
             for (std::string line; std::getline(iss, line); ) {
               float x, y, z = 0.0f;
               sscanf(line.c_str(), "v %f %f %f" , &x, &y, &z);
 
-              Pixlib::Point li({glm::vec3(x, y, z)});
-              leds.push_back(li);
+              leds->push_back(Pixlib::Point({glm::vec3(x,y,z)}));
             }
             return leds;
         }
@@ -147,14 +147,14 @@ namespace Pixlib {
   }
   using Storage = decltype(initStorage(""));
 
-  LedGeometry::LedGeometry() {}
-  LedGeometry::LedGeometry(const std::string& host) : fadecandy_host(host) {}
+  LedGeometry::LedGeometry() : locations(std::make_shared<std::vector<Point>>()) {}
+  LedGeometry::LedGeometry(const std::string& host) : fadecandy_host(host), locations(std::make_shared<std::vector<Point>>()) {}
 
-  std::shared_ptr<Sculpture> Sculpture::load(const std::string& filename) {
+  Sculpture Sculpture::load(const std::string& filename) {
     Storage storage = initStorage(filename.c_str());
 
-    std::shared_ptr<Sculpture> sculpture = storage.get_no_throw<Sculpture>(1);
-    sculpture->leds = storage.get_all<LedGeometry>();
+    Sculpture sculpture = storage.get<Sculpture>(1);
+    sculpture.leds = storage.get_all<LedGeometry>();
 
     return sculpture;
   }
@@ -203,9 +203,9 @@ namespace Pixlib {
 
       for(int z = 0;z < height;z++) {
         for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
-          geom.locations.push_back(glm::vec3( ((float)x + x_offset)*spacing,
-                                ((float)z + z_offset)*spacing,
-                                ((float)y + y_offset)*spacing));
+          geom.locations->push_back(glm::vec3( ((float)x + x_offset)*spacing,
+                                               ((float)z + z_offset)*spacing,
+                                               ((float)y + y_offset)*spacing));
         }
         direction *= -1;
       }

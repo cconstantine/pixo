@@ -6,10 +6,8 @@
 #include <glm/glm.hpp>
 
 namespace Pixlib {
-
-
   typedef glm::vec3 Point;
-  typedef std::vector<Point> PointSpace;
+  typedef std::shared_ptr<std::vector<Point>> PointSpace;
 
   class LedGeometry {
     public:
@@ -24,7 +22,7 @@ namespace Pixlib {
 
   class Sculpture {
   public:
-    static std::shared_ptr<Sculpture> load(const std::string& filename);
+    static Sculpture load(const std::string& filename);
 
     Sculpture();
     Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size);

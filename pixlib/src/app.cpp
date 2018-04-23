@@ -2,15 +2,15 @@
 
 namespace Pixlib {
 
-  App::App(std::shared_ptr<Sculpture> sculpture) :
+  App::App(const Sculpture& sculpture) :
    scene(),
-   pattern_render(glm::vec2(sculpture->canvas_width, sculpture->canvas_height)),
+   pattern_render(glm::vec2(sculpture.canvas_width, sculpture.canvas_height)),
    brightness(1.0f)
   {
-    viewed_from.scope = sculpture->scope;
-    camera.scope      = sculpture->scope;
+    viewed_from.scope = sculpture.scope;
+    camera.scope      = sculpture.scope;
 
-    for(const LedGeometry& geom : sculpture->leds) {
+    for(const LedGeometry& geom : sculpture.leds) {
       std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom, pattern_render.get_texture());
 
       scene.add_cluster(lc->get_drawable());

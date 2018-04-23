@@ -108,7 +108,7 @@ int main( int argc, char** argv )
 
   unsigned int arg_i = 2;
 
-  std::shared_ptr<Sculpture> sculpture = Sculpture::load(db_filename.c_str());
+  Sculpture sculpture = Sculpture::load(db_filename.c_str());
   std::vector<PatternCode> patterns = PatternCode::load_all(db_filename);
 
   // Initialise GLFW
