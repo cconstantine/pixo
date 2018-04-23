@@ -1,57 +1,17 @@
 #include <pixlib/app.hpp>
 
-using namespace sqlite_orm;
-
 namespace Pixlib {
-  App::App(const std::string& db_filename, glm::vec2 canvas_size) :
+
+  App::App(std::shared_ptr<Sculpture> sculpture) :
    scene(),
-   pattern_render(canvas_size),
-   brightness(1.0f),
-   storage(initStorage(db_filename.c_str()))
+   pattern_render(glm::vec2(sculpture->canvas_width, sculpture->canvas_height)),
+   brightness(1.0f)
   {
-    storage.sync_schema();
-  }
+    viewed_from.scope = sculpture->scope;
+    camera.scope      = sculpture->scope;
 
-  void App::BuildPixo(FadeCandyCluster& fadecandies, unsigned int per_size) {
-    float spacing = 0.04318;
-
-    int width = per_size;
-    int height = per_size;
-    int depth = per_size;
-
-    float x_offset = -(float)width  / 2.0f  + 0.5f;
-    float y_offset = -(float)height / 2.0f - 0.5f;
-    float z_offset = -(float)depth  / 2.0f  + 0.5f;
-
-    fadecandies.scope = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
-
-    int num_fadecandies = fadecandies.size();
-    int per_fc = height / num_fadecandies;
-
-    for(int y = height;y > 0;y--) {
-      int direction = 1;
-      int selection = (y-1) / per_fc;
-
-      std::shared_ptr<FadeCandy> fc = fadecandies[selection];
-
-      for(int z = 0;z < height;z++) {
-        for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
-          fc->add_led(glm::vec3( ((float)x + x_offset)*spacing,
-                                ((float)z + z_offset)*spacing,
-                                ((float)y + y_offset)*spacing));
-        }
-        direction *= -1;
-      }
-    }
-
-  }
-
-  void App::add_fadecandy(const FadeCandyCluster& fadecandies) {
-    viewed_from.scope = fadecandies.scope;
-    camera.scope      = fadecandies.scope;
-
-    for(std::shared_ptr<FadeCandy> fc : fadecandies) {
-      std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(fc, pattern_render.get_texture());
+    for(const LedGeometry& geom : sculpture->leds) {
+      std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom, pattern_render.get_texture());
 
       scene.add_cluster(lc->get_drawable());
       led_clusters.push_back(lc);

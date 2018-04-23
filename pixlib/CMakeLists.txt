@@ -25,6 +25,7 @@ add_library(pixlib STATIC
  src/fade_candy.cpp
  src/pattern.cpp
  src/app.cpp
+ src/data_model.cpp
  )
 
  target_link_libraries(pixlib sqlite3)

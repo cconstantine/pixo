@@ -9,9 +9,6 @@ namespace Pixlib {
    height(canvasSize.y),
    renderedTexture(canvasSize.x, canvasSize.y)
   {
-    ALOGV("Create PatternRender::PatternRender\n");
-    ALOGV("width : %d\n", width);
-    ALOGV("height: %d\n", height);
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
 

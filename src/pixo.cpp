@@ -98,17 +98,26 @@ void web_listen() {
 std::thread webserver (web_listen); 
 int main( int argc, char** argv )
 {  
-  if(argc < 3) {
-    fprintf(stderr, "Usage: %s LEDS_PER_SIDE [hostname]* -- [pattern file]*\n", argv[0]);
+  if(argc < 2) {
+    fprintf(stderr, "Usage: %s db_filename\n", argv[0]);
     exit(1);
   }
-    // Initialise GLFW
-    if( !glfwInit() )
-    {
-        fprintf( stderr, "Failed to initialize GLFW\n" );
-        getchar();
-        return -1;
-    }  
+
+  const std::string db_filename(argv[1]);
+  ALOGV("loading: %s\n", db_filename.c_str());
+
+  unsigned int arg_i = 2;
+
+  std::shared_ptr<Sculpture> sculpture = Sculpture::load(db_filename.c_str());
+  std::vector<PatternCode> patterns = PatternCode::load_all(db_filename);
+
+  // Initialise GLFW
+  if( !glfwInit() )
+  {
+      fprintf( stderr, "Failed to initialize GLFW\n" );
+      getchar();
+      return -1;
+  }  
 
   
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -142,73 +151,19 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
-  
-  const int leds_per_side = atoi(argv[1]);
-  FadeCandyCluster fadecandies;
+  App application(sculpture);
 
-  unsigned int arg_i = 2;
-  while(strcmp(argv[arg_i], "--") != 0 && arg_i < argc) {
-    fadecandies.push_back(std::make_shared<FadeCandy>(argv[arg_i]));
-
-    arg_i++;
-  } arg_i++;
-
-  App application("db.sqite3", glm::vec2(leds_per_side*leds_per_side));
-  App::BuildPixo(fadecandies, leds_per_side);
-
-  application.storage.remove_all<FadeCandy>();
-  int inserted;
-  for(std::shared_ptr<FadeCandy> fc : fadecandies) {
-    fc->finalize();
-    int inserted = application.storage.insert(*fc.get());
-    ALOGV("inserted: %d\n", inserted);
-    FadeCandy derp = application.storage.get<FadeCandy>(inserted);
-    ALOGV("derped\n");
-    ALOGV("IFC size: %d\n", fc->leds.size());
-    ALOGV("SFC size: %d\n", derp.leds.size());
-    ALOGV("IFC first: %s\n", glm::to_string(fc->leds[0].position).c_str());
-    ALOGV("SFC first: %s\n", glm::to_string(derp.leds[0].position).c_str());
+  for(const PatternCode& pattern : patterns) {
+    application.register_pattern(pattern.name, std::make_shared<Pattern>(pattern.shader_code.c_str()));
   }
-  application.add_fadecandy(fadecandies);
-
 
   glfwSetWindowUserPointer(window, &application);
-
-
-  for(int i = arg_i;i < argc;i++) {
-    std::string fragmentCode;
-    std::ifstream fShaderFile;
-    // ensures ifstream objects can throw exceptions:
-    fShaderFile.exceptions (std::ifstream::badbit);
-
-    std::string fulLFragmentath = std::string(argv[i]);
-    ALOGV("Loading: %s\n", fulLFragmentath.c_str());
-
-    fShaderFile.open(fulLFragmentath.c_str());
-    std::stringstream fShaderStream;
-    fShaderStream << fShaderFile.rdbuf();
-    fShaderFile.close();
-    
-    // Convert stream into string
-    fragmentCode = fShaderStream.str();
-
-    std::string name;
-    for(unsigned int i = fulLFragmentath.size();i >= 0;i--) {
-      if (fulLFragmentath[i] == '/') {
-        break;
-      }
-      name = fulLFragmentath[i] + name;
-    }
-    application.register_pattern(name, std::make_shared<Pattern>(fragmentCode.c_str()));
-  }
-
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new nanogui::Screen();
   screen->initialize(window, true);
   GLenum glErr = glGetError();
   while (glErr != GL_NO_ERROR)
   {
-      ALOGV("Screen %04x\n", glErr);
       glErr = glGetError();
   }
 
@@ -451,8 +406,6 @@ int main( int argc, char** argv )
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();
-
-  ALOGV("Exiting\n");
 
   return 0;
 }

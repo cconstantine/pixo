@@ -17,34 +17,19 @@ namespace Pixlib {
 
   class FadeCandy {
   public:
-    int id;
-    std::string hostname;
-    std::vector<LedInfo> leds;
 
-    FadeCandy();
-    FadeCandy(const std::string& hostname);
+    FadeCandy(const std::string& hostname, size_t size);
     ~FadeCandy();
-
-    void add_led(const glm::vec3& position);
-
-    void set_hostname(const std::string& hostname);
-    const std::string& get_hostname();
-
-    void finalize();
 
   	void update();
     void clear();
 
     uint8_t* get_data();
   private:
+    size_t size;
+    std::string hostname;
   	std::vector<uint8_t> framebuffer;
   	OPCClient opc_client;
 
   };
-
-  class FadeCandyCluster : public std::vector<std::shared_ptr<FadeCandy>> {
-  public:
-    glm::vec3 scope;
-  };
-
 }

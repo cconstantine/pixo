@@ -11,6 +11,7 @@
 #include <memory>
 
 
+#include <pixlib/data_model.hpp>
 #include <pixlib/cube.hpp>
 #include <pixlib/fade_candy.hpp>
 #include <pixlib/mesh.hpp>
@@ -24,9 +25,10 @@
 
 
 namespace Pixlib {
+
   class LedCluster {
   public:
-    LedCluster(std::shared_ptr<FadeCandy> fadecandy, const Texture& pattern_texture);
+    LedCluster(const LedGeometry& geometry, const Texture& pattern_texture);
 
     std::shared_ptr<Drawable> get_drawable();
 
@@ -51,4 +53,6 @@ namespace Pixlib {
     static size_t led_canvas_size(size_t leds);
 
   };
+
+  typedef  std::vector<std::shared_ptr<LedCluster>> LedClusterCluster;
 }

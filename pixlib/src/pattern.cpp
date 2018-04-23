@@ -15,13 +15,9 @@ namespace Pixlib {
   })",
   fragment.c_str()),
    start(std::chrono::high_resolution_clock::now())
-  {
-    ALOGV("Creating pattern\n");
-  }
+  { }
 
-  Pattern::~Pattern() {
-    ALOGV("DESTROY pattern\n");
-  }
+  Pattern::~Pattern() { }
 
   float Pattern::get_time_elapsed() const {
     std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - start;
