@@ -8,14 +8,15 @@ int main( int argc, char** argv )
   }
 
   int argc_i = 1;
-  std::string db_filename(argv[argc_i++]);
+  std::string filename(argv[argc_i++]);
+  Pixlib::Storage storage(filename);
 
   std::vector<std::string> filenames;
 
   for(;argc_i < argc;argc_i++) {
     filenames.push_back(argv[argc_i]);
   }
-  Pixlib::PatternCode::upsert(db_filename, filenames);
+  storage.upsert_patterns(filenames);
 }
 
 

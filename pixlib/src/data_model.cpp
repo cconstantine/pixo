@@ -3,8 +3,8 @@
 #include <pixlib/data_model.hpp>
 
 
-#include <sqlite_orm/sqlite_orm.h>
 #include <glm/gtx/string_cast.hpp>
+using namespace sqlite_orm;
 
 namespace sqlite_orm {
 
@@ -103,75 +103,9 @@ namespace sqlite_orm {
     };
 }
 
-using namespace sqlite_orm;
 namespace Pixlib {
-  inline auto initStorage(const std::string &path) {
-    using namespace sqlite_orm;
-    return make_storage(path.c_str(),
-                          make_table("led_geometries",
-                                     make_column("id",
-                                                 &LedGeometry::id,
-                                                 autoincrement(),
-                                                 primary_key()),
-                                     make_column("hostname",
-                                                 &LedGeometry::fadecandy_host),
-                                     make_column("locations",
-                                                 &LedGeometry::locations)
-                                     ),
-                          make_table("sculptures",
-                                     make_column("id",
-                                                 &Sculpture::id,
-                                                 primary_key()),
-                                     make_column("scope",
-                                                 &Sculpture::scope),
-                                     make_column("canvas_width",
-                                                 &Sculpture::canvas_width),
-                                     make_column("canvas_height",
-                                                 &Sculpture::canvas_height)
-
-                                     ),
-                          make_table("pattern_codes",
-                                     make_column("id",
-                                                 &PatternCode::id,
-                                                 autoincrement(),
-                                                 primary_key()),
-                                     make_column("name",
-                                                 &PatternCode::name,
-                                                 unique()),
-                                     make_column("shader_code",
-                                                 &PatternCode::shader_code),
-                                     make_column("enabled",
-                                                 &PatternCode::enabled)
-                                     )
-                          );
-  }
-  using Storage = decltype(initStorage(""));
-
   LedGeometry::LedGeometry() : locations(std::make_shared<std::vector<Point>>()) {}
   LedGeometry::LedGeometry(const std::string& host) : fadecandy_host(host), locations(std::make_shared<std::vector<Point>>()) {}
-
-  Sculpture Sculpture::load(const std::string& filename) {
-    Storage storage = initStorage(filename.c_str());
-
-    Sculpture sculpture = storage.get<Sculpture>(1);
-    sculpture.leds = storage.get_all<LedGeometry>();
-
-    return sculpture;
-  }
-
-  void Sculpture::save(const std::string& filename) {
-
-    Pixlib::Storage storage = Pixlib::initStorage(filename.c_str());
-    storage.sync_schema();
-    storage.remove_all<Pixlib::Sculpture>();
-    storage.remove_all<Pixlib::LedGeometry>();
-
-    storage.insert<Pixlib::Sculpture>(*this);
-
-    for(LedGeometry& geom : leds) {
-      storage.insert<LedGeometry>(geom);
-    }
-  }
 
   Sculpture::Sculpture() {}
   Sculpture::Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size) :
@@ -233,16 +167,42 @@ namespace Pixlib {
       pathname.end() );
   }
 
-  std::vector<PatternCode> PatternCode::load_all(const std::string& db_filename) {
-    Pixlib::Storage storage = Pixlib::initStorage(db_filename.c_str());
-    storage.sync_schema();
 
+  Storage::Storage(const std::string& filename, const Sculpture& sculpture)
+   :  storage(init_storage(filename)), sculpture(sculpture)
+  {
+    storage.sync_schema();
+    save();
+  }
+
+  Storage::Storage(const std::string& filename) : storage(init_storage(filename)), sculpture(load_scupture())
+  {
+    storage.sync_schema();
+  }
+
+  Sculpture Storage::load_scupture() {
+    Sculpture sculpture = storage.get<Sculpture>(1);
+    sculpture.leds = storage.get_all<LedGeometry>();
+
+    return sculpture;
+  }
+
+  void Storage::save() {
+    storage.remove_all<Pixlib::Sculpture>();
+    storage.remove_all<Pixlib::LedGeometry>();
+
+    storage.insert<Pixlib::Sculpture>(sculpture);
+
+    for(const LedGeometry& geom : sculpture.leds) {
+      storage.insert<LedGeometry>(geom);
+    }
+  }
+
+  std::vector<PatternCode> Storage::patterns() {
     return storage.get_all<Pixlib::PatternCode>();
   }
 
-  void PatternCode::upsert(const std::string& db_filename, const std::vector<std::string>& filenames) {
-    Pixlib::Storage storage = Pixlib::initStorage(db_filename.c_str());
-    storage.sync_schema();
+  void Storage::upsert_patterns(const std::vector<std::string>& filenames) {
     storage.begin_transaction();
 
     for(const std::string& filename : filenames) {

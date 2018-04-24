@@ -108,8 +108,6 @@ int main( int argc, char** argv )
 
   unsigned int arg_i = 2;
 
-  Sculpture sculpture = Sculpture::load(db_filename.c_str());
-  std::vector<PatternCode> patterns = PatternCode::load_all(db_filename);
 
   // Initialise GLFW
   if( !glfwInit() )
@@ -151,11 +149,8 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
-  App application(sculpture);
 
-  for(const PatternCode& pattern : patterns) {
-    application.register_pattern(pattern.name, std::make_shared<Pattern>(pattern.shader_code.c_str()));
-  }
+  App application = App(Storage(db_filename));
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize

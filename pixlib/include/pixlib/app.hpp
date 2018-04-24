@@ -17,8 +17,8 @@ namespace Pixlib {
   class App {
   public:
 
-    App(const Sculpture& sculpture);
-    
+    App(const Storage& storage);
+
     float scene_fps();
     float scene_render_time();
     float led_render_time();
@@ -52,6 +52,8 @@ namespace Pixlib {
 
     IsoCamera viewed_from;
     IsoCamera camera;
+
+    Storage storage;
 
   };
 }

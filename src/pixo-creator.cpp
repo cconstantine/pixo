@@ -8,18 +8,17 @@ int main( int argc, char** argv )
   }
 
   int argc_i = 1;
-  std::string db_filename(argv[argc_i++]);
+  std::string filename(argv[argc_i++]);
+
   const int leds_per_side = atoi(argv[argc_i++]);
   std::vector<std::string> hostnames;
 
   for(;argc_i < argc;argc_i++) {
     hostnames.push_back(argv[argc_i]);
-    fprintf(stderr, "%s\n", argv[argc_i]);
   }
-  unsigned int arg_i = 2;
-  Pixlib::Sculpture sculpture(1, hostnames, leds_per_side);
 
-  sculpture.save(db_filename);
+
+  Pixlib::Storage storage(filename, Pixlib::Sculpture(1, hostnames, leds_per_side));
 
   return 0;
 }
