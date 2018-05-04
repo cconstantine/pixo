@@ -68,11 +68,17 @@ namespace Pixlib {
     auto it = patterns.begin();
     std::advance(it, rand() % patterns.size());
     pattern_name = it->first;
+    patterns[pattern_name]->reset_start();
   }
 
   const std::string& App::get_pattern()
   {
     return pattern_name;
+  }
+
+
+  float App::pattern_get_time_elapsed() {
+    return patterns[pattern_name]->get_time_elapsed();
   }
 
   void App::set_screen_size(int width, int height) {

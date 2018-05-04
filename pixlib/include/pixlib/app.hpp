@@ -36,7 +36,7 @@ namespace Pixlib {
     void set_random_pattern();
 
     const std::string& get_pattern();
-
+    float pattern_get_time_elapsed();
     void tick();
 
     float brightness;

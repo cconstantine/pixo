@@ -381,6 +381,8 @@ int main( int argc, char** argv )
       keys[NEXT_PATTERN] = false;
 
       application.set_random_pattern();
+    } else if (application.pattern_get_time_elapsed() > 10*60 ) {
+      application.set_random_pattern();
     }
 
     global_timer.end();
