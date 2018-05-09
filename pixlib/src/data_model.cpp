@@ -97,7 +97,7 @@ namespace sqlite_orm {
             float x, y, z = 0.0f;
             sscanf(s_value.c_str(), "v %f %f %f" , &x, &y, &z);
 
-            Pixlib::Point li((x, y, z));
+            Pixlib::Point li(x, y, z);
             return li;
         }
     };
