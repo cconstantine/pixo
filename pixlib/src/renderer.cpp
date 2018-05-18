@@ -23,12 +23,6 @@ namespace Pixlib {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     glCullFace(GL_BACK);
-    glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0,0,perspective.width,perspective.height);
-
-    // Clear the colorbuffer
-    glClearColor(0.10f, 0.10f, 0.10f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(std::shared_ptr<Drawable> m : models) {
       m->draw(perspective);

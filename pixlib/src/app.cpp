@@ -92,6 +92,6 @@ namespace Pixlib {
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
       led_cluster->render(viewed_from, brightness);
     }
-    scene.render(camera);
+
   }
 }

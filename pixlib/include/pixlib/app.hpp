@@ -41,17 +41,17 @@ namespace Pixlib {
 
     float brightness;
 
+    Scene scene;
+    IsoCamera camera;
   private:
     std::map<std::string, std::shared_ptr<Pattern> > patterns;
     std::string pattern_name;
 
-    Scene scene;
     PatternRender pattern_render;
 
     LedClusterCluster led_clusters;
 
     IsoCamera viewed_from;
-    IsoCamera camera;
 
     Storage storage;
 
