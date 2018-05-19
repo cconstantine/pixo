@@ -18,11 +18,13 @@ ADD_DEFINITIONS(${GTK3_CFLAGS_OTHER})
 
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
+include_directories(include)
+
 add_executable(pixo-creator pixo-creator.cpp)
 target_link_libraries(pixo-creator pixlib)
 
 add_executable(pixo-patterns pixo-patterns.cpp)
 target_link_libraries(pixo-patterns pixlib)
 
-add_executable(pixo pixo.cpp ../ext/mongoose/mongoose.c)
+add_executable(pixo pixo.cpp )
 target_link_libraries(pixo libglew_static pthread pixlib ${GTK3_LIBRARIES})

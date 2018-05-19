@@ -1,5 +1,4 @@
 #include <pixlib/led_renderer.hpp>
-#include <glm/gtx/string_cast.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
 namespace Pixlib {

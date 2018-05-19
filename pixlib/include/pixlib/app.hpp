@@ -37,7 +37,8 @@ namespace Pixlib {
 
     const std::string& get_pattern();
     float pattern_get_time_elapsed();
-    void tick();
+    void render_leds();
+    void render_scene();
 
     float brightness;
 

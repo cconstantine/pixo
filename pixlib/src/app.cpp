@@ -86,12 +86,15 @@ namespace Pixlib {
     camera.height = height;
   }
 
-  void App::tick() {
+  void App::render_leds() {
     pattern_render.render(*patterns[pattern_name].get());
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
       led_cluster->render(viewed_from, brightness);
     }
+  }
 
+  void App::render_scene() {
+    scene.render(camera);
   }
 }

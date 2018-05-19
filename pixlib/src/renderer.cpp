@@ -1,6 +1,5 @@
 #include <pixlib/renderer.hpp>
 
-#include <glm/gtx/string_cast.hpp>
 #include <fstream>
 #include <thread>
 

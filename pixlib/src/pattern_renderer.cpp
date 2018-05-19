@@ -1,6 +1,5 @@
 #include <pixlib/pattern_renderer.hpp>
 
-#include <glm/gtx/string_cast.hpp>
 #include <fstream>
 
 namespace Pixlib {
