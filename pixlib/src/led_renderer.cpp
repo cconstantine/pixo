@@ -26,7 +26,7 @@ namespace Pixlib {
 
     // Always check that our framebuffer is ok
     if(glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-      ALOGV( "Failed to init GL_FRAMEBUFFER: %d\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
+      ALOGV( "Failed to init GL_FRAMEBUFFER for led renderer: %d\n", glCheckFramebufferStatus(GL_FRAMEBUFFER));
     }
 
 
@@ -39,7 +39,7 @@ namespace Pixlib {
     active_pbo = 0;
   }
 
-  void LedRender::render(const IsoCamera& perspective, float brightness, uint8_t* buffer, size_t size) {
+  void LedRender::render(const Texture& texture, const IsoCamera& perspective, float brightness, uint8_t* buffer, size_t size) {
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
 
@@ -50,7 +50,7 @@ namespace Pixlib {
     glClearColor(0.00f, 0.00f, 0.00f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    leds->draw(perspective, brightness);
+    leds->draw(texture, perspective, brightness);
 
     glBindBuffer(GL_PIXEL_PACK_BUFFER, pbos[active_pbo]);
     glReadPixels(0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, 0);

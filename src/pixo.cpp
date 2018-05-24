@@ -212,7 +212,7 @@ int main( int argc, char** argv )
     [&]() -> string {
       App* app = (App*)glfwGetWindowUserPointer(window);
 
-      return app->get_pattern().c_str();
+      return app->get_pattern().name.c_str();
     },
     false)->setValue("                 ");
 
@@ -369,9 +369,11 @@ int main( int argc, char** argv )
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    application.tick();
+    application.render_leds();
+    application.render_scene();
     application.move_perspective_to_camera();
 
+    imageWidget->bindImage(application.get_pattern().get_texture().id);
     gui->refresh();
     screen->performLayout();
     screen->drawContents();
@@ -381,7 +383,7 @@ int main( int argc, char** argv )
       keys[NEXT_PATTERN] = false;
 
       application.set_random_pattern();
-    } else if (application.pattern_get_time_elapsed() > 10*60 ) {
+    } else if (application.get_pattern().get_time_elapsed() > 10*60 ) {
       application.set_random_pattern();
     }
 

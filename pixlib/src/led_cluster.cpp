@@ -12,9 +12,9 @@ namespace Pixlib {
   }
 
 
-  LedCluster::LedCluster(const LedGeometry& geometry, const Texture& pattern_texture) :
+  LedCluster::LedCluster(const LedGeometry& geometry) :
    led_texture(led_canvas_size(geometry.locations->size()), led_canvas_size(geometry.locations->size())),
-   leds_for_calc(pattern_texture),
+   leds_for_calc(),
    leds_for_display(std::make_shared<Cube>(led_texture)),
    led_renderer(led_texture),
    fadecandy(std::make_shared<FadeCandy>(geometry.fadecandy_host, geometry.locations->size())),
@@ -55,10 +55,10 @@ namespace Pixlib {
     return leds_for_display;
   }
 
-  void LedCluster::render(const IsoCamera& viewed_from, float brightness)
+  void LedCluster::render(const Pattern& pattern, const IsoCamera& viewed_from, float brightness)
   {
     render_timer.start();
-    led_renderer.render(viewed_from, brightness, fadecandy->get_data(), num_leds()*3);
+    led_renderer.render(pattern.get_texture(), viewed_from, brightness, fadecandy->get_data(), num_leds()*3);
     render_timer.end();
 
     fadecandy->update();

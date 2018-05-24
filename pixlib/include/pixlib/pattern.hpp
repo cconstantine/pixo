@@ -1,21 +1,36 @@
 #pragma once
-
-#include <string>
+#include <vector>
 #include <chrono>
 
+#include <opengl.h>
+#include <glm/glm.hpp>
+
 #include <pixlib/shader.hpp>
+#include <pixlib/texture.hpp>
+
 
 namespace Pixlib {
-  class Pattern {
+  class Pattern : public Shader {
   public:
-    Pattern(const std::string& fragment);
-    ~Pattern();
+    Pattern(const std::string& name, const std::string& fragment_code);
 
+    void render();
+
+    const Texture& get_texture() const;
     float get_time_elapsed() const;
     void reset_start();
 
-    Shader shader;
+    std::string name;
+
   private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
+    GLuint VertexArrayID;
+    GLuint vertexbuffer;
+
+    GLuint FramebufferName;
+    Texture renderedTexture;
+    int width, height;
+
+
   };
 }
