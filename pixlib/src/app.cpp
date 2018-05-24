@@ -5,21 +5,20 @@ namespace Pixlib {
   App::App(const Storage& storage) :
    storage(storage),
    scene(),
-   pattern_render(glm::vec2(storage.sculpture.canvas_width, storage.sculpture.canvas_height)),
    brightness(1.0f)
   {
     viewed_from.scope = storage.sculpture.scope;
     camera.scope      = storage.sculpture.scope;
 
     for(const LedGeometry& geom : storage.sculpture.leds) {
-      std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom, pattern_render.get_texture());
+      std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom);
 
       scene.add_cluster(lc->get_drawable());
       led_clusters.push_back(lc);
     }
 
     for(const PatternCode& pattern : this->storage.patterns()) {
-      register_pattern(pattern.name, std::make_shared<Pattern>(pattern.shader_code.c_str()));
+      register_pattern(std::make_shared<Pattern>(pattern.name, pattern.shader_code.c_str()));
     }
   }
 
@@ -51,34 +50,27 @@ namespace Pixlib {
     viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
   }
 
-  const Texture& App::get_pattern_texture() {
-    return pattern_render.get_texture();
-  }
-
-  void App::register_pattern(std::string name, std::shared_ptr<Pattern> pattern)
+  void App::register_pattern(std::shared_ptr<Pattern> pattern)
   {
-    if(patterns.size() == 0) {
-      pattern_name = name;
-    }
-    patterns[name] = pattern;
+    this->pattern = pattern;
+    patterns[pattern->name] = pattern;
   }
 
   void App::set_random_pattern()
   {
     auto it = patterns.begin();
     std::advance(it, rand() % patterns.size());
-    pattern_name = it->first;
-    patterns[pattern_name]->reset_start();
+    pattern = it->second;
+    pattern->reset_start();
   }
 
-  const std::string& App::get_pattern()
+  const Pattern& App::get_pattern()
   {
-    return pattern_name;
+    return *pattern.get();
   }
-
-
-  float App::pattern_get_time_elapsed() {
-    return patterns[pattern_name]->get_time_elapsed();
+ 
+  const Texture& App::get_pattern_texture() {
+    return pattern->get_texture();
   }
 
   void App::set_screen_size(int width, int height) {
@@ -87,10 +79,10 @@ namespace Pixlib {
   }
 
   void App::render_leds() {
-    pattern_render.render(*patterns[pattern_name].get());
+    pattern->render();
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
-      led_cluster->render(viewed_from, brightness);
+      led_cluster->render(get_pattern(), viewed_from, brightness);
     }
   }
 

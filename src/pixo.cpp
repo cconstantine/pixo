@@ -6,7 +6,6 @@
 
 #include <iostream>
 
-#include <GL/glew.h>
 #include <gtk/gtk.h>
 
 #include <pixlib.hpp>
@@ -60,7 +59,7 @@ activate(GtkApplication *app,
 void do_offscreens(GtkGLArea *glarea) {
   gtk_gl_area_make_current(glarea);
 
-  pixlib_app->tick();
+  pixlib_app->render_leds();
   pixlib_app->move_perspective_to_camera();
 
 }
@@ -70,11 +69,6 @@ on_realize (GtkGLArea *glarea)
 {
   // Make current:
   gtk_gl_area_make_current(glarea);
-
-  // Init GLEW:
-  glewExperimental = GL_TRUE;
-  glewInit();
-
 
   // Print version info:
   const GLubyte* renderer = glGetString(GL_RENDERER);
@@ -127,7 +121,7 @@ on_render (GtkGLArea *glarea, GdkGLContext *context)
   }
   glViewport (0, 0, pixlib_app->camera.width, pixlib_app->camera.height);
 
-  pixlib_app->scene.render(pixlib_app->camera);
+  pixlib_app->render_scene();
 
 
   return TRUE;

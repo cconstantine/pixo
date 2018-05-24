@@ -34,6 +34,7 @@ WindowApplication::WindowApplication(const std::string& db_filename)
 {
   using namespace nanogui;
   
+<<<<<<< HEAD
   this->setLayout(new BoxLayout(Orientation::Horizontal));
   /* No need to store a pointer, the data structure will be automatically
      freed when the parent window is deleted */
@@ -42,6 +43,47 @@ WindowApplication::WindowApplication(const std::string& db_filename)
   Button *b = new Button(this, "Plain button");
   b->setTooltip("short tooltip");
   new PixoWidget(this, pixo);
+=======
+  this->setLayout(new BoxLayout(Orientation::Horizontal, Alignment::Minimum));
+
+  left_panel = new Widget(this);
+  left_panel->setLayout(new BoxLayout(Orientation::Vertical, Alignment::Middle));
+
+  {
+    Widget* rates = new Widget(left_panel);
+    GridLayout *layout = new GridLayout(
+                                    Orientation::Horizontal, 2,
+                                    Alignment::Middle, 15, 5);
+    layout->setColAlignment({ Alignment::Maximum, Alignment::Fill });
+    layout->setSpacing(0, 10);
+
+    rates->setLayout(layout);
+    new Label(rates, "Frame rate :", "sans-bold");
+              fps_box = new TextBox(rates);
+              fps_box->setEditable(false);
+              fps_box->setFixedSize(Vector2i(100, 20));
+              fps_box->setUnits("fps");
+              fps_box->setFontSize(16);
+    new Label(rates, "Screen render :", "sans-bold");
+              scene_time_box = new TextBox(rates);
+              scene_time_box->setEditable(false);
+              scene_time_box->setFixedSize(Vector2i(100, 20));
+              scene_time_box->setUnits("ms");
+              scene_time_box->setFontSize(16);
+    new Label(rates, "LED render :", "sans-bold");
+              led_time_box = new TextBox(rates);
+              led_time_box->setEditable(false);
+              led_time_box->setFixedSize(Vector2i(100, 20));
+              led_time_box->setUnits("ms");
+              led_time_box->setFontSize(16);
+  }
+
+  {
+    pattern_view = new ImageView(left_panel, pixo->get_pattern_texture().id);
+    pattern_view->setFixedSize(Eigen::Vector2i(190, 190));
+  }
+  main_view = new Widget(this);
+>>>>>>> 705cc64... Refactor pattern to be more self-contained.  It is now a shader and able to render itself
 
 
   performLayout();
@@ -65,6 +107,27 @@ bool WindowApplication::keyboardEvent(int key, int scancode, int action, int mod
   return false;
 }
 
+<<<<<<< HEAD
+=======
+void WindowApplication::update_labels() {
+  char buf[256];
+  sprintf(buf, "%2.02f", pixo->scene_fps());
+  fps_box->setValue(buf);
+
+  sprintf(buf, "%2.02f", pixo->scene_render_time()*1000);
+  scene_time_box->setValue(buf);
+
+  sprintf(buf, "%2.02f", pixo->led_render_time()*1000);
+  led_time_box->setValue(buf);
+
+  pattern_label->setCaption(pixo->get_pattern().name);
+  
+  pattern_view->fit();
+  pattern_view->bindImage(pixo->get_pattern_texture().id);
+
+}
+
+>>>>>>> 705cc64... Refactor pattern to be more self-contained.  It is now a shader and able to render itself
 void WindowApplication::drawContents() {
   using namespace nanogui; 
 

@@ -24,11 +24,10 @@ namespace Pixlib {
 
   class LedMesh {
   public:
-    LedMesh(const Texture& textures);
-
+    LedMesh();
     
     // Render the mesh
-    void draw(const IsoCamera& perspective, float brightness);
+    void draw(const Texture& textures, const IsoCamera& perspective, float brightness);
 
     size_t num_vertices();
 
@@ -46,7 +45,6 @@ namespace Pixlib {
 
     /*  Mesh Data  */
     std::vector<LedVertex> vertices;
-    std::vector<Texture> textures;
 
   };
 }

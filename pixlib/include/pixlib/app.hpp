@@ -14,6 +14,7 @@
 #include <sstream>
 
 namespace Pixlib {
+
   class App {
   public:
 
@@ -23,20 +24,16 @@ namespace Pixlib {
     float scene_render_time();
     float led_render_time();
 
-    const Texture& get_pattern_texture();
-
     void process_mouse_movement(int xoffset, int yoffset);
     void process_mouse_scroll(float x);
 
     void move_perspective_to_camera();
     void set_screen_size(int width, int height);
 
-    void register_pattern(std::string name, std::shared_ptr<Pattern> pattern);
-
     void set_random_pattern();
+    const Pattern& get_pattern();
+    const Texture& get_pattern_texture();
 
-    const std::string& get_pattern();
-    float pattern_get_time_elapsed();
     void render_leds();
     void render_scene();
 
@@ -45,10 +42,10 @@ namespace Pixlib {
     Scene scene;
     IsoCamera camera;
   private:
-    std::map<std::string, std::shared_ptr<Pattern> > patterns;
-    std::string pattern_name;
+    void register_pattern(std::shared_ptr<Pattern> pattern);
 
-    PatternRender pattern_render;
+    std::map<std::string, std::shared_ptr<Pattern> > patterns;
+    std::shared_ptr<Pattern> pattern;
 
     LedClusterCluster led_clusters;
 

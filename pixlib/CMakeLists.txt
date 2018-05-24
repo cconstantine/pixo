@@ -20,7 +20,6 @@ add_library(pixlib STATIC
  src/led_mesh.cpp
  src/led_cluster.cpp
  src/renderer.cpp
- src/pattern_renderer.cpp
  src/led_renderer.cpp
  src/timer.cpp
  src/fade_candy.cpp

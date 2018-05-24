@@ -27,4 +27,4 @@ add_executable(pixo-patterns pixo-patterns.cpp)
 target_link_libraries(pixo-patterns pixlib)
 
 add_executable(pixo pixo.cpp )
-target_link_libraries(pixo libglew_static pthread pixlib ${GTK3_LIBRARIES})
+target_link_libraries(pixo pthread pixlib ${GTK3_LIBRARIES} epoxy)

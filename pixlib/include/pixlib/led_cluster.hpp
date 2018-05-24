@@ -17,7 +17,6 @@
 #include <pixlib/mesh.hpp>
 #include <pixlib/led_mesh.hpp>
 #include <pixlib/led_renderer.hpp>
-#include <pixlib/pattern_renderer.hpp>
 #include <pixlib/pattern.hpp>
 #include <pixlib/renderer.hpp>
 #include <pixlib/timer.hpp>
@@ -28,11 +27,11 @@ namespace Pixlib {
 
   class LedCluster {
   public:
-    LedCluster(const LedGeometry& geometry, const Texture& pattern_texture);
+    LedCluster(const LedGeometry& geometry);
 
     std::shared_ptr<Drawable> get_drawable();
 
-    void render(const IsoCamera& viewed_from, float brightness);
+    void render(const Pattern& pattern, const IsoCamera& viewed_from, float brightness);
 
     GLuint num_leds();
 

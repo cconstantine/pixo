@@ -14,7 +14,7 @@
 using namespace std;
 
 namespace Pixlib {
-  LedMesh::LedMesh(const Texture& texture) :
+  LedMesh::LedMesh() :
        shader(
   R"(layout (location = 0) in vec3 position;
   layout (location = 1) in vec3 texCoords;
@@ -48,11 +48,10 @@ namespace Pixlib {
     else
       color = vec4(0.0f);
     })")
-  {
-    add_texture(texture);
-  }
+  { }
+
   // Render the mesh
-  void LedMesh::draw(const IsoCamera& perspective, float brightness) {
+  void LedMesh::draw(const Texture& texture, const IsoCamera& perspective, float brightness) {
 
     shader.use();
 
@@ -64,16 +63,11 @@ namespace Pixlib {
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));
 
-    // Bind appropriate textures
-    for(GLuint i = 0; i < this->textures.size(); i++)
-    {
-      glActiveTexture(GL_TEXTURE0 + i); // Active proper texture unit before binding
-      // Retrieve texture number (the N in diffuse_textureN)
-      stringstream ss;
-      ss << "texture" << i; // Transfer GLuint to stream
-      glUniform1i(glGetUniformLocation(shader.Program,  ss.str().c_str()), i);
-      glBindTexture(GL_TEXTURE_2D, this->textures[i].id);
-    }
+    // Bind appropriate texture
+    glActiveTexture(GL_TEXTURE0); // Active proper texture unit before binding
+
+    glUniform1i(glGetUniformLocation(shader.Program,  "texture0"), 0);
+    glBindTexture(GL_TEXTURE_2D, texture.id);
 
     glBindVertexArray(this->VAO);
     glDrawArrays(GL_POINTS, 0, this->vertices.size());
@@ -92,10 +86,6 @@ namespace Pixlib {
 
   void LedMesh::add_vertex(const LedVertex& vert) {
     vertices.push_back(vert);
-  }
-
-  void LedMesh::add_texture(const Texture& texture) {
-    textures.push_back(texture);
   }
 
   /*  Functions    */
