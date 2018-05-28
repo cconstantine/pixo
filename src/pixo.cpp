@@ -125,8 +125,9 @@ on_render (GtkGLArea *glarea, GdkGLContext *context)
       ALOGV("glError %04x\n", glErr);
       glErr = glGetError();
   }
-  pixlib_app->scene.render(pixlib_app->camera);
   glViewport (0, 0, pixlib_app->camera.width, pixlib_app->camera.height);
+
+  pixlib_app->scene.render(pixlib_app->camera);
 
 
   return TRUE;
