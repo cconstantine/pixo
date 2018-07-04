@@ -22,8 +22,6 @@ GLFWwindow* window;
 
 
 #include <nanogui/nanogui.h>
-#include <mongoose.h>
-#include <thread>
 
 std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
@@ -48,54 +46,6 @@ void sig_int_handler(int s){
 }
 
 
-static const char *s_http_port = "8000";
-static struct mg_serve_http_opts s_http_server_opts;
-static int has_prefix(const struct mg_str *uri, const struct mg_str *prefix) {
-  return uri->len > prefix->len && memcmp(uri->p, prefix->p, prefix->len) == 0;
-}
-
-static void ev_handler(struct mg_connection *nc, int ev, void *ev_data) {
-  static const struct mg_str api_prefix = MG_MK_STR("/api/v1");
-  struct http_message *hm = (struct http_message *) ev_data;
-  struct mg_str key;
-
-  switch (ev) {
-    case MG_EV_HTTP_REQUEST:
-      if (has_prefix(&hm->uri, &api_prefix)) {
-
-        mg_printf(nc, "%s",
-                  "HTTP/1.0 501 Not Implemented\r\n"
-                  "Content-Length: 0\r\n\r\n");
-      } else {
-        mg_serve_http(nc, hm, s_http_server_opts); /* Serve static content */
-      }
-      break;
-    default:
-      break;
-  }
-}
-
-bool running = true;
-
-void web_listen() {
-
-  struct mg_mgr mgr;
-  struct mg_connection *nc;
-  int i;
-
-  /* Open listening socket */
-  mg_mgr_init(&mgr, NULL);
-  nc = mg_bind(&mgr, s_http_port, ev_handler);
-  mg_set_protocol_http_websocket(nc);
-
-  while(running) {
-    mg_mgr_poll(&mgr, 100);
-
-  }
-  mg_mgr_free(&mgr);
-}
-
-std::thread webserver (web_listen); 
 int main( int argc, char** argv )
 {  
   if(argc < 2) {
@@ -228,7 +178,7 @@ int main( int argc, char** argv )
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {
-            int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT);
+            int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
             App* app = (App*)glfwGetWindowUserPointer(window);
 
             if (state != GLFW_PRESS) {
@@ -256,9 +206,9 @@ int main( int argc, char** argv )
       [](GLFWwindow *window, int button, int action, int modifiers) {
           if (!screen->mouseButtonCallbackEvent(button, action, modifiers)) {
 
-            if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_PRESS) {
+            if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS) {
               glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-            } else if (button == GLFW_MOUSE_BUTTON_RIGHT && action == GLFW_RELEASE) {
+            } else if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_RELEASE) {
               glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
             }
           }
@@ -399,9 +349,6 @@ int main( int argc, char** argv )
     }
 
   }
-  
-  running = false;
-  webserver.join();
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();
