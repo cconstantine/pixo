@@ -3,10 +3,11 @@
 
 namespace Pixlib {
 
-  FadeCandy::FadeCandy(const std::string& hostname, size_t size) : hostname(hostname), size(size)
+  FadeCandy::FadeCandy(const std::string& hostname, size_t size)
+   : hostname(hostname), size(size),running(true), writer_thread(&FadeCandy::thread_method, this)
   {
     ALOGV("connecting to: %s\n", hostname.c_str());
-    opc_client.resolve(hostname.c_str());
+    //opc_client.resolve(hostname.c_str());
 
     int frameBytes = size * 3;
     framebuffer.resize(sizeof(OPCClient::Header) + frameBytes);
@@ -17,12 +18,16 @@ namespace Pixlib {
   FadeCandy::~FadeCandy()
   {
     ALOGV("clearing: %s\n", hostname.c_str());
+    running = false;
     clear();
+    writer_thread.join();
   }
 
   void FadeCandy::update()
   {
-    opc_client.write(framebuffer);
+    std::unique_lock<std::mutex> lck(pending_mutex);
+
+    pending_message.notify_all();
   }
 
   void FadeCandy::clear()
@@ -34,5 +39,20 @@ namespace Pixlib {
   uint8_t* FadeCandy::get_data()
   {
     return (uint8_t*)OPCClient::Header::view(framebuffer).data();
+  }
+
+  void FadeCandy::thread_method()
+  {
+    while(running) {
+      {
+        std::unique_lock<std::mutex> lck(pending_mutex);
+        pending_message.wait(lck);
+      }
+
+      // fprintf(stderr, "%s: thread (%d)!\n", hostname.c_str(), opc_client.isConnected());
+      if(running || opc_client.isConnected()) {
+        opc_client.write(hostname.c_str(), framebuffer);
+      }
+    }
   }
 }

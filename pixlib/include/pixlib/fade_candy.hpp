@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <thread>
+#include <condition_variable>
 
 #include <glm/glm.hpp>
 #include <opc_client.h>
@@ -31,5 +33,10 @@ namespace Pixlib {
   	std::vector<uint8_t> framebuffer;
   	OPCClient opc_client;
 
+    std::condition_variable pending_message;
+    std::mutex pending_mutex;
+    std::thread writer_thread;
+    bool running;
+    void thread_method();
   };
 }

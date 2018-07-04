@@ -46,7 +46,11 @@ public:
     ~OPCClient();
 
     bool resolve(const char *hostport, int defaultPort = 7890);
+
+    bool write(const char *hostport, const uint8_t *data, ssize_t length);
     bool write(const uint8_t *data, ssize_t length);
+
+    bool write(const char *hostport, const std::vector<uint8_t> &data);
     bool write(const std::vector<uint8_t> &data);
 
     bool tryConnect();
@@ -117,8 +121,11 @@ inline void OPCClient::closeSocket()
 
 inline bool OPCClient::resolve(const char *hostport, int defaultPort)
 {
-    fd = -1;
+    if (isConnected()) {
+        return true;
+    }
 
+    fd = -1;
     char *host = strdup(hostport);
     char *colon = strchr(host, ':');
     int port = defaultPort;
@@ -131,17 +138,17 @@ inline bool OPCClient::resolve(const char *hostport, int defaultPort)
 
     if (port) {
         struct addrinfo *addr;
-        getaddrinfo(*host ? host : "localhost", 0, 0, &addr);
-
-        for (struct addrinfo *i = addr; i; i = i->ai_next) {
-            if (i->ai_family == PF_INET) {
-                memcpy(&address, i->ai_addr, sizeof address);
-                address.sin_port = htons(port);
-                success = true;
-                break;
+        if (getaddrinfo(*host ? host : "localhost", 0, 0, &addr) == 0) {
+            for (struct addrinfo *i = addr; i; i = i->ai_next) {
+                if (i->ai_family == PF_INET) {
+                    memcpy(&address, i->ai_addr, sizeof address);
+                    address.sin_port = htons(port);
+                    success = true;
+                    break;
+                }
             }
+            freeaddrinfo(addr);
         }
-        freeaddrinfo(addr);
     }
 
     free(host);
@@ -156,6 +163,11 @@ inline bool OPCClient::isConnected()
 inline bool OPCClient::tryConnect()
 {
     return isConnected() || connectSocket();
+}
+
+inline bool OPCClient::write(const char *hostport, const uint8_t *data, ssize_t length)
+{
+    return resolve(hostport) && write(data, length);
 }
 
 inline bool OPCClient::write(const uint8_t *data, ssize_t length)
@@ -175,6 +187,11 @@ inline bool OPCClient::write(const uint8_t *data, ssize_t length)
     }
 
     return true;
+}
+
+inline bool OPCClient::write(const char *hostport, const std::vector<uint8_t> &data)
+{
+    return resolve(hostport) && write(data);
 }
 
 inline bool OPCClient::write(const std::vector<uint8_t> &data)
