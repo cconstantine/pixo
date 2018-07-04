@@ -48,16 +48,20 @@ void sig_int_handler(int s){
 
 int main( int argc, char** argv )
 {  
+  int arg_i = 1;
+  bool fullscreen = false;
   if(argc < 2) {
-    fprintf(stderr, "Usage: %s db_filename\n", argv[0]);
+    fprintf(stderr, "Usage: %s [--fullscreen] db_filename\n", argv[0]);
     exit(1);
   }
 
-  const std::string db_filename(argv[1]);
+  if (strncmp("--fullscreen", argv[arg_i], sizeof("--fullscreen")) == 0) {
+    fullscreen = true;
+    arg_i += 1;
+  }
+
+  const std::string db_filename(argv[arg_i]);
   ALOGV("loading: %s\n", db_filename.c_str());
-
-  unsigned int arg_i = 2;
-
 
   // Initialise GLFW
   if( !glfwInit() )
@@ -74,8 +78,18 @@ int main( int argc, char** argv )
   glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
   glfwWindowHint(GLFW_DEPTH_BITS, 24 );
 
-  // Open a window and create its OpenGL context
-  window = glfwCreateWindow( 800, 800, "Pixo", NULL, NULL);
+  GLFWmonitor* monitor = NULL;
+  int width = 800, height = 800;
+
+  if (fullscreen) {
+    monitor = glfwGetPrimaryMonitor();
+
+    const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+    width = mode->width;
+    height = mode->height;
+  }
+
+  window = glfwCreateWindow(width, height, "Pixo", monitor, NULL);
   if( window == NULL ){
       fprintf( stderr, "Failed to open GLFW window.\n" );
       getchar();
@@ -309,7 +323,6 @@ int main( int argc, char** argv )
   sigIntHandler.sa_flags = 0;
   sigaction(SIGINT, &sigIntHandler, NULL);
 
-  int width, height;
   glfwGetFramebufferSize(window, &width, &height);
   application.set_screen_size(width, height);
 
