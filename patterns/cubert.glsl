@@ -1,3 +1,5 @@
+out vec4 color_out;
+
 #ifdef GL_ES
 precision mediump float;
 #endif
@@ -75,5 +77,5 @@ float mode = mod(time/5.0,3.0);
   col *= 0.4 + 0.6*sqrt(clamp( 4.0*c.w, 0.0, 1.0 ));
   
   
-    gl_FragColor = vec4( col, 1.0 );
+    color_out = vec4( col, 1.0 );
 }
