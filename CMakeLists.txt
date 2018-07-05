@@ -31,6 +31,11 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 ###################### GLM     ###############################
 include_directories( ext/glm/ )
 
+###################### librealsense ###########################
+set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
+
+
 ###################### GLEW     ###############################
 # glew
 set(glew-cmake_BUILD_MULTI_CONTEXT       OFF CACHE BOOL " " FORCE)

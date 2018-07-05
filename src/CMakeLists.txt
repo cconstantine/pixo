@@ -11,4 +11,4 @@ add_executable(pixo-patterns pixo-patterns.cpp)
 target_link_libraries(pixo-patterns pixlib)
 
 add_executable(pixo pixo.cpp )
-target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib)
+target_link_libraries(pixo nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib realsense2)

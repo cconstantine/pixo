@@ -7,3 +7,6 @@
 [submodule "ext/nanogui"]
 	path = ext/nanogui
 	url = https://github.com/wjakob/nanogui.git
+[submodule "ext/librealsense"]
+	path = ext/librealsense
+	url = https://github.com/IntelRealSense/librealsense.git
