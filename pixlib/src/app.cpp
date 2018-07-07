@@ -5,7 +5,7 @@ namespace Pixlib {
   App::App(const Storage& storage) :
    storage(storage),
    scene(),
-   brightness(1.0f)
+   brightness(storage.sculpture.brightness)
   {
     viewed_from = storage.sculpture.projection_perspective;
     camera      = storage.sculpture.camera_perspective;
@@ -38,6 +38,7 @@ namespace Pixlib {
     storage.sculpture.projection_perspective.scope = viewed_from.scope;
 
     storage.sculpture.active_pattern_name = get_pattern().name;
+    storage.sculpture.brightness = brightness;
     storage.save_app_state();
   }
 

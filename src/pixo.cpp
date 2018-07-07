@@ -186,8 +186,16 @@ int main( int argc, char** argv )
   gui->addWidget("", imageWidget);
   screen->setVisible(true);
   screen->performLayout();
-
   imageWidget->fit();
+
+  nanogui::Slider *slider = new nanogui::Slider(nanoguiWindow);
+  slider->setValue(application.brightness);
+  slider->setCallback([](float value) {
+      App* app = (App*)glfwGetWindowUserPointer(window);
+      app->brightness = value;
+  });
+
+  gui->addWidget("", slider);
 
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {

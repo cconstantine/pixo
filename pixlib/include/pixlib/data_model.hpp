@@ -48,6 +48,7 @@ namespace Pixlib {
     Perspective projection_perspective;
 
     std::string active_pattern_name;
+    double brightness;
   };
 
   class PatternCode {
@@ -99,6 +100,8 @@ namespace Pixlib {
                                                  &Sculpture::projection_perspective_id),
                                      make_column("active_pattern_name",
                                                  &Sculpture::active_pattern_name ),
+                                     make_column("brightness",
+                                                 &Sculpture::brightness ),
                                      make_column("canvas_width",
                                                  &Sculpture::canvas_width),
                                      make_column("canvas_height",
