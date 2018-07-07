@@ -25,6 +25,7 @@ add_library(pixlib STATIC
  src/pattern.cpp
  src/app.cpp
  src/data_model.cpp
+ src/face_finder.cpp
  )
 
  target_link_libraries(pixlib sqlite3)

@@ -125,6 +125,8 @@ namespace Pixlib {
   }
 
   void App::render_leds() {
+    face_finder.tick();
+    
     pattern->render();
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {

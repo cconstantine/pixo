@@ -34,7 +34,7 @@ include_directories( ext/glm/ )
 ###################### librealsense ###########################
 set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
 add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
-
+include_directories(ext/librealsense/include)
 
 ###################### GLEW     ###############################
 # glew

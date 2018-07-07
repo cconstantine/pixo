@@ -10,6 +10,7 @@
 #include <pixlib/scene.hpp>
 #include <pixlib/timer.hpp>
 #include <pixlib/fade_candy.hpp>
+#include <pixlib/face_finder.hpp>
 
 #include <sstream>
 
@@ -58,5 +59,6 @@ namespace Pixlib {
     IsoCamera camera;
 
     Storage storage;
+    FaceFinder face_finder;
   };
 }
