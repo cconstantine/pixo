@@ -46,6 +46,8 @@ namespace Pixlib {
 
     Perspective camera_perspective;
     Perspective projection_perspective;
+
+    std::string active_pattern_name;
   };
 
   class PatternCode {
@@ -95,6 +97,8 @@ namespace Pixlib {
                                                  &Sculpture::camera_perspective_id),
                                      make_column("projection_perspective_id",
                                                  &Sculpture::projection_perspective_id),
+                                     make_column("active_pattern_name",
+                                                 &Sculpture::active_pattern_name ),
                                      make_column("canvas_width",
                                                  &Sculpture::canvas_width),
                                      make_column("canvas_height",
@@ -121,6 +125,7 @@ namespace Pixlib {
   class Storage {
   private:
     Sculpture load_scupture();
+    void      save();
 
     SqliteStorage storage;
 
@@ -131,8 +136,8 @@ namespace Pixlib {
     std::vector<PatternCode> patterns();
 
     void upsert_patterns(const std::vector<std::string>& filenames);
+    void      save_app_state();
 
-    void      save();
     Sculpture sculpture;
   };
 }

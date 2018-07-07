@@ -20,6 +20,10 @@ namespace Pixlib {
     for(const PatternCode& pattern : this->storage.patterns()) {
       register_pattern(std::make_shared<Pattern>(pattern.name, pattern.shader_code.c_str()));
     }
+
+    if (patterns.find(storage.sculpture.active_pattern_name) != patterns.end()) {
+      this->pattern = this->patterns[storage.sculpture.active_pattern_name];
+    }
   }
 
   App::~App() {
@@ -27,12 +31,14 @@ namespace Pixlib {
     storage.sculpture.camera_perspective.pitch = camera.Pitch;
     storage.sculpture.camera_perspective.zoom = camera.Zoom;
     storage.sculpture.camera_perspective.scope = camera.scope;
-    
+
     storage.sculpture.projection_perspective.yaw = viewed_from.Yaw;
     storage.sculpture.projection_perspective.pitch = viewed_from.Pitch;
     storage.sculpture.projection_perspective.zoom = viewed_from.Zoom;
     storage.sculpture.projection_perspective.scope = viewed_from.scope;
-    storage.save();
+
+    storage.sculpture.active_pattern_name = get_pattern().name;
+    storage.save_app_state();
   }
 
   float App::scene_fps() {

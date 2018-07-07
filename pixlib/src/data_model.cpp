@@ -218,8 +218,17 @@ namespace Pixlib {
       storage.insert<LedGeometry>(geom);
     }
     storage.commit();
-
   }
+
+  void Storage::save_app_state()
+  {
+    storage.begin_transaction();
+    storage.update<Pixlib::Perspective>(sculpture.camera_perspective);
+    storage.update<Pixlib::Perspective>(sculpture.projection_perspective);
+    storage.update<Pixlib::Sculpture>(sculpture);
+    storage.commit();
+  }
+
 
   std::vector<PatternCode> Storage::patterns() {
     return storage.get_all<Pixlib::PatternCode>();
