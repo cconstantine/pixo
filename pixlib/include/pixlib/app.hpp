@@ -19,6 +19,7 @@ namespace Pixlib {
   public:
 
     App(const Storage& storage);
+    ~App();
 
     float scene_fps();
     float scene_render_time();

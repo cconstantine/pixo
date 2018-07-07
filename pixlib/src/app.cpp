@@ -22,6 +22,19 @@ namespace Pixlib {
     }
   }
 
+  App::~App() {
+    storage.sculpture.camera_perspective.yaw = camera.Yaw;
+    storage.sculpture.camera_perspective.pitch = camera.Pitch;
+    storage.sculpture.camera_perspective.zoom = camera.Zoom;
+    storage.sculpture.camera_perspective.scope = camera.scope;
+    
+    storage.sculpture.projection_perspective.yaw = viewed_from.Yaw;
+    storage.sculpture.projection_perspective.pitch = viewed_from.Pitch;
+    storage.sculpture.projection_perspective.zoom = viewed_from.Zoom;
+    storage.sculpture.projection_perspective.scope = viewed_from.scope;
+    storage.save();
+  }
+
   float App::scene_fps() {
     return scene.get_fps();
   }

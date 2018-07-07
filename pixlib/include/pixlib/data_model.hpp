@@ -121,7 +121,6 @@ namespace Pixlib {
   class Storage {
   private:
     Sculpture load_scupture();
-    void      save();
 
     SqliteStorage storage;
 
@@ -133,6 +132,7 @@ namespace Pixlib {
 
     void upsert_patterns(const std::vector<std::string>& filenames);
 
+    void      save();
     Sculpture sculpture;
   };
 }

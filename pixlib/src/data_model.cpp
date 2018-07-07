@@ -200,6 +200,8 @@ namespace Pixlib {
   }
 
   void Storage::save() {
+    storage.begin_transaction();
+
     storage.remove_all<Pixlib::Sculpture>();
     storage.remove_all<Pixlib::LedGeometry>();
     storage.remove_all<Pixlib::Perspective>();
@@ -215,6 +217,8 @@ namespace Pixlib {
     for(const LedGeometry& geom : sculpture.leds) {
       storage.insert<LedGeometry>(geom);
     }
+    storage.commit();
+
   }
 
   std::vector<PatternCode> Storage::patterns() {
