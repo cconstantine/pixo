@@ -7,8 +7,8 @@ namespace Pixlib {
    scene(),
    brightness(1.0f)
   {
-    viewed_from.scope = storage.sculpture.scope;
-    camera.scope      = storage.sculpture.scope;
+    viewed_from = storage.sculpture.projection_perspective;
+    camera      = storage.sculpture.camera_perspective;
 
     for(const LedGeometry& geom : storage.sculpture.leds) {
       std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom);

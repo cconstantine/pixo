@@ -107,6 +107,8 @@ namespace Pixlib {
   LedGeometry::LedGeometry() : locations(std::make_shared<std::vector<Point>>()) {}
   LedGeometry::LedGeometry(const std::string& host) : fadecandy_host(host), locations(std::make_shared<std::vector<Point>>()) {}
 
+  Perspective::Perspective() : id(0) {}
+
   Sculpture::Sculpture() {}
   Sculpture::Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size) :
       canvas_width(per_size*per_size), canvas_height(per_size*per_size), id(id)
@@ -124,7 +126,14 @@ namespace Pixlib {
     float y_offset = -(float)height / 2.0f - 0.5f;
     float z_offset = -(float)depth  / 2.0f  + 0.5f;
 
-    scope = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
+    camera_perspective.yaw = 108.0f;
+    camera_perspective.pitch = 12.0f;
+    camera_perspective.zoom = 2.4f;
+
+    projection_perspective.scope = glm::vec3(x_offset, y_offset, z_offset)*-spacing;
+    projection_perspective.yaw = 108.0f;
+    projection_perspective.pitch = 12.0f;
+    projection_perspective.zoom = 2.4f;
 
     int num_fadecandies = fadecandies.size();
     int per_fc = height / num_fadecandies;
@@ -184,12 +193,22 @@ namespace Pixlib {
     Sculpture sculpture = storage.get<Sculpture>(1);
     sculpture.leds = storage.get_all<LedGeometry>();
 
+    sculpture.camera_perspective = storage.get<Perspective>(sculpture.camera_perspective_id);
+    sculpture.projection_perspective = storage.get<Perspective>(sculpture.projection_perspective_id);
+
     return sculpture;
   }
 
   void Storage::save() {
     storage.remove_all<Pixlib::Sculpture>();
     storage.remove_all<Pixlib::LedGeometry>();
+    storage.remove_all<Pixlib::Perspective>();
+
+    sculpture.camera_perspective.id = storage.insert<Pixlib::Perspective>(sculpture.camera_perspective);
+    sculpture.projection_perspective.id = storage.insert<Pixlib::Perspective>(sculpture.projection_perspective);
+
+    sculpture.camera_perspective_id = sculpture.camera_perspective.id;
+    sculpture.projection_perspective_id = sculpture.projection_perspective.id;
 
     storage.insert<Pixlib::Sculpture>(sculpture);
 

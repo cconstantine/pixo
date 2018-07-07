@@ -22,6 +22,15 @@ namespace Pixlib {
 
   typedef std::vector<LedGeometry> LedGeometries;
 
+  class Perspective {
+  public:
+    Perspective();
+
+    int id;
+    Point scope;
+    double yaw, pitch, zoom;
+  };
+
   class Sculpture {
   public:
 
@@ -29,9 +38,14 @@ namespace Pixlib {
     Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size);
 
     int id;
-    Point scope;
+    int camera_perspective_id;
+    int projection_perspective_id;
+
     LedGeometries leds;
     int canvas_width, canvas_height;
+
+    Perspective camera_perspective;
+    Perspective projection_perspective;
   };
 
   class PatternCode {
@@ -45,11 +59,24 @@ namespace Pixlib {
     bool enabled;
   };
 
-
   using namespace sqlite_orm;
   inline auto init_storage(const std::string &path) {
     using namespace sqlite_orm;
     return make_storage(path.c_str(),
+                          make_table("perspectives",
+                                     make_column("id",
+                                                 &Perspective::id,
+                                                 autoincrement(),
+                                                 primary_key()),
+                                     make_column("scope",
+                                                 &Perspective::scope),
+                                     make_column("yaw",
+                                                 &Perspective::yaw),
+                                     make_column("pitch",
+                                                 &Perspective::pitch),
+                                     make_column("zoom",
+                                                 &Perspective::zoom)
+                                     ),
                           make_table("led_geometries",
                                      make_column("id",
                                                  &LedGeometry::id,
@@ -64,8 +91,10 @@ namespace Pixlib {
                                      make_column("id",
                                                  &Sculpture::id,
                                                  primary_key()),
-                                     make_column("scope",
-                                                 &Sculpture::scope),
+                                     make_column("camera_perspective_id",
+                                                 &Sculpture::camera_perspective_id),
+                                     make_column("projection_perspective_id",
+                                                 &Sculpture::projection_perspective_id),
                                      make_column("canvas_width",
                                                  &Sculpture::canvas_width),
                                      make_column("canvas_height",

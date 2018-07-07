@@ -20,6 +20,20 @@ namespace Pixlib {
   }
 
 
+
+  IsoCamera::IsoCamera(const Perspective& perspective) :
+        WorldUp(glm::vec3(0.0f, 1.0f, 0.0f)),
+        MouseSensitivity(SENSITIVTY),
+        width(1),
+        height(1),
+        Yaw(perspective.yaw),
+        Pitch(perspective.pitch),
+        Zoom(perspective.zoom),
+        scope(perspective.scope)
+  {
+    this->update_camera_vectors();
+  }
+
   // Returns the view matrix calculated using Eular Angles and the LookAt Matrix
   glm::mat4 IsoCamera::get_view_matrix() const
   {
