@@ -231,7 +231,7 @@ namespace Pixlib {
 
 
   std::vector<PatternCode> Storage::patterns() {
-    return storage.get_all<Pixlib::PatternCode>();
+    return storage.get_all<Pixlib::PatternCode>(where(c(&PatternCode::enabled) == true));
   }
 
   void Storage::upsert_patterns(const std::vector<std::string>& filenames) {
