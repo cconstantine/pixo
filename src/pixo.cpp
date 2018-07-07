@@ -322,6 +322,7 @@ int main( int argc, char** argv )
   sigemptyset(&sigIntHandler.sa_mask);
   sigIntHandler.sa_flags = 0;
   sigaction(SIGINT, &sigIntHandler, NULL);
+  sigaction(SIGTERM, &sigIntHandler, NULL);
 
   glfwGetFramebufferSize(window, &width, &height);
   application.set_screen_size(width, height);
