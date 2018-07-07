@@ -6,19 +6,20 @@
 
 namespace Pixlib {
 
+  ScreenRender::ScreenRender() : lastRender(std::chrono::high_resolution_clock::now())
+  { }
+
   void ScreenRender::render(const IsoCamera& perspective) {
 
-    std::chrono::time_point<std::chrono::steady_clock> now = std::chrono::steady_clock::now();
+    std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float> delta = now - lastRender;
-    lastRender = now;
 
     float target = 1.0f/60;
     float remainder = target - delta.count();
-
-    if (remainder > 0)
-    {
-      std::this_thread::sleep_for(std::chrono::duration<float>(remainder));
+    if (remainder > 0) {
+      std::this_thread::sleep_for(std::chrono::duration<float>(remainder ));
     }
+    lastRender = std::chrono::high_resolution_clock::now();
 
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);

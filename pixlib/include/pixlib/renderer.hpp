@@ -12,10 +12,12 @@
 namespace Pixlib {
   class ScreenRender {
   public:
+    ScreenRender();
+
     void render(const IsoCamera& perspective);
     std::vector<std::shared_ptr<Drawable>> models;
 
   private:
-    std::chrono::time_point<std::chrono::steady_clock> lastRender;
+    std::chrono::time_point<std::chrono::high_resolution_clock> lastRender;
   };
 }
