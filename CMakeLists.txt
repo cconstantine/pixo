@@ -32,6 +32,8 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 include_directories( ext/glm/ )
 
 ###################### librealsense ###########################
+set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL " " FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
 add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
 include_directories(ext/librealsense/include)
