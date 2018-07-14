@@ -1,4 +1,5 @@
 #include <pixlib/app.hpp>
+#include <glm/ext.hpp>
 
 namespace Pixlib {
 
@@ -7,6 +8,7 @@ namespace Pixlib {
    scene(),
    brightness(storage.sculpture.brightness),
    rotation(storage.sculpture.rotation)
+   focal_point(std::make_shared<Cube>(Texture(1,1)))
   {
     viewed_from = storage.sculpture.projection_perspective;
     camera      = storage.sculpture.camera_perspective;
@@ -25,6 +27,9 @@ namespace Pixlib {
     if (patterns.find(storage.sculpture.active_pattern_name) != patterns.end()) {
       this->pattern = this->patterns[storage.sculpture.active_pattern_name];
     }
+
+    focal_point->add_instance(glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f));
+    scene.add_cluster(focal_point);
   }
 
   App::~App() {
@@ -69,7 +74,7 @@ namespace Pixlib {
   }
 
   void App::move_perspective_to_camera() {
-    viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
+    //viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
   }
 
   void App::register_pattern(std::shared_ptr<Pattern> pattern)
@@ -125,8 +130,15 @@ namespace Pixlib {
   }
 
   void App::render_leds() {
-    face_finder.tick();
+    glm::vec3 face;
     
+    if (face_finder.tick(face)) {
+      face += glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z);
+      ALOGV("face: %s\n", glm::to_string(face).c_str());
+
+      focal_point->move_instance(0, face);
+      viewed_from.Position = face;
+    } 
     pattern->render();
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {

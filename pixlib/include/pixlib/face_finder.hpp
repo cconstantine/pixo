@@ -1,5 +1,6 @@
 #include <librealsense2/rs.hpp>
 #include <memory>
+#include <glm/glm.hpp>
 
 namespace Pixlib {
 	class FaceFinder
@@ -7,11 +8,12 @@ namespace Pixlib {
 	public:
 		FaceFinder();
 
-		void tick();
+		bool tick(glm::vec3 &face_location);
 
 	private:
     rs2::context realsense_context;
 		std::shared_ptr<rs2::pipeline> pipe;
+    rs2::pipeline_profile pipeline_profile;
 
     bool started;
 

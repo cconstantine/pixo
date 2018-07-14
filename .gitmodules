@@ -10,3 +10,6 @@
 [submodule "ext/librealsense"]
 	path = ext/librealsense
 	url = https://github.com/IntelRealSense/librealsense.git
+[submodule "ext/opencv"]
+	path = ext/opencv
+	url = https://github.com/opencv/opencv.git

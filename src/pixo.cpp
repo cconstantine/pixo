@@ -216,24 +216,16 @@ int main( int argc, char** argv )
           if (!screen->cursorPosCallbackEvent(x, y)) {
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
             App* app = (App*)glfwGetWindowUserPointer(window);
-
-            if (state != GLFW_PRESS) {
-              firstMouse = true;
-            }
-            if(firstMouse)
-            {
-              lastX = x;
-              lastY = y;
-              firstMouse = false;
-            }
-
+  
             GLfloat xoffset = x - lastX;
             GLfloat yoffset = y - lastY; 
 
             lastX = x;
             lastY = y;
 
-            app->process_mouse_movement(xoffset, yoffset);
+            if (state == GLFW_PRESS) {
+              app->process_mouse_movement(xoffset, yoffset);
+            }
           }
       }
   );

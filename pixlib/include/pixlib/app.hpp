@@ -60,5 +60,6 @@ namespace Pixlib {
 
     Storage storage;
     FaceFinder face_finder;
+    std::shared_ptr<Cube> focal_point;
   };
 }
