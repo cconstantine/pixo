@@ -3,6 +3,10 @@ cmake_minimum_required(VERSION 3.0)
 project(pixlib)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
+find_package( OpenCV REQUIRED )
+INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS})
+
+
 
 ###################### GLM     ###############################
 include_directories( ../ext/glm/ )
@@ -28,7 +32,7 @@ add_library(pixlib STATIC
  src/face_finder.cpp
  )
 
- target_link_libraries(pixlib sqlite3)
+ target_link_libraries(pixlib ${OpenCV_LIBS} sqlite3)
 
 
 set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../ext/sqlite_orm/include PARENT_SCOPE)

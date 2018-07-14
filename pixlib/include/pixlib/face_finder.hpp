@@ -2,6 +2,9 @@
 #include <memory>
 #include <glm/glm.hpp>
 
+#include "opencv2/objdetect/objdetect.hpp"
+#include "opencv2/imgproc/imgproc.hpp"
+
 namespace Pixlib {
 	class FaceFinder
 	{
@@ -18,5 +21,8 @@ namespace Pixlib {
     bool started;
 
     void update_pipe();
+
+
+    cv::CascadeClassifier face_cascade;
   };
 }
