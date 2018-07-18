@@ -246,6 +246,11 @@ int main( int argc, char** argv )
             if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
               glfwSetWindowShouldClose(window, GL_TRUE);
 
+            if (action == GLFW_PRESS && key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
+              App* app = (App*)glfwGetWindowUserPointer(window);
+
+              app->brightness = (key - GLFW_KEY_0 ) / 9.0f;
+            }
             // Camera controls
             if(key == GLFW_KEY_W) {
               keys[FORWARD] = (action == GLFW_PRESS);  
@@ -350,6 +355,9 @@ int main( int argc, char** argv )
     screen->performLayout();
     screen->drawContents();
     screen->drawWidgets();
+
+    slider->setValue(application.brightness);
+
 
     if(keys[NEXT_PATTERN]) {
       keys[NEXT_PATTERN] = false;
