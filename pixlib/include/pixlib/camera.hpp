@@ -13,19 +13,6 @@
 
 namespace Pixlib {
   // Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
-  enum Camera_Movement {
-    FORWARD,
-    BACKWARD,
-    LEFT,
-    RIGHT,
-    TOWARDS_VIEW,
-    MATCH_VIEW,
-    NEXT_PATTERN,
-    ORB_UP,
-    ORB_DOWN,
-    ORB_LEFT,
-    ORB_RIGHT
-  };
 
   // Default camera values
   const GLfloat YAW        = 108.0f;

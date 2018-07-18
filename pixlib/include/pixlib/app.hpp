@@ -32,6 +32,9 @@ namespace Pixlib {
     void set_screen_size(int width, int height);
 
     void set_random_pattern();
+    void next_pattern();
+    void prev_pattern();
+
     const Pattern& get_pattern();
     const Texture& get_pattern_texture();
 

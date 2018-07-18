@@ -240,50 +240,30 @@ int main( int argc, char** argv )
   glfwSetKeyCallback(window,
       [](GLFWwindow *window, int key, int scancode, int action, int mods) {
           if (!screen->keyCallbackEvent(key, scancode, action, mods)) {
-            if (action == GLFW_REPEAT) {
+            if(action == GLFW_RELEASE) {
               return;
             }
-            if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+
+            App* app = (App*)glfwGetWindowUserPointer(window);
+
+            if(key == GLFW_KEY_ESCAPE) {
               glfwSetWindowShouldClose(window, GL_TRUE);
+            }
 
-            if (action == GLFW_PRESS && key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
-              App* app = (App*)glfwGetWindowUserPointer(window);
-
+            if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
               app->brightness = (key - GLFW_KEY_0 ) / 9.0f;
             }
-            // Camera controls
-            if(key == GLFW_KEY_W) {
-              keys[FORWARD] = (action == GLFW_PRESS);  
+
+            if( key == GLFW_KEY_ENTER) {
+              app->set_random_pattern();
             }
-            if(key == GLFW_KEY_S) {
-              keys[BACKWARD] = (action == GLFW_PRESS);  
+
+            if( key ==  GLFW_KEY_PERIOD) {
+              app->next_pattern();
             }
-            if(key == GLFW_KEY_A) {
-              keys[LEFT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_D) {
-              keys[RIGHT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_LEFT_SHIFT) {
-              keys[MATCH_VIEW] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_LEFT_CONTROL) {
-              keys[TOWARDS_VIEW] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_ENTER) {
-              keys[NEXT_PATTERN] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_RIGHT ) {
-              keys[ORB_RIGHT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_LEFT) {
-              keys[ORB_LEFT] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_UP ) {
-              keys[ORB_UP] = (action == GLFW_PRESS); 
-            }
-            if(key == GLFW_KEY_DOWN) {
-              keys[ORB_DOWN] = (action == GLFW_PRESS); 
+
+            if( key ==  GLFW_KEY_COMMA) {
+              app->prev_pattern();
             }
           }
       }
@@ -358,12 +338,7 @@ int main( int argc, char** argv )
 
     slider->setValue(application.brightness);
 
-
-    if(keys[NEXT_PATTERN]) {
-      keys[NEXT_PATTERN] = false;
-
-      application.set_random_pattern();
-    } else if (application.get_pattern().get_time_elapsed() > 10*60 ) {
+    if (application.get_pattern().get_time_elapsed() > 10*60 ) {
       application.set_random_pattern();
     }
 

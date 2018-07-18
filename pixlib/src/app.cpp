@@ -84,6 +84,30 @@ namespace Pixlib {
     pattern->reset_start();
   }
 
+  void App::next_pattern() {
+    auto it = patterns.find(get_pattern().name);
+    it++;
+
+    if (it == patterns.end()) {
+      it = patterns.begin();
+    }
+
+    pattern = it->second;
+    pattern->reset_start();
+  }
+
+  void App::prev_pattern() {
+    auto it = patterns.find(get_pattern().name);
+    if (it == patterns.begin()) {
+      it = patterns.end();
+    }
+    it--;
+
+    pattern = it->second;
+    pattern->reset_start();
+
+  }
+
   const Pattern& App::get_pattern()
   {
     return *pattern.get();
