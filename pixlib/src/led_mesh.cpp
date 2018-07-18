@@ -30,7 +30,7 @@ namespace Pixlib {
       gl_Position = framebuf_proj;
 
       vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
-      TexCoords =  vec2(texPos.x, -texPos.y) / texPos.z * 0.5 + 0.5 ;
+      TexCoords =  vec2(texPos.x, texPos.y) / texPos.z * 0.5 + 0.5 ;
   })",
   R"(in vec2 TexCoords;
 
