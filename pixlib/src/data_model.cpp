@@ -111,7 +111,7 @@ namespace Pixlib {
 
   Sculpture::Sculpture() {}
   Sculpture::Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size) :
-      canvas_width(per_size*per_size), canvas_height(per_size*per_size), id(id), brightness(1.0)
+      canvas_width(per_size*per_size), canvas_height(per_size*per_size), id(id), brightness(1.0), rotation(0.0)
   {
     for(std::string host : fadecandies) {
       leds.push_back(LedGeometry(host));

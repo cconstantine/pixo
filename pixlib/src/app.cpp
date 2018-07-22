@@ -6,7 +6,7 @@ namespace Pixlib {
    storage(storage),
    scene(),
    brightness(storage.sculpture.brightness),
-   rotation(0.0f)
+   rotation(storage.sculpture.rotation)
   {
     viewed_from = storage.sculpture.projection_perspective;
     camera      = storage.sculpture.camera_perspective;
@@ -40,6 +40,7 @@ namespace Pixlib {
 
     storage.sculpture.active_pattern_name = get_pattern().name;
     storage.sculpture.brightness = brightness;
+    storage.sculpture.rotation = rotation;
     storage.save_app_state();
   }
 

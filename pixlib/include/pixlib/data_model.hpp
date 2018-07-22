@@ -49,6 +49,7 @@ namespace Pixlib {
 
     std::string active_pattern_name;
     double brightness;
+    double rotation;
   };
 
   class PatternCode {
@@ -102,6 +103,8 @@ namespace Pixlib {
                                                  &Sculpture::active_pattern_name ),
                                      make_column("brightness",
                                                  &Sculpture::brightness ),
+                                     make_column("rotation",
+                                                 &Sculpture::rotation ),
                                      make_column("canvas_width",
                                                  &Sculpture::canvas_width),
                                      make_column("canvas_height",
