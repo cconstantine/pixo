@@ -55,7 +55,7 @@ namespace Pixlib {
     // Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
     void process_mouse_scroll(GLfloat yoffset);
 
-    void move_towards(const IsoCamera& camera, float timeScale);
+    void move_towards(IsoCamera& camera, float timeScale);
 
     float get_zoom() const;
 

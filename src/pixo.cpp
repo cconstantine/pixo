@@ -188,14 +188,26 @@ int main( int argc, char** argv )
   screen->performLayout();
   imageWidget->fit();
 
-  nanogui::Slider *slider = new nanogui::Slider(nanoguiWindow);
-  slider->setValue(application.brightness);
-  slider->setCallback([](float value) {
+  nanogui::Slider *brightness_slider = new nanogui::Slider(nanoguiWindow);
+  brightness_slider->setValue(application.brightness);
+  // brightness_slider->setRange(std::pair<float, float>(0.0f, 1.0f));
+  brightness_slider->setCallback([](float value) {
       App* app = (App*)glfwGetWindowUserPointer(window);
       app->brightness = value;
   });
 
-  gui->addWidget("", slider);
+  gui->addWidget("Brightness", brightness_slider);
+
+
+  // nanogui::Slider *rotation_slider = new nanogui::Slider(nanoguiWindow);
+  // rotation_slider->setValue(application.rotation);
+  // rotation_slider->setRange(std::pair<float, float>(-10.0f, 10.0f));
+  // rotation_slider->setCallback([](float value) {
+  //     App* app = (App*)glfwGetWindowUserPointer(window);
+  //     app->rotation = value;
+  // });
+
+  // gui->addWidget("Rotation", rotation_slider);
 
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
@@ -336,7 +348,8 @@ int main( int argc, char** argv )
     screen->drawContents();
     screen->drawWidgets();
 
-    slider->setValue(application.brightness);
+    rotation_slider->setValue(application.rotation);
+    brightness_slider->setValue(application.brightness);
 
     if (application.get_pattern().get_time_elapsed() > 10*60 ) {
       application.set_random_pattern();

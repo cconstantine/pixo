@@ -75,11 +75,20 @@ namespace Pixlib {
     this->update_camera_vectors();
   }
 
-  void IsoCamera::move_towards(const IsoCamera& camera, float timeScale)
+  void IsoCamera::move_towards(IsoCamera& camera, float timeScale)
   {
     Yaw = Yaw + (camera.Yaw - Yaw) * timeScale;
     Pitch = Pitch + (camera.Pitch - Pitch) * timeScale;
     Zoom = Zoom + (camera.Zoom - Zoom) * timeScale;
+
+    while(Yaw > 360.0f && camera.Yaw > 360.0f) {
+      Yaw -= 360;
+      camera.Yaw -= 360;
+    }
+    while(Yaw < 0.0f && camera.Yaw < 0.0f) {
+      Yaw += 360.0f;
+      camera.Yaw += 360.0f;
+    }
 
     update_camera_vectors();
   }

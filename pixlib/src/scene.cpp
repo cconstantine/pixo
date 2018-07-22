@@ -3,7 +3,7 @@
 namespace Pixlib {
   Scene::Scene() :
     lastTime(std::chrono::steady_clock::now()),
-    fps(0),frames(0), render_timer(120)
+    fps(0),frames(0), render_timer(120), deltaTime(0.0f)
   { }
 
   void Scene::add_cluster(std::shared_ptr<Drawable> leds)

@@ -42,6 +42,7 @@ namespace Pixlib {
     void render_scene();
 
     float brightness;
+    float rotation;
 
   private:
     void register_pattern(std::shared_ptr<Pattern> pattern);
@@ -57,6 +58,5 @@ namespace Pixlib {
     IsoCamera camera;
 
     Storage storage;
-
   };
 }

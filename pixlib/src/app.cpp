@@ -5,7 +5,8 @@ namespace Pixlib {
   App::App(const Storage& storage) :
    storage(storage),
    scene(),
-   brightness(storage.sculpture.brightness)
+   brightness(storage.sculpture.brightness),
+   rotation(0.0f)
   {
     viewed_from = storage.sculpture.projection_perspective;
     camera      = storage.sculpture.camera_perspective;
@@ -128,6 +129,8 @@ namespace Pixlib {
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
       led_cluster->render(get_pattern(), viewed_from, brightness);
     }
+
+    camera.rotate(scene.get_time_delta()*rotation);
   }
 
   void App::render_scene() {
