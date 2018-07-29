@@ -7,8 +7,8 @@ namespace Pixlib {
    storage(storage),
    scene(),
    brightness(storage.sculpture.brightness),
-   rotation(storage.sculpture.rotation)
-   focal_point(std::make_shared<Cube>(Texture(1,1)))
+   rotation(storage.sculpture.rotation),
+   focal_point(std::make_shared<Cube>())
   {
     viewed_from = storage.sculpture.projection_perspective;
     camera      = storage.sculpture.camera_perspective;
@@ -79,6 +79,7 @@ namespace Pixlib {
 
   void App::register_pattern(std::shared_ptr<Pattern> pattern)
   {
+    ALOGV("Registering: %s\n", pattern->name.c_str());
     this->pattern = pattern;
     patterns[pattern->name] = pattern;
   }
@@ -130,11 +131,10 @@ namespace Pixlib {
   }
 
   void App::render_leds() {
-    glm::vec3 face;
     
-    if (face_finder.tick(face)) {
-      face += glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z);
-      ALOGV("face: %s\n", glm::to_string(face).c_str());
+    if (face_finder.face_found) {
+      glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + face_finder.face;
+      //ALOGV("face: %s\n", glm::to_string(face_finder.face).c_str());
 
       focal_point->move_instance(0, face);
       viewed_from.Position = face;

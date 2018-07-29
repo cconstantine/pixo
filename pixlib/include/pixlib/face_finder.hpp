@@ -1,6 +1,7 @@
 #include <librealsense2/rs.hpp>
 #include <memory>
 #include <glm/glm.hpp>
+#include <thread>
 
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -10,8 +11,12 @@ namespace Pixlib {
 	{
 	public:
 		FaceFinder();
+		~FaceFinder();
 
 		bool tick(glm::vec3 &face_location);
+
+		glm::vec3 face;
+		bool face_found;
 
 	private:
     rs2::context realsense_context;
@@ -24,5 +29,11 @@ namespace Pixlib {
 
 
     cv::CascadeClassifier face_cascade;
+
+    bool running;
+    std::shared_ptr<std::thread> reader_thread;
+    void thread_method();
+
+    glm::vec2 previous_face;
   };
 }
