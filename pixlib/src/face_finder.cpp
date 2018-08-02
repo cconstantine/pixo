@@ -65,7 +65,7 @@ namespace Pixlib {
   }
 
   void FaceFinder::thread_method() {
-    if( !face_cascade.load("/home/cconstantine/cconstantine/workplace/opencv/data/haarcascades/haarcascade_frontalface_default.xml" ) )
+    if( !face_cascade.load("/usr/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml" ) )
     {
       fprintf(stderr, "Failed to load cascade\n");
     };
