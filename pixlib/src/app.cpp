@@ -135,6 +135,6 @@ namespace Pixlib {
   }
 
   void App::render_scene() {
-    scene.render(camera);
+    scene.render(camera, brightness);
   }
 }

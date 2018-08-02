@@ -16,7 +16,7 @@ namespace Pixlib {
 
     void add_cluster(std::shared_ptr<Drawable> leds);
 
-    void render(const IsoCamera& perspective);
+    void render(const IsoCamera& perspective, float brightness);
 
     float get_fps();
 

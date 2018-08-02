@@ -11,7 +11,7 @@ namespace Pixlib {
     screen.models.push_back(leds);
   }
 
-  void Scene::render(const IsoCamera& perspective)
+  void Scene::render(const IsoCamera& perspective, float brightness)
   {
     std::chrono::time_point<std::chrono::steady_clock> currentTime = std::chrono::steady_clock::now();
     ++frames;
@@ -30,7 +30,7 @@ namespace Pixlib {
     lastTime = currentTime;
 
     render_timer.start();
-    screen.render(perspective);
+    screen.render(perspective, brightness);
     render_timer.end();
 
   }
