@@ -93,7 +93,25 @@ namespace Pixlib {
     update_camera_vectors();
   }
 
+  void IsoCamera::move_towards(const glm::vec3 target, float timeScale)
+  {
+    float target_zoom = (glm::length(target));
+    float target_pitch = glm::degrees(acos(target.z / target_zoom));
+    float target_yaw = glm::degrees(atan(target.y / target.x));
 
+    Yaw = Yaw + (target_yaw - Yaw) * timeScale;
+    Pitch = Pitch + (target_pitch - Pitch) * timeScale;
+    Zoom = Zoom + (target_zoom - Zoom) * timeScale;
+
+    while(Yaw > 360.0f) {
+      Yaw -= 360;
+    }
+    while(Yaw < 0.0f) {
+      Yaw += 360.0f;
+    }
+
+    update_camera_vectors();
+  }
 
   // http://elvers.us/perception/visualAngle/
   float IsoCamera::get_zoom() const

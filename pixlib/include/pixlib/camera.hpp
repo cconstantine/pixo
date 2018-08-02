@@ -56,6 +56,7 @@ namespace Pixlib {
     void process_mouse_scroll(GLfloat yoffset);
 
     void move_towards(IsoCamera& camera, float timeScale);
+    void move_towards(const glm::vec3, float timeScale);
 
     float get_zoom() const;
 

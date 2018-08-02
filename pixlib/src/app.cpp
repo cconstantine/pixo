@@ -28,8 +28,8 @@ namespace Pixlib {
       this->pattern = this->patterns[storage.sculpture.active_pattern_name];
     }
 
-    focal_point->add_instance(glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f));
-    scene.add_cluster(focal_point);
+    // focal_point->add_instance(glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f));
+    // scene.add_cluster(focal_point);
   }
 
   App::~App() {
@@ -74,7 +74,7 @@ namespace Pixlib {
   }
 
   void App::move_perspective_to_camera() {
-    //viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
+    viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
   }
 
   void App::register_pattern(std::shared_ptr<Pattern> pattern)
@@ -136,8 +136,8 @@ namespace Pixlib {
       glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + face_finder.face;
       //ALOGV("face: %s\n", glm::to_string(face_finder.face).c_str());
 
-      focal_point->move_instance(0, face);
-      viewed_from.Position = face;
+      //focal_point->move_instance(0, face);
+      camera.move_towards(face, 1.0f);
     } 
     pattern->render();
 

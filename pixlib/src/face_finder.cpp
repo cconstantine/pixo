@@ -109,7 +109,7 @@ namespace Pixlib {
       // face_cascade.detectMultiScale( image_matrix, faces);//, 1.1, 3, 0, cv::Size(), cv::Size(), true );
       face_cascade.detectMultiScale( image_matrix,   faces, 1.1, 6, 0|CV_HAAR_SCALE_IMAGE, cv::Size(30, 30) );
 
-      fprintf(stderr, "faces        : %d\n", faces.size());
+      //fprintf(stderr, "faces        : %d\n", faces.size());
       // fprintf(stderr, "numDetections: %d\n", numDetections.size());
       // fprintf(stderr, "levelWeights : %d\n", levelWeights.size());
       if (faces.size() == 0) {
