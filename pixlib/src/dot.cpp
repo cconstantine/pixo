@@ -75,7 +75,7 @@ namespace Pixlib {
   }
 
   // Draws the model, and thus all its meshes
-  void Dot::draw(const IsoCamera& perspective)
+  void Dot::draw(const IsoCamera& perspective, float brightness)
   {
     shader.use();
     // Bind appropriate textures

@@ -31,7 +31,7 @@ namespace Pixlib {
     Dot(const Texture& defaultTexture);
 
     // Draws the model, and thus all its meshes
-    virtual void draw(const IsoCamera& perspective);
+    virtual void draw(const IsoCamera& perspective, float brightness);
     virtual int  add_instance(glm::vec3 posDelta, glm::vec2 texDelta, glm::vec3 projDelta);
 
     Texture get_default_texture();

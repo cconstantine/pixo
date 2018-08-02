@@ -72,10 +72,13 @@ namespace Pixlib {
   out vec4 color;
 
   uniform sampler2D texture0;
-
+  uniform float brightness;
   void main()
   {
-    color = texture(texture0, TexCoords);
+    color = vec4(0.0f);
+    if (brightness != 0.0f) {
+      color = texture(texture0, TexCoords) * (1 / brightness);
+    }
   })")
   {
     this->load_model();
@@ -100,9 +103,11 @@ namespace Pixlib {
   }
 
   // Draws the model, and thus all its meshes
-  void Cube::draw(const IsoCamera& perspective)
+  void Cube::draw(const IsoCamera& perspective, float brightness)
   {
     shader.use();
+
+    glUniform1f(glGetUniformLocation(shader.Program, "brightness"), brightness);
 
     // Transformation matrices
     glm::mat4 projection = perspective.get_projection_matrix();

@@ -14,7 +14,7 @@ namespace Pixlib {
   public:
     ScreenRender();
 
-    void render(const IsoCamera& perspective);
+    void render(const IsoCamera& perspective, float brightness);
     std::vector<std::shared_ptr<Drawable>> models;
 
   private:

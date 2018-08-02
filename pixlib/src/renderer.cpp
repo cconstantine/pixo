@@ -9,7 +9,7 @@ namespace Pixlib {
   ScreenRender::ScreenRender() : lastRender(std::chrono::high_resolution_clock::now())
   { }
 
-  void ScreenRender::render(const IsoCamera& perspective) {
+  void ScreenRender::render(const IsoCamera& perspective, float brightness) {
 
     std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
     std::chrono::duration<float> delta = now - lastRender;
@@ -32,7 +32,7 @@ namespace Pixlib {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for(std::shared_ptr<Drawable> m : models) {
-      m->draw(perspective);
+      m->draw(perspective, brightness);
     }
   }
 }
