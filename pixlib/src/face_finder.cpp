@@ -75,9 +75,15 @@ namespace Pixlib {
       update_pipe();
     });
 
-    update_pipe();
     while (running) {
-      face_found = tick(face);
+      try {
+        update_pipe();
+        while (running) {
+          face_found = tick(face);
+        }
+      } catch(const std::exception& e) {
+        fprintf(stderr, "FaceFinder Exception: %s\n", e.what());
+      }
     }
   }
 
