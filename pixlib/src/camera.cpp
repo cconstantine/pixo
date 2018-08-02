@@ -110,6 +110,7 @@ namespace Pixlib {
       Yaw += 360.0f;
     }
 
+    fprintf(stderr, "%3.2f, %3.2f, %f\n", target_pitch, target_yaw, target_zoom);
     update_camera_vectors();
   }
 
