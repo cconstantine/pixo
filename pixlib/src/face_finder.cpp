@@ -46,6 +46,10 @@ float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
       }
     }
   }
+  if (count == 0) {
+    return 0.0f;
+  }
+
   return sum / count;
 }
 
@@ -135,7 +139,7 @@ namespace Pixlib {
 
       float distance = rect_distance(depths, nearest_face);
       fprintf(stderr, "(%2.1f, %2.1f) distance: %f\n", pixel[0], pixel[1], distance);
-      if (distance == 0 || distance == nanf("")) {
+      if (distance == 0.0f) {
         return false;
       }
       previous_face = nearest_face_point;
