@@ -135,7 +135,7 @@ namespace Pixlib {
 
       float distance = rect_distance(depths, nearest_face);
       fprintf(stderr, "(%2.1f, %2.1f) distance: %f\n", pixel[0], pixel[1], distance);
-      if (distance == 0) {
+      if (distance == 0 || nanf("")) {
         return false;
       }
       previous_face = nearest_face_point;
