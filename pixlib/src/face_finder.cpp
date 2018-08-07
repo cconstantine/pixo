@@ -58,7 +58,7 @@ float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
 namespace Pixlib {
   FaceFinder::FaceFinder() :
    pipe(std::make_shared<rs2::pipeline>(realsense_context)),
-   started(false), running(true), face_found(false)
+   started(false), running(true), faces_found(0)
   {
     reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
   }
@@ -83,7 +83,7 @@ namespace Pixlib {
       try {
         update_pipe();
         while (running) {
-          face_found = tick(face);
+          faces_found = tick(face);
         }
       } catch(const std::exception& e) {
         fprintf(stderr, "FaceFinder Exception: %s\n", e.what());
@@ -92,7 +92,7 @@ namespace Pixlib {
     }
   }
 
-  bool FaceFinder::tick(glm::vec3 &face_location) {
+  int FaceFinder::tick(glm::vec3 &face_location) {
     rs2::frameset frames;
     // rs2::align align(rs2_stream::RS2_STREAM_COLOR);
 
@@ -118,7 +118,7 @@ namespace Pixlib {
       // fprintf(stderr, "numDetections: %d\n", numDetections.size());
       // fprintf(stderr, "levelWeights : %d\n", levelWeights.size());
       if (faces.size() == 0) {
-        return false;
+        return 0;
       }
 
       float min_distance = std::numeric_limits<float>::infinity();
@@ -138,9 +138,9 @@ namespace Pixlib {
       float pixel[2] = {nearest_face.x, nearest_face.y};
 
       float distance = rect_distance(depths, nearest_face);
-      fprintf(stderr, "(%2.1f, %2.1f) distance: %f\n", pixel[0], pixel[1], distance);
+      // fprintf(stderr, "(%2.1f, %2.1f) distance: %f\n", pixel[0], pixel[1], distance);
       if (distance == 0.0f) {
-        return false;
+        return 0;
       }
       previous_face = nearest_face_point;
       rs2_intrinsics intrin = images.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
@@ -148,9 +148,9 @@ namespace Pixlib {
       rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
       face_location.y = -face_location.y;
       //fprintf(stderr, "(%2.2f, %2.2f, %2.2f)\n", face_location.x, face_location.y, face_location.z);
-      return true;
+      return faces.size();
     }
-    return false;
+    return 0;
   }
 
   void FaceFinder::update_pipe() {
@@ -166,6 +166,11 @@ namespace Pixlib {
 
       // config.enable_stream(RS2_STREAM_INFRARED, 2);
       // config.enable_stream(RS2_STREAM_DEPTH, 1);
+      try {
+        pipe->stop();
+      } catch(const std::exception& e) {
+        
+      }
 
       pipeline_profile = pipe->start(config);
 
@@ -180,8 +185,8 @@ namespace Pixlib {
 
       started = true;
     } else if (started && device_count == 0) {
-      pipe->stop();
       started = false;
+      pipe->stop();
     }
 
   }

@@ -13,10 +13,10 @@ namespace Pixlib {
 		FaceFinder();
 		~FaceFinder();
 
-		bool tick(glm::vec3 &face_location);
+		int tick(glm::vec3 &face_location);
 
 		glm::vec3 face;
-		bool face_found;
+		int faces_found;
 
 	private:
     rs2::context realsense_context;

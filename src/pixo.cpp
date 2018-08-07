@@ -211,6 +211,28 @@ int main( int argc, char** argv )
     },
     true);
 
+
+  gui->addVariable<string>("Faces Found",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      App* app = (App*)glfwGetWindowUserPointer(window);
+      sprintf(ret, "%2d", app->face_finder.faces_found);
+      return ret;
+    },
+    false)->setValue("00");
+
+  gui->addVariable<string>("Face at",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      App* app = (App*)glfwGetWindowUserPointer(window);
+      sprintf(ret, "%2.2f, %2.2f, %2.2f", app->face_finder.face.x, app->face_finder.face.y, app->face_finder.face.z);
+      return ret;
+    },
+    false)->setValue("");
+
+
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {

@@ -44,6 +44,7 @@ namespace Pixlib {
 
     float brightness;
     float rotation;
+    FaceFinder face_finder;
 
   private:
     void register_pattern(std::shared_ptr<Pattern> pattern);
@@ -59,7 +60,6 @@ namespace Pixlib {
     IsoCamera camera;
 
     Storage storage;
-    FaceFinder face_finder;
     std::shared_ptr<Cube> focal_point;
   };
 }

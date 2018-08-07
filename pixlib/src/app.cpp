@@ -132,7 +132,7 @@ namespace Pixlib {
 
   void App::render_leds() {
     
-    if (face_finder.face_found) {
+    if (face_finder.faces_found > 0) {
       glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + face_finder.face;
       //ALOGV("face: %s\n", glm::to_string(face_finder.face).c_str());
 
