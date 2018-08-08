@@ -147,7 +147,10 @@ namespace Pixlib {
 
       rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
       face_location.y = -face_location.y;
-      //fprintf(stderr, "(%2.2f, %2.2f, %2.2f)\n", face_location.x, face_location.y, face_location.z);
+      
+      fprintf(stderr, "FaceFinder: Face -> (%2.2f, %2.2f, %2.2f)\n",
+        face_location.x, face_location.y, face_location.z);
+
       return faces.size();
     }
     return 0;
@@ -156,6 +159,7 @@ namespace Pixlib {
   void FaceFinder::update_pipe() {
     size_t device_count = realsense_context.query_devices().size();
     if(!started && device_count > 0) {
+      fprintf(stderr, "FaceFinder: starting with %d devices\n", device_count);
       int width = 1280;
       int height = 720;
       int fps = 30;
@@ -169,7 +173,7 @@ namespace Pixlib {
       try {
         pipe->stop();
       } catch(const std::exception& e) {
-        
+
       }
 
       pipeline_profile = pipe->start(config);
@@ -185,6 +189,7 @@ namespace Pixlib {
 
       started = true;
     } else if (started && device_count == 0) {
+      fprintf(stderr, "FaceFinder: Stopping\n");
       started = false;
       pipe->stop();
     }
