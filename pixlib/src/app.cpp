@@ -84,6 +84,7 @@ namespace Pixlib {
     std::advance(it, rand() % patterns.size());
     pattern = it->second;
     pattern->reset_start();
+    ALOGV("Switching to pattern: %s\n", it->first.c_str());
   }
 
   void App::next_pattern() {
@@ -96,6 +97,7 @@ namespace Pixlib {
 
     pattern = it->second;
     pattern->reset_start();
+    ALOGV("Switching to pattern: %s\n", it->first.c_str());
   }
 
   void App::prev_pattern() {
