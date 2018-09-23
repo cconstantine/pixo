@@ -43,6 +43,7 @@ namespace Pixlib {
 
   void FadeCandy::thread_method()
   {
+    bool was_connected = true;
     while(running) {
       {
         std::unique_lock<std::mutex> lck(pending_mutex);
@@ -52,9 +53,10 @@ namespace Pixlib {
       // fprintf(stderr, "%s: thread (%d)!\n", hostname.c_str(), opc_client.isConnected());
       if(running || opc_client.isConnected()) {
 
-        if (!opc_client.isConnected()) {
+        if (was_connected && !opc_client.isConnected()) {
             fprintf(stderr, "Connecting to: %s\n", hostname.c_str());
         }
+        was_connected = opc_client.isConnected();
         opc_client.write(hostname.c_str(), framebuffer);
       }
     }
