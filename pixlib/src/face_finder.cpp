@@ -58,7 +58,7 @@ float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
 namespace Pixlib {
   FaceFinder::FaceFinder() :
    pipe(std::make_shared<rs2::pipeline>(realsense_context)),
-   started(false), running(true), faces_found(0)
+   started(false), running(true), faces_found(0), timer(120)
   {
     reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
   }
@@ -111,13 +111,16 @@ namespace Pixlib {
       std::vector<int> numDetections;
       std::vector<double> levelWeights;
 
+      timer.start();
       // face_cascade.detectMultiScale( image_matrix, faces);//, 1.1, 3, 0, cv::Size(), cv::Size(), true );
-      face_cascade.detectMultiScale( image_matrix,   faces, 1.1, 6, 0|CV_HAAR_SCALE_IMAGE, cv::Size(30, 30) );
+      face_cascade.detectMultiScale( image_matrix,   faces, 1.2, 6, 0, cv::Size(60, 60) );
+      timer.end();
 
       // fprintf(stderr, "faces        : %d\n", faces.size());
       // fprintf(stderr, "numDetections: %d\n", numDetections.size());
       // fprintf(stderr, "levelWeights : %d\n", levelWeights.size());
       if (faces.size() == 0) {
+
         return 0;
       }
 

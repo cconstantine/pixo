@@ -233,6 +233,16 @@ int main( int argc, char** argv )
     false)->setValue("");
 
 
+  gui->addVariable<string>("Faces speed",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      App* app = (App*)glfwGetWindowUserPointer(window);
+      sprintf(ret, "%4.2fms", app->face_finder.timer.duration()*1000);
+      return ret;
+    },
+    false)->setValue("0000.00ms");
+
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {

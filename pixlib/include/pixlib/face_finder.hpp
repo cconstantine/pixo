@@ -2,6 +2,7 @@
 #include <memory>
 #include <glm/glm.hpp>
 #include <thread>
+#include <pixlib/timer.hpp>
 
 #include "opencv2/objdetect/objdetect.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
@@ -18,6 +19,7 @@ namespace Pixlib {
 		glm::vec3 face;
 		int faces_found;
 
+    Timer timer;
 	private:
     rs2::context realsense_context;
 		std::shared_ptr<rs2::pipeline> pipe;
@@ -35,5 +37,6 @@ namespace Pixlib {
     void thread_method();
 
     glm::vec2 previous_face;
+
   };
 }

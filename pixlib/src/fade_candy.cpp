@@ -53,7 +53,7 @@ namespace Pixlib {
       if(running || opc_client.isConnected()) {
 
         if (!opc_client.isConnected()) {
-            fprintf(stderr, "Connecting to: %s\n", hostname.c_str());
+            //fprintf(stderr, "Connecting to: %s\n", hostname.c_str());
         }
         opc_client.write(hostname.c_str(), framebuffer);
       }
