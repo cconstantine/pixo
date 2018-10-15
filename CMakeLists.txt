@@ -44,6 +44,9 @@ include_directories(src)
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
+###################### PYTHON MODULE ############################
+add_subdirectory(pyxlib)
+
 
 ###################### PIXO     ################################
 add_subdirectory(src)
