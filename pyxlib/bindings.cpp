@@ -7,5 +7,6 @@ PYBIND11_PLUGIN(pyxlib)
     
     m.def("add", &add);
     m.def("subtract", &subtract);
+    m.def("gui", &gui);
     return m.ptr();
 }

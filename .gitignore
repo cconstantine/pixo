@@ -11,4 +11,6 @@ build
 /captures
 .externalNativeBuild
 Pixo/local.properties
-
+*/*.so
+*/*.so.*
+*/pyxlib.egg-info
