@@ -2,46 +2,31 @@
 
 namespace Pixlib {
 
-  App::App(const Storage& storage) :
-   storage(storage),
+  App::App(const Sculpture& sculpture, const std::vector<PatternCode> pattern_codes) :
    scene(),
-   brightness(storage.sculpture.brightness),
-   rotation(storage.sculpture.rotation)
+   brightness(sculpture.brightness),
+   rotation(sculpture.rotation)
   {
-    viewed_from = storage.sculpture.projection_perspective;
-    camera      = storage.sculpture.camera_perspective;
+    viewed_from = sculpture.projection_perspective;
+    camera      = sculpture.camera_perspective;
 
-    for(const LedGeometry& geom : storage.sculpture.leds) {
+    for(const LedGeometry& geom : sculpture.leds) {
       std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom);
 
       scene.add_cluster(lc->get_drawable());
       led_clusters.push_back(lc);
     }
 
-    for(const PatternCode& pattern : this->storage.patterns()) {
+    for(const PatternCode& pattern : pattern_codes) {
       register_pattern(std::make_shared<Pattern>(pattern.name, pattern.shader_code.c_str()));
     }
 
-    if (patterns.find(storage.sculpture.active_pattern_name) != patterns.end()) {
-      this->pattern = this->patterns[storage.sculpture.active_pattern_name];
+    if (patterns.find(sculpture.active_pattern_name) != patterns.end()) {
+      this->pattern = this->patterns[sculpture.active_pattern_name];
     }
   }
 
   App::~App() {
-    storage.sculpture.camera_perspective.yaw = camera.Yaw;
-    storage.sculpture.camera_perspective.pitch = camera.Pitch;
-    storage.sculpture.camera_perspective.zoom = camera.Zoom;
-    storage.sculpture.camera_perspective.scope = camera.scope;
-
-    storage.sculpture.projection_perspective.yaw = viewed_from.Yaw;
-    storage.sculpture.projection_perspective.pitch = viewed_from.Pitch;
-    storage.sculpture.projection_perspective.zoom = viewed_from.Zoom;
-    storage.sculpture.projection_perspective.scope = viewed_from.scope;
-
-    storage.sculpture.active_pattern_name = get_pattern().name;
-    storage.sculpture.brightness = brightness;
-    storage.sculpture.rotation = rotation;
-    storage.save_app_state();
   }
 
   float App::scene_fps() {

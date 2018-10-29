@@ -20,14 +20,17 @@ GLFWwindow* window;
 #include <glm/gtx/string_cast.hpp>
 #include <pixlib.hpp>
 
-
 #include <nanogui/nanogui.h>
+
+#include <storage.hpp>
 
 std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
 using namespace glm;
 using namespace std;
 using namespace Pixlib;
+
+
 nanogui::Screen *screen = nullptr;
 
 Timer global_timer = Timer(120);
@@ -113,8 +116,9 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
+  Storage storage(db_filename);
 
-  App application = App(Storage(db_filename));
+  App application = App(storage.sculpture, storage.patterns());
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize
@@ -368,6 +372,21 @@ int main( int argc, char** argv )
     }
 
   }
+
+  storage.sculpture.camera_perspective.yaw = application.camera.Yaw;
+  storage.sculpture.camera_perspective.pitch = application.camera.Pitch;
+  storage.sculpture.camera_perspective.zoom = application.camera.Zoom;
+  storage.sculpture.camera_perspective.scope = application.camera.scope;
+
+  storage.sculpture.projection_perspective.yaw = application.viewed_from.Yaw;
+  storage.sculpture.projection_perspective.pitch = application.viewed_from.Pitch;
+  storage.sculpture.projection_perspective.zoom = application.viewed_from.Zoom;
+  storage.sculpture.projection_perspective.scope = application.viewed_from.scope;
+
+  storage.sculpture.active_pattern_name = application.get_pattern().name;
+  storage.sculpture.brightness = application.brightness;
+  storage.sculpture.rotation = application.rotation;
+  storage.save_app_state();
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();

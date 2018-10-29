@@ -19,7 +19,7 @@ GLFWwindow* window;
 #include <glm/gtc/type_ptr.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <pixlib.hpp>
-
+#include <storage.hpp>
 
 #include <nanogui/nanogui.h>
 
@@ -96,7 +96,9 @@ int gui( )
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
 
-  App application = App(Storage(db_filename));
+  Storage storage(db_filename);
+
+  App application = App(storage.sculpture, storage.patterns());
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize

@@ -27,8 +27,8 @@ add_library(pixlib STATIC
  src/data_model.cpp
  )
 
- target_link_libraries(pixlib sqlite3)
+ target_link_libraries(pixlib)
 
 
-set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../ext/sqlite_orm/include PARENT_SCOPE)
+set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
 
