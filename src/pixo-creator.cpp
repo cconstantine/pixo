@@ -1,4 +1,5 @@
 #include <pixlib.hpp>
+#include <storage.hpp>
 
 int main( int argc, char** argv )
 {
@@ -18,7 +19,7 @@ int main( int argc, char** argv )
   }
 
 
-  Pixlib::Storage storage(filename, Pixlib::Sculpture(1, hostnames, leds_per_side));
+  Storage storage(filename, Pixlib::Sculpture(1, hostnames, leds_per_side));
 
   return 0;
 }

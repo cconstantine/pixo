@@ -32,8 +32,8 @@ add_library(pixlib STATIC
  src/face_finder.cpp
  )
 
- target_link_libraries(pixlib ${OpenCV_LIBS} sqlite3)
+ target_link_libraries(pixlib ${OpenCV_LIBS} )
 
 
-set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../ext/sqlite_orm/include PARENT_SCOPE)
+set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
 

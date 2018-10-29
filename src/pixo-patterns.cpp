@@ -1,4 +1,4 @@
-#include <pixlib.hpp>
+#include <storage.hpp>
 
 int main( int argc, char** argv )
 {  
@@ -9,7 +9,7 @@ int main( int argc, char** argv )
 
   int argc_i = 1;
   std::string filename(argv[argc_i++]);
-  Pixlib::Storage storage(filename);
+  Storage storage(filename);
 
   std::vector<std::string> filenames;
 

@@ -19,7 +19,7 @@ namespace Pixlib {
   class App {
   public:
 
-    App(const Storage& storage);
+    App(const Sculpture& sculpture, const std::vector<PatternCode> pattern_codes);
     ~App();
 
     float scene_fps();
@@ -36,6 +36,7 @@ namespace Pixlib {
     void next_pattern();
     void prev_pattern();
 
+    void register_pattern(std::shared_ptr<Pattern> pattern);
     const Pattern& get_pattern();
     const Texture& get_pattern_texture();
 
@@ -46,8 +47,9 @@ namespace Pixlib {
     float rotation;
     FaceFinder face_finder;
 
+    IsoCamera viewed_from;
+    IsoCamera camera;
   private:
-    void register_pattern(std::shared_ptr<Pattern> pattern);
 
     std::map<std::string, std::shared_ptr<Pattern> > patterns;
     std::shared_ptr<Pattern> pattern;
@@ -59,7 +61,6 @@ namespace Pixlib {
     IsoCamera viewed_from;
     IsoCamera camera;
 
-    Storage storage;
     std::shared_ptr<Cube> focal_point;
   };
 }
