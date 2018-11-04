@@ -13,4 +13,6 @@ build
 Pixo/local.properties
 */*.so
 */*.so.*
+*/*.pyc
 */pyxlib.egg-info
+*/__pycache__/

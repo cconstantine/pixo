@@ -10,8 +10,8 @@ namespace Pixlib {
   Perspective::Perspective() : id(0) {}
 
   Sculpture::Sculpture() {}
-  Sculpture::Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size) :
-      canvas_width(per_size*per_size), canvas_height(per_size*per_size), id(id), brightness(1.0), rotation(0.0)
+  Sculpture::Sculpture(const std::vector<std::string>& fadecandies, unsigned int per_size) :
+      canvas_width(per_size*per_size), canvas_height(per_size*per_size), id(1), brightness(1.0), rotation(0.0)
   {
     for(std::string host : fadecandies) {
       leds.push_back(LedGeometry(host));

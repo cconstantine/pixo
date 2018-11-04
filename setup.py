@@ -64,7 +64,6 @@ class CMakeBuild(build_ext):
                               cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.'] + build_args,
                               cwd=self.build_temp)
-        print()  # Add an empty line for cleaner output
 
 
 setup(
@@ -85,4 +84,5 @@ setup(
     # add custom build_ext command
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
+    tests_require=['pytest'],
 )

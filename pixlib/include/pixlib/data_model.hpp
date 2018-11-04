@@ -34,7 +34,7 @@ namespace Pixlib {
   public:
 
     Sculpture();
-    Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size);
+    Sculpture(const std::vector<std::string>& fadecandies, unsigned int per_size);
 
     int id;
     int camera_perspective_id;

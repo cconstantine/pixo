@@ -19,7 +19,7 @@ int main( int argc, char** argv )
   }
 
 
-  Storage storage(filename, Pixlib::Sculpture(1, hostnames, leds_per_side));
+  Storage storage(filename, Pixlib::Sculpture(hostnames, leds_per_side));
 
   return 0;
 }
