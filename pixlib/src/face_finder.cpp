@@ -94,14 +94,15 @@ namespace Pixlib {
 
   int FaceFinder::tick(glm::vec3 &face_location) {
     rs2::frameset frames;
-    // rs2::align align(rs2_stream::RS2_STREAM_COLOR);
+    rs2::align align(rs2_stream::RS2_STREAM_COLOR);
 
 
     if (started ) {
       frames = pipe->wait_for_frames();
-      // rs2::frameset aligned_frame = align.process(frames);
-      rs2::depth_frame depths = frames.get_depth_frame();
-      rs2::video_frame images = frames.get_infrared_frame();
+      rs2::frameset aligned_frame = align.process(frames);
+      rs2::depth_frame depths = aligned_frame.get_depth_frame();
+      rs2::video_frame images = aligned_frame.get_infrared_frame();
+      rs2::video_frame color_images = aligned_frame.get_color_frame();
 
       auto image_matrix = frame_to_mat(images);
 
@@ -169,6 +170,7 @@ namespace Pixlib {
       rs2::config config;
       config.enable_stream(RS2_STREAM_INFRARED, 1);
       config.enable_stream(RS2_STREAM_DEPTH);
+      config.enable_stream(RS2_STREAM_COLOR);
       // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
 
       // config.enable_stream(RS2_STREAM_INFRARED, 2);

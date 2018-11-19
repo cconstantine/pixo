@@ -2,13 +2,25 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo_app)
 
+set (CMAKE_CXX_STANDARD 11)
 set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
+add_definitions(-std=c++14)
+
 add_executable(pixo-creator pixo-creator.cpp storage.cpp )
-target_link_libraries(pixo-creator pixlib sqlite3)
+target_compile_features(pixo-creator PRIVATE cxx_std_14)
+target_link_libraries(pixo-creator pixlib libglew_static sqlite3 )
+ 
 
 add_executable(pixo-patterns pixo-patterns.cpp storage.cpp )
-target_link_libraries(pixo-patterns pixlib sqlite3)
+target_compile_features(pixo-patterns PRIVATE cxx_std_14)
+target_link_libraries(pixo-patterns pixlib libglew_static sqlite3 )
 
 add_executable(pixo pixo.cpp storage.cpp)
-target_link_libraries(pixo sqlite3 nanogui ${NANOGUI_EXTRA_LIBS} glfw libglew_static pthread pixlib realsense2)
+target_compile_features(pixo PRIVATE cxx_std_14)
+
+target_link_libraries(pixo pixlib sqlite3 nanogui ${NANOGUI_EXTRA_LIBS} libglew_static)
+
+add_executable(face_detection face_detection.cpp)
+target_link_libraries(face_detection pixlib )
+

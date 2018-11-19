@@ -5,7 +5,7 @@ namespace Pixlib {
 
   App::App(const Sculpture& sculpture, const std::vector<PatternCode> pattern_codes) :
    scene(),
-   focal_point(std::make_shared<Cube>())
+   focal_point(std::make_shared<Cube>()),
    brightness(sculpture.brightness),
    rotation(sculpture.rotation)
   {

@@ -58,9 +58,6 @@ namespace Pixlib {
 
     LedClusterCluster led_clusters;
 
-    IsoCamera viewed_from;
-    IsoCamera camera;
-
     std::shared_ptr<Cube> focal_point;
   };
 }

@@ -1,6 +1,8 @@
 #include <pixlib.hpp>
 #include <storage.hpp>
 
+std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
+
 int main( int argc, char** argv )
 {
   if(argc < 3) {

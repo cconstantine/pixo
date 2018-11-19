@@ -1,18 +1,17 @@
 
 cmake_minimum_required(VERSION 3.0)
 project(pixlib)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
 find_package( OpenCV REQUIRED )
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS})
 
-
+add_definitions(-std=c++14 -std=gnu++14)
 
 ###################### GLM     ###############################
 include_directories( ../ext/glm/ )
 include_directories(include)
 
-add_library(pixlib STATIC
+add_library(pixlib SHARED
  src/shader.cpp
  src/scene.cpp
  src/texture.cpp
@@ -32,7 +31,7 @@ add_library(pixlib STATIC
  src/face_finder.cpp
  )
 
- target_link_libraries(pixlib ${OpenCV_LIBS} )
+target_link_libraries(pixlib dlib::dlib pthread realsense2 ${OpenCV_LIBS} )
 
 
 set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)

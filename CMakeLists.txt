@@ -2,15 +2,9 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
 
-###################### GLFW     ################################
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
-set(GLFW_BUILD_TESTS    OFF CACHE BOOL " " FORCE)
-set(GLFW_BUILD_DOCS     OFF CACHE BOOL " " FORCE)
-set(GLFW_INSTALL        OFF CACHE BOOL " " FORCE)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw EXCLUDE_FROM_ALL)
+###################### DLIB     ###############################
+include(./ext/dlib/dlib/cmake)
 
 
 ###################### NANOGUI ###############################
@@ -35,6 +29,8 @@ include_directories( ext/glm/ )
 set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+set(BUILD_WITH_CUDA OFF CACHE BOOL " " FORCE)
+set(BUILD_WITH_TM2  OFF CACHE BOOL " " FORCE)
 add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
 include_directories(ext/librealsense/include)
 
@@ -47,6 +43,7 @@ set(glew-cmake_BUILD_SHARED              OFF CACHE BOOL " " FORCE)
 add_subdirectory(ext/glew EXCLUDE_FROM_ALL)
 include_directories(ext/glew/include lib/glew/src)
 
+
 ###################### PIXLIB   ###############################
 include_directories(src)
 add_subdirectory(pixlib)
@@ -55,3 +52,4 @@ include_directories(${PIXLIB_INCLUDE})
 
 ###################### PIXO     ################################
 add_subdirectory(src)
+
