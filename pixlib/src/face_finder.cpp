@@ -1,6 +1,36 @@
 #include <pixlib/face_finder.hpp>
 
 #include <limits>
+#include <dlib/opencv.h>
+#include <dlib/image_processing.h>
+#include <dlib/image_processing/frontal_face_detector.h>
+
+#include <dlib/dnn.h>
+#include <dlib/data_io.h>
+
+namespace Pixlib {
+
+  FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
+    cv::String mmodModelPath = "./pixlib/models/mmod_human_face_detector.dat";
+    dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
+  }
+
+  std::vector<dlib::mmod_rect> FaceDetectDlibMMOD::detect(cv::Mat &frame) {
+    int frameHeight = frame.rows;
+    int frameWidth = frame.cols;
+
+    // Convert OpenCV image format to Dlib's image format
+    dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
+    dlib::matrix<dlib::rgb_pixel> dlibMatrix;
+    dlib::assign_image(dlibMatrix, dlibIm);
+
+    // Detect faces in the image
+    std::vector<dlib::mmod_rect> faceRects = mmodFaceDetector(dlibMatrix);
+
+    return faceRects;
+  }
+}
+
 
 // Convert rs2::frame to cv::Mat
 cv::Mat frame_to_mat(const rs2::frame& f)
@@ -96,28 +126,28 @@ namespace Pixlib {
     rs2::frameset frames;
     rs2::align align(rs2_stream::RS2_STREAM_COLOR);
 
-
     if (started ) {
       frames = pipe->wait_for_frames();
       rs2::frameset aligned_frame = align.process(frames);
       rs2::depth_frame depths = aligned_frame.get_depth_frame();
-      rs2::video_frame images = aligned_frame.get_infrared_frame();
-      rs2::video_frame color_images = aligned_frame.get_color_frame();
+      //rs2::video_frame images = aligned_frame.get_infrared_frame();
+      rs2::video_frame images = aligned_frame.get_color_frame();
 
       auto image_matrix = frame_to_mat(images);
 
-      equalizeHist( image_matrix, image_matrix );
+      //equalizeHist( image_matrix, image_matrix );
 
-      std::vector<cv::Rect> faces;
+      //std::vector<cv::Rect> faces;
       std::vector<int> numDetections;
       std::vector<double> levelWeights;
 
       timer.start();
       // face_cascade.detectMultiScale( image_matrix, faces);//, 1.1, 3, 0, cv::Size(), cv::Size(), true );
-      face_cascade.detectMultiScale( image_matrix,   faces, 1.2, 6, 0, cv::Size(60, 60) );
+      //face_cascade.detectMultiScale( image_matrix,   faces, 1.2, 6, 0, cv::Size(60, 60) );
+      std::vector<dlib::mmod_rect> faces = face_detect.detect(image_matrix);
       timer.end();
 
-      // fprintf(stderr, "faces        : %d\n", faces.size());
+      //fprintf(stderr, "faces        : %d\n", faces.size());
       // fprintf(stderr, "numDetections: %d\n", numDetections.size());
       // fprintf(stderr, "levelWeights : %d\n", levelWeights.size());
       if (faces.size() == 0) {
@@ -130,11 +160,11 @@ namespace Pixlib {
       cv::Rect nearest_face;
       glm::vec2 nearest_face_point;
       for(int i = 0;i < faces.size(); i++) {
-        glm::vec2 face = glm::vec2(faces[i].x + faces[i].width / 2, faces[i].y + faces[i].height / 2);
+        glm::vec2 face = glm::vec2((faces[i].rect.left() + faces[i].rect.right())/ 2, (faces[i].rect.top() + faces[i].rect.bottom() / 2));
 
         float distance = glm::distance(previous_face, face);
         if (distance < min_distance) {
-          nearest_face = faces[i];
+          nearest_face = cv::Rect(faces[i].rect.left(), faces[i].rect.top(), faces[i].rect.right() - faces[i].rect.left(), faces[i].rect.bottom() - faces[i].rect.top());
           min_distance = distance;
           nearest_face_point = face;
         }
@@ -167,10 +197,10 @@ namespace Pixlib {
       int width = 1280;
       int height = 720;
       int fps = 30;
-      rs2::config config;
-      config.enable_stream(RS2_STREAM_INFRARED, 1);
-      config.enable_stream(RS2_STREAM_DEPTH);
-      config.enable_stream(RS2_STREAM_COLOR);
+      //rs2::config config;
+      //config.enable_stream(RS2_STREAM_INFRARED, 1);
+      //config.enable_stream(RS2_STREAM_DEPTH);
+      //config.enable_stream(RS2_STREAM_COLOR);
       // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
 
       // config.enable_stream(RS2_STREAM_INFRARED, 2);
@@ -180,8 +210,7 @@ namespace Pixlib {
       } catch(const std::exception& e) {
 
       }
-
-      pipeline_profile = pipe->start(config);
+      pipeline_profile = pipe->start();//config);
 
       rs2::device selected_device = pipeline_profile.get_device();
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
@@ -191,7 +220,6 @@ namespace Pixlib {
       {
           depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
       }
-
       started = true;
     } else if (started && device_count == 0) {
       fprintf(stderr, "FaceFinder: Stopping\n");
