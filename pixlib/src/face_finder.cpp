@@ -19,10 +19,13 @@ namespace Pixlib {
     int frameHeight = frame.rows;
     int frameWidth = frame.cols;
 
+    fprintf(stderr, "(%d, %d)\n", frameWidth, frameHeight);	
+
     // Convert OpenCV image format to Dlib's image format
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     dlib::matrix<dlib::rgb_pixel> dlibMatrix;
     dlib::assign_image(dlibMatrix, dlibIm);
+    dlib::pyramid_up(dlibMatrix);
 
     // Detect faces in the image
     std::vector<dlib::mmod_rect> faceRects = mmodFaceDetector(dlibMatrix);
@@ -67,9 +70,9 @@ cv::Mat frame_to_mat(const rs2::frame& f)
 float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
   float sum = 0;
   int count = 0;
-  for(int x = 0;x < area.width; x++) {
-    for(int y = 0;y < area.height; y++) {
-      float d = depth.get_distance(area.x + x, area.y + y);
+  for(int x = 0;x < area.width / 2; x++) {
+    for(int y = 0;y < area.height / 2; y++) {
+      float d = depth.get_distance(area.x/2 + x, area.y/2 + y);
       if(d > 0) {
         sum += d;
         count++;
@@ -124,17 +127,18 @@ namespace Pixlib {
 
   int FaceFinder::tick(glm::vec3 &face_location) {
     rs2::frameset frames;
-    rs2::align align(rs2_stream::RS2_STREAM_COLOR);
+    //rs2::align align(rs2_stream::RS2_STREAM_DEPTH);
 
     if (started ) {
       frames = pipe->wait_for_frames();
-      rs2::frameset aligned_frame = align.process(frames);
-      rs2::depth_frame depths = aligned_frame.get_depth_frame();
-      //rs2::video_frame images = aligned_frame.get_infrared_frame();
-      rs2::video_frame images = aligned_frame.get_color_frame();
+      //rs2::frameset aligned_frame = align.process(frames);
+      rs2::depth_frame depths = frames.get_depth_frame();
+      rs2::video_frame images = frames.get_infrared_frame();
+      //rs2::video_frame images = aligned_frame.get_color_frame();
 
-      auto image_matrix = frame_to_mat(images);
-
+      cv::Mat gray = frame_to_mat(images);;
+      cv::Mat image_matrix;// = frame_to_mat(images);
+      cv::cvtColor(gray, image_matrix, cv::COLOR_GRAY2RGB);
       //equalizeHist( image_matrix, image_matrix );
 
       //std::vector<cv::Rect> faces;
@@ -147,7 +151,7 @@ namespace Pixlib {
       std::vector<dlib::mmod_rect> faces = face_detect.detect(image_matrix);
       timer.end();
 
-      //fprintf(stderr, "faces        : %d\n", faces.size());
+      fprintf(stderr, "faces        : %d\n", faces.size());
       // fprintf(stderr, "numDetections: %d\n", numDetections.size());
       // fprintf(stderr, "levelWeights : %d\n", levelWeights.size());
       if (faces.size() == 0) {
@@ -169,10 +173,10 @@ namespace Pixlib {
           nearest_face_point = face;
         }
       }
-      float pixel[2] = {nearest_face.x, nearest_face.y};
+      float pixel[2] = {nearest_face.x / 2, nearest_face.y /2};
 
       float distance = rect_distance(depths, nearest_face);
-      // fprintf(stderr, "(%2.1f, %2.1f) distance: %f\n", pixel[0], pixel[1], distance);
+      fprintf(stderr, "(%2.1f, %2.1f) distance: %f\n", pixel[0], pixel[1], distance);
       if (distance == 0.0f) {
         return 0;
       }
@@ -197,9 +201,9 @@ namespace Pixlib {
       int width = 1280;
       int height = 720;
       int fps = 30;
-      //rs2::config config;
-      //config.enable_stream(RS2_STREAM_INFRARED, 1);
-      //config.enable_stream(RS2_STREAM_DEPTH);
+      rs2::config config;
+      config.enable_stream(RS2_STREAM_INFRARED, 1);
+      config.enable_stream(RS2_STREAM_DEPTH);
       //config.enable_stream(RS2_STREAM_COLOR);
       // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
 
@@ -210,7 +214,7 @@ namespace Pixlib {
       } catch(const std::exception& e) {
 
       }
-      pipeline_profile = pipe->start();//config);
+      pipeline_profile = pipe->start(config);
 
       rs2::device selected_device = pipeline_profile.get_device();
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
