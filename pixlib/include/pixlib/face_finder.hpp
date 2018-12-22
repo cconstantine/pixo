@@ -19,7 +19,7 @@ namespace Pixlib {
   public:
     FaceDetectDlibMMOD();
 
-    virtual std::vector<dlib::mmod_rect> detect(cv::Mat &frame);
+    virtual std::vector<cv::Rect> detect(const cv::Mat& frame);
   private:
     template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
     template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
@@ -31,6 +31,49 @@ namespace Pixlib {
     net_type mmodFaceDetector;
   };
 
+  class TrackedFace {
+  public:
+    TrackedFace(const TrackedFace& copy);
+    TrackedFace();
+
+    cv::Rect face;
+    bool has_face;
+  };
+
+  class FaceTracker
+  {
+  public:
+
+    virtual TrackedFace detect(const cv::Mat& frame);
+
+  private:
+    FaceDetectDlibMMOD face_detect;
+  };
+
+  class RealsenseTracker
+  {
+  public:
+    RealsenseTracker();
+    void tick(glm::vec3 &face_location);
+
+    TrackedFace  tracked_face;
+    cv::Mat frame;
+    cv::Mat image_matrix;
+    FaceTracker face_detect;
+
+  private:
+    void update_pipe();
+
+
+    rs2::context realsense_context;
+    std::shared_ptr<rs2::pipeline> pipe;
+    rs2::pipeline_profile pipeline_profile;
+
+    bool started;
+
+    static cv::Mat frame_to_mat(const rs2::frame& f);
+
+  };
 
 	class FaceFinder
 	{
@@ -38,30 +81,18 @@ namespace Pixlib {
 		FaceFinder();
 		~FaceFinder();
 
-		int tick(glm::vec3 &face_location);
-
-		glm::vec3 face;
-		int faces_found;
-
     Timer timer;
+
+    glm::vec3 face;
+    int faces_found;
+
 	private:
-    rs2::context realsense_context;
-		std::shared_ptr<rs2::pipeline> pipe;
-    rs2::pipeline_profile pipeline_profile;
-
-    bool started;
-
-    void update_pipe();
-
-
-    cv::CascadeClassifier face_cascade;
 
     bool running;
     std::shared_ptr<std::thread> reader_thread;
     void thread_method();
 
-    glm::vec2 previous_face;
 
-FaceDetectDlibMMOD face_detect;
+    RealsenseTracker face_detect;
   };
 }

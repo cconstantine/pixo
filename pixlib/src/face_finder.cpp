@@ -8,71 +8,14 @@
 #include <dlib/dnn.h>
 #include <dlib/data_io.h>
 
-namespace Pixlib {
-
-  FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
-    cv::String mmodModelPath = "./pixlib/models/mmod_human_face_detector.dat";
-    dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
-  }
-
-  std::vector<dlib::mmod_rect> FaceDetectDlibMMOD::detect(cv::Mat &frame) {
-    int frameHeight = frame.rows;
-    int frameWidth = frame.cols;
-
-    fprintf(stderr, "(%d, %d)\n", frameWidth, frameHeight);	
-
-    // Convert OpenCV image format to Dlib's image format
-    dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
-    dlib::matrix<dlib::rgb_pixel> dlibMatrix;
-    dlib::assign_image(dlibMatrix, dlibIm);
-    dlib::pyramid_up(dlibMatrix);
-
-    // Detect faces in the image
-    std::vector<dlib::mmod_rect> faceRects = mmodFaceDetector(dlibMatrix);
-
-    return faceRects;
-  }
-}
-
-
-// Convert rs2::frame to cv::Mat
-cv::Mat frame_to_mat(const rs2::frame& f)
-{
-    using namespace cv;
-    using namespace rs2;
-
-    auto vf = f.as<video_frame>();
-    const int w = vf.get_width();
-    const int h = vf.get_height();
-
-    if (f.get_profile().format() == RS2_FORMAT_BGR8)
-    {
-        return Mat(Size(w, h), CV_8UC3, (void*)f.get_data(), Mat::AUTO_STEP);
-    }
-    else if (f.get_profile().format() == RS2_FORMAT_RGB8)
-    {
-        auto r = Mat(Size(w, h), CV_8UC3, (void*)f.get_data(), Mat::AUTO_STEP);
-        cvtColor(r, r, CV_RGB2BGR);
-        return r;
-    }
-    else if (f.get_profile().format() == RS2_FORMAT_Z16)
-    {
-        return Mat(Size(w, h), CV_16UC1, (void*)f.get_data(), Mat::AUTO_STEP);
-    }
-    else if (f.get_profile().format() == RS2_FORMAT_Y8)
-    {
-        return Mat(Size(w, h), CV_8UC1, (void*)f.get_data(), Mat::AUTO_STEP);
-    }
-
-    throw std::runtime_error("Frame format is not supported yet!");
-}
+#include <librealsense2/rsutil.h>
 
 float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
   float sum = 0;
   int count = 0;
-  for(int x = 0;x < area.width / 2; x++) {
-    for(int y = 0;y < area.height / 2; y++) {
-      float d = depth.get_distance(area.x/2 + x, area.y/2 + y);
+  for(int x = 0;x < area.width; x++) {
+    for(int y = 0;y < area.height; y++) {
+      float d = depth.get_distance(area.x + x, area.y + y);
       if(d > 0) {
         sum += d;
         count++;
@@ -86,118 +29,131 @@ float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
   return sum / count;
 }
 
-#include <librealsense2/rsutil.h>
-
 namespace Pixlib {
-  FaceFinder::FaceFinder() :
+
+  FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
+    cv::String mmodModelPath = "./pixlib/models/mmod_human_face_detector.dat";
+    dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
+  }
+
+  std::vector<cv::Rect> FaceDetectDlibMMOD::detect(const cv::Mat& frame) {
+    int frameHeight = frame.rows;
+    int frameWidth = frame.cols;
+
+    float scale = 1.0f;
+
+    fprintf(stderr, "(%d, %d)\n", frameWidth, frameHeight);	
+
+    // Convert OpenCV image format to Dlib's image format
+    dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
+    dlib::matrix<dlib::rgb_pixel> dlibMatrix;
+    dlib::assign_image(dlibMatrix, dlibIm);
+
+    std::vector<cv::Rect> faceRects;
+    // Detect faces in the image
+    for(dlib::mmod_rect rect : mmodFaceDetector(dlibMatrix)) {
+      cv::Rect cv_rect(
+          rect.rect.left(),
+          rect.rect.top(),
+          (rect.rect.right() - rect.rect.left()),
+          (rect.rect.bottom() - rect.rect.top())
+        );
+      faceRects.push_back(cv_rect);
+    }
+
+    return faceRects;
+  }
+  TrackedFace::TrackedFace(const TrackedFace& copy) :
+   face(copy.face), has_face(copy.has_face)
+  { }
+
+  TrackedFace::TrackedFace() :
+   has_face(false)
+  { }
+
+  TrackedFace FaceTracker::detect(const cv::Mat& frame) {
+    TrackedFace tracking;
+
+    cv::Rect rectangle(
+      0,0,
+      frame.cols/2, frame.rows/2);
+    std::vector<cv::Rect> faces = face_detect.detect(frame(rectangle));
+    
+    fprintf(stderr, "faces        : %d\n", faces.size());
+        
+    if(faces.size() > 0) {
+      tracking.has_face = true;
+      tracking.face = faces[0];
+    } else {
+      tracking.has_face = false;
+    }
+
+    return tracking;
+  }
+
+  RealsenseTracker::RealsenseTracker() : 
    pipe(std::make_shared<rs2::pipeline>(realsense_context)),
-   started(false), running(true), faces_found(0), timer(120)
+   started(false)
   {
-    reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
-  }
-
-  FaceFinder::~FaceFinder() {
-    running = false;
-    reader_thread->join();
-  }
-
-  void FaceFinder::thread_method() {
-    if( !face_cascade.load("/usr/share/OpenCV/haarcascades/haarcascade_frontalface_default.xml" ) )
-    {
-      fprintf(stderr, "Failed to load cascade\n");
-    };
-
     realsense_context.set_devices_changed_callback([&](rs2::event_information& info)
     {
       update_pipe();
-    });
+    });   
+  }
 
-    while (running) {
-      try {
+  void RealsenseTracker::tick(glm::vec3 &face_location) {
+   
+    try {
+      rs2::frameset frames;
+      //rs2::align align(rs2_stream::RS2_STREAM_DEPTH);
+
+      if (started ) {
+        frames = pipe->wait_for_frames();
+        //equalizeHist( image_matrix, image_matrix );
+
+        rs2::depth_frame depths = frames.get_depth_frame();
+        rs2::video_frame images = frames.get_infrared_frame();
+        //rs2::video_frame images = aligned_frame.get_color_frame();
+
+        cv::Mat frame = RealsenseTracker::frame_to_mat(images);;
+        cv::cvtColor(frame, image_matrix, cv::COLOR_GRAY2RGB);
+
+        tracked_face = face_detect.detect(image_matrix);
+        if(!tracked_face.has_face) {
+          return;
+        }
+
+        float distance = rect_distance(depths, tracked_face.face);
+
+        if (distance == 0.0f) {
+          return;
+        }
+
+        rs2_intrinsics intrin = images.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
+
+        float pixel[2] = {tracked_face.face.x / 2, tracked_face.face.y /2};
+        rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
+        face_location.y = -face_location.y;
+        
+        fprintf(stderr, "FaceFinder: Face -> (%2.2f, %2.2f, %2.2f)\n",
+          face_location.x, face_location.y, face_location.z);
+
+      } else {
         update_pipe();
-        while (running) {
-          faces_found = tick(face);
-        }
-      } catch(const std::exception& e) {
-        fprintf(stderr, "FaceFinder Exception: %s\n", e.what());
-        started = false;
       }
+    } catch(const std::exception& e) {
+      fprintf(stderr, "RealsenseTracker Exception: %s\n", e.what());
+      started = false;
+      update_pipe();
     }
+    return;
   }
 
-  int FaceFinder::tick(glm::vec3 &face_location) {
-    rs2::frameset frames;
-    //rs2::align align(rs2_stream::RS2_STREAM_DEPTH);
-
-    if (started ) {
-      frames = pipe->wait_for_frames();
-      //rs2::frameset aligned_frame = align.process(frames);
-      rs2::depth_frame depths = frames.get_depth_frame();
-      rs2::video_frame images = frames.get_infrared_frame();
-      //rs2::video_frame images = aligned_frame.get_color_frame();
-
-      cv::Mat gray = frame_to_mat(images);;
-      cv::Mat image_matrix;// = frame_to_mat(images);
-      cv::cvtColor(gray, image_matrix, cv::COLOR_GRAY2RGB);
-      //equalizeHist( image_matrix, image_matrix );
-
-      //std::vector<cv::Rect> faces;
-      std::vector<int> numDetections;
-      std::vector<double> levelWeights;
-
-      timer.start();
-      // face_cascade.detectMultiScale( image_matrix, faces);//, 1.1, 3, 0, cv::Size(), cv::Size(), true );
-      //face_cascade.detectMultiScale( image_matrix,   faces, 1.2, 6, 0, cv::Size(60, 60) );
-      std::vector<dlib::mmod_rect> faces = face_detect.detect(image_matrix);
-      timer.end();
-
-      fprintf(stderr, "faces        : %d\n", faces.size());
-      // fprintf(stderr, "numDetections: %d\n", numDetections.size());
-      // fprintf(stderr, "levelWeights : %d\n", levelWeights.size());
-      if (faces.size() == 0) {
-
-        return 0;
-      }
-
-      float min_distance = std::numeric_limits<float>::infinity();
-
-      cv::Rect nearest_face;
-      glm::vec2 nearest_face_point;
-      for(int i = 0;i < faces.size(); i++) {
-        glm::vec2 face = glm::vec2((faces[i].rect.left() + faces[i].rect.right())/ 2, (faces[i].rect.top() + faces[i].rect.bottom() / 2));
-
-        float distance = glm::distance(previous_face, face);
-        if (distance < min_distance) {
-          nearest_face = cv::Rect(faces[i].rect.left(), faces[i].rect.top(), faces[i].rect.right() - faces[i].rect.left(), faces[i].rect.bottom() - faces[i].rect.top());
-          min_distance = distance;
-          nearest_face_point = face;
-        }
-      }
-      float pixel[2] = {nearest_face.x / 2, nearest_face.y /2};
-
-      float distance = rect_distance(depths, nearest_face);
-      fprintf(stderr, "(%2.1f, %2.1f) distance: %f\n", pixel[0], pixel[1], distance);
-      if (distance == 0.0f) {
-        return 0;
-      }
-      previous_face = nearest_face_point;
-      rs2_intrinsics intrin = images.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
-
-      rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
-      face_location.y = -face_location.y;
-      
-      fprintf(stderr, "FaceFinder: Face -> (%2.2f, %2.2f, %2.2f)\n",
-        face_location.x, face_location.y, face_location.z);
-
-      return faces.size();
-    }
-    return 0;
-  }
-
-  void FaceFinder::update_pipe() {
+  void RealsenseTracker::update_pipe() {
+    fprintf(stderr, "enter update_pipe()\n");
     size_t device_count = realsense_context.query_devices().size();
     if(!started && device_count > 0) {
-      fprintf(stderr, "FaceFinder: starting with %d devices\n", device_count);
+      fprintf(stderr, "RealsenseTracker: starting with %d devices\n", device_count);
       int width = 1280;
       int height = 720;
       int fps = 30;
@@ -214,22 +170,81 @@ namespace Pixlib {
       } catch(const std::exception& e) {
 
       }
+      fprintf(stderr, "RealsenseTracker: pipe->start()\n");
       pipeline_profile = pipe->start(config);
+      fprintf(stderr, "RealsenseTracker: pipeline_profile.get_device()\n");
 
       rs2::device selected_device = pipeline_profile.get_device();
+      fprintf(stderr, "RealsenseTracker: pipeline_profile.get_device()\n");
+
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
+      fprintf(stderr, "RealsenseTracker: selected_device.first<rs2::depth_sensor>()\n");
 
 
       if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
       {
           depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
       }
+      fprintf(stderr, "RealsenseTracker: started = true\n");
+
       started = true;
     } else if (started && device_count == 0) {
-      fprintf(stderr, "FaceFinder: Stopping\n");
+      fprintf(stderr, "RealsenseTracker: Stopping\n");
       started = false;
       pipe->stop();
     }
+    fprintf(stderr, "exit update_pipe()\n");
 
+  }
+
+  // Convert rs2::frame to cv::Mat
+  cv::Mat RealsenseTracker::frame_to_mat(const rs2::frame& f)
+  {
+      using namespace cv;
+      using namespace rs2;
+
+      auto vf = f.as<video_frame>();
+      const int w = vf.get_width();
+      const int h = vf.get_height();
+
+      if (f.get_profile().format() == RS2_FORMAT_BGR8)
+      {
+          return Mat(Size(w, h), CV_8UC3, (void*)f.get_data(), Mat::AUTO_STEP);
+      }
+      else if (f.get_profile().format() == RS2_FORMAT_RGB8)
+      {
+          auto r = Mat(Size(w, h), CV_8UC3, (void*)f.get_data(), Mat::AUTO_STEP);
+          cvtColor(r, r, CV_RGB2BGR);
+          return r;
+      }
+      else if (f.get_profile().format() == RS2_FORMAT_Z16)
+      {
+          return Mat(Size(w, h), CV_16UC1, (void*)f.get_data(), Mat::AUTO_STEP);
+      }
+      else if (f.get_profile().format() == RS2_FORMAT_Y8)
+      {
+          return Mat(Size(w, h), CV_8UC1, (void*)f.get_data(), Mat::AUTO_STEP);
+      }
+
+      throw std::runtime_error("Frame format is not supported yet!");
+  }
+
+  FaceFinder::FaceFinder() :
+   running(true),  timer(120), faces_found(0)
+  {
+    reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
+  }
+
+  FaceFinder::~FaceFinder() {
+    running = false;
+    reader_thread->join();
+  }
+
+  void FaceFinder::thread_method() {
+    while (running) {
+      timer.start();
+      face_detect.tick(face);
+      timer.end();
+    }
   }
 }
