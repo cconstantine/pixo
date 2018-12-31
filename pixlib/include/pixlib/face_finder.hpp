@@ -38,6 +38,8 @@ namespace Pixlib {
 
     cv::Rect face;
     bool has_face;
+
+    cv::Rect scoping;
   };
 
   class FaceTracker
@@ -48,6 +50,7 @@ namespace Pixlib {
 
   private:
     FaceDetectDlibMMOD face_detect;
+    TrackedFace previous_tracking;
   };
 
   class RealsenseTracker
@@ -84,7 +87,7 @@ namespace Pixlib {
     Timer timer;
 
     glm::vec3 face;
-    int faces_found;
+    bool face_found;
 
 	private:
 

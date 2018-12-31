@@ -64,7 +64,7 @@ namespace Pixlib {
     return faceRects;
   }
   TrackedFace::TrackedFace(const TrackedFace& copy) :
-   face(copy.face), has_face(copy.has_face)
+   face(copy.face), has_face(copy.has_face), scoping(copy.scoping)
   { }
 
   TrackedFace::TrackedFace() :
@@ -72,23 +72,49 @@ namespace Pixlib {
   { }
 
   TrackedFace FaceTracker::detect(const cv::Mat& frame) {
-    TrackedFace tracking;
-
-    cv::Rect rectangle(
+    previous_tracking.scoping = cv::Rect(
       0,0,
-      frame.cols/2, frame.rows/2);
-    std::vector<cv::Rect> faces = face_detect.detect(frame(rectangle));
+      frame.cols, frame.rows);
+
+    if (previous_tracking.has_face) {
+      previous_tracking.scoping.width  = previous_tracking.face.width  * 2;
+      previous_tracking.scoping.height = previous_tracking.face.height * 2;
+
+      previous_tracking.scoping.x = previous_tracking.face.x - previous_tracking.face.width  / 2;
+      previous_tracking.scoping.y = previous_tracking.face.y - previous_tracking.face.height / 2;
+
+      if (previous_tracking.scoping.x < 0) {
+        previous_tracking.scoping.width = previous_tracking.scoping.width + previous_tracking.scoping.x;
+        previous_tracking.scoping.x = 0;
+      }
+      if (previous_tracking.scoping.y < 0) {
+        previous_tracking.scoping.height = previous_tracking.scoping.height + previous_tracking.scoping.y;
+        previous_tracking.scoping.y = 0;
+      }
+
+      if (previous_tracking.scoping.width + previous_tracking.scoping.x > frame.cols) {
+        previous_tracking.scoping.width = frame.cols - previous_tracking.scoping.x;
+      }
+      if (previous_tracking.scoping.height + previous_tracking.scoping.y > frame.rows) {
+        previous_tracking.scoping.height = frame.rows - previous_tracking.scoping.y;
+      }
+    }
+
+    std::vector<cv::Rect> faces = face_detect.detect(frame(previous_tracking.scoping));
     
     fprintf(stderr, "faces        : %d\n", faces.size());
         
     if(faces.size() > 0) {
-      tracking.has_face = true;
-      tracking.face = faces[0];
+      previous_tracking.has_face = true;
+      previous_tracking.face = faces[0];
+      previous_tracking.face.x = previous_tracking.face.x + previous_tracking.scoping.x;
+      previous_tracking.face.y = previous_tracking.face.y + previous_tracking.scoping.y;
     } else {
-      tracking.has_face = false;
+      previous_tracking.has_face = false;
     }
 
-    return tracking;
+
+    return previous_tracking;
   }
 
   RealsenseTracker::RealsenseTracker() : 
@@ -109,21 +135,25 @@ namespace Pixlib {
 
       if (started ) {
         frames = pipe->wait_for_frames();
-        //equalizeHist( image_matrix, image_matrix );
 
         rs2::depth_frame depths = frames.get_depth_frame();
         rs2::video_frame images = frames.get_infrared_frame();
         //rs2::video_frame images = aligned_frame.get_color_frame();
-
-        cv::Mat frame = RealsenseTracker::frame_to_mat(images);;
-        cv::cvtColor(frame, image_matrix, cv::COLOR_GRAY2RGB);
+        const int scale = 2;
+        cv::Mat frame = RealsenseTracker::frame_to_mat(images);
+        cv::Mat resized;
+        cv::resize(frame, resized, cv::Size(frame.cols*scale,frame.rows*scale));
+        cv::cvtColor(resized, image_matrix, cv::COLOR_GRAY2RGB);
 
         tracked_face = face_detect.detect(image_matrix);
         if(!tracked_face.has_face) {
           return;
         }
+        cv::Rect real_face = cv::Rect(
+          tracked_face.face.x / scale, tracked_face.face.y / scale,
+          tracked_face.face.width / scale, tracked_face.face.height / scale);
 
-        float distance = rect_distance(depths, tracked_face.face);
+        float distance = rect_distance(depths, real_face);
 
         if (distance == 0.0f) {
           return;
@@ -131,7 +161,7 @@ namespace Pixlib {
 
         rs2_intrinsics intrin = images.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
 
-        float pixel[2] = {tracked_face.face.x / 2, tracked_face.face.y /2};
+        float pixel[2] = {real_face.x / 2, real_face.y /2};
         rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
         face_location.y = -face_location.y;
         
@@ -230,7 +260,7 @@ namespace Pixlib {
   }
 
   FaceFinder::FaceFinder() :
-   running(true),  timer(120), faces_found(0)
+   running(true),  timer(120), face_found(false)
   {
     reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
   }
@@ -244,6 +274,7 @@ namespace Pixlib {
     while (running) {
       timer.start();
       face_detect.tick(face);
+      face_found = face_detect.tracked_face.has_face;
       timer.end();
     }
   }

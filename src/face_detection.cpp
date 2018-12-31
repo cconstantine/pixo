@@ -11,6 +11,17 @@
 
 #include <pixlib/face_finder.hpp>
 
+void draw_rectangle(cv::Mat& image, cv::Rect rect, cv::Scalar color = cv::Scalar(0,255,0)) {
+  int x1 = (int)(rect.x);
+  int y1 = (int)(rect.y);
+  int x2 = (int)((rect.x + rect.width));
+  int y2 = (int)((rect.y + rect.height));
+
+  fprintf(stderr, "Rectangle (%d, %d) x (%d, %d)\n", rect.x, rect.y, rect.width, rect.height);
+
+  cv::rectangle(image, cv::Point(x1, y1), cv::Point(x2, y2), color, 5, 4);
+}
+
 int main( int argc, const char** argv )
 {
   Pixlib::RealsenseTracker tracker;
@@ -29,12 +40,8 @@ int main( int argc, const char** argv )
       fprintf(stderr, "%d x %d\n", frameWidth, frameHeight);
       if (tracker.tracked_face.has_face)
       {
-        fprintf(stderr, "(%d, %d) x (%d, %d)\n", tracker.tracked_face.face.x, tracker.tracked_face.face.y, tracker.tracked_face.face.width, tracker.tracked_face.face.height);
-        int x1 = (int)(tracker.tracked_face.face.x);
-        int y1 = (int)(tracker.tracked_face.face.y);
-        int x2 = (int)((tracker.tracked_face.face.x + tracker.tracked_face.face.width));
-        int y2 = (int)((tracker.tracked_face.face.y + tracker.tracked_face.face.height));
-        cv::rectangle(tracker.image_matrix, cv::Point(x1, y1), cv::Point(x2, y2), cv::Scalar(0,255,0), (int)(frameHeight/150.0), 4);
+        draw_rectangle(tracker.image_matrix, tracker.tracked_face.face);
+        draw_rectangle(tracker.image_matrix, tracker.tracked_face.scoping, cv::Scalar(255,255,0));
       }
 
       std::chrono::steady_clock::time_point end= std::chrono::steady_clock::now();

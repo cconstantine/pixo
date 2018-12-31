@@ -119,12 +119,12 @@ namespace Pixlib {
 
   void App::render_leds() {
     
-    if (face_finder.faces_found > 0) {
+    if (face_finder.face_found) {
       glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + face_finder.face;
       //ALOGV("face: %s\n", glm::to_string(face_finder.face).c_str());
 
       focal_point->move_instance(0, face);
-      viewed_from.move_towards(face, scene.get_time_delta()*0.8);
+      viewed_from.move_towards(face, scene.get_time_delta()*0.1);
     } 
     pattern->render();
 
