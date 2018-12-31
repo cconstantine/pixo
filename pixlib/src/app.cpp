@@ -124,7 +124,7 @@ namespace Pixlib {
       //ALOGV("face: %s\n", glm::to_string(face_finder.face).c_str());
 
       focal_point->move_instance(0, face);
-      viewed_from.move_towards(face, scene.get_time_delta()*0.1);
+      viewed_from.move_towards(face, scene.get_time_delta()*10.0);
     } 
     pattern->render();
 
