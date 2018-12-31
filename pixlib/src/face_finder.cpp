@@ -161,7 +161,7 @@ namespace Pixlib {
 
         rs2_intrinsics intrin = images.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
 
-        float pixel[2] = {real_face.x / 2, real_face.y /2};
+        float pixel[2] = {real_face.x + real_face.width / 2, real_face.y + real_face.height / 2 };
         rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
         face_location.y = -face_location.y;
         
