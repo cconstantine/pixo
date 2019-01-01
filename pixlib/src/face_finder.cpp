@@ -11,11 +11,20 @@
 #include <librealsense2/rsutil.h>
 
 float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
+
+  // fprintf(stderr, "rect_distance: depth: (%d, %d)\n", depth.get_width(), depth.get_height());
+  // fprintf(stderr, "rect_distance: area:  (%d, %d) x (%d, %d)\n", area.x, area.y, area.width, area.height);
   float sum = 0;
   int count = 0;
   for(int x = 0;x < area.width; x++) {
     for(int y = 0;y < area.height; y++) {
-      float d = depth.get_distance(area.x + x, area.y + y);
+      int x1 = area.x + x;
+      int y1 = area.y + y;
+      if (x1 < 0 || x1 >= depth.get_width() ||
+          y1 < 0 || y1 >= depth.get_height()) {
+        continue;
+      }
+      float d = depth.get_distance(x1, y1);
       if(d > 0) {
         sum += d;
         count++;
@@ -58,6 +67,7 @@ namespace Pixlib {
           (rect.rect.right() - rect.rect.left()),
           (rect.rect.bottom() - rect.rect.top())
         );
+      fprintf(stderr, "FaceDetectDlibMMOD::detect: (%d, %d) x (%d, %d)\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height);
       faceRects.push_back(cv_rect);
     }
 
@@ -103,8 +113,12 @@ namespace Pixlib {
     std::vector<cv::Rect> faces = face_detect.detect(frame(previous_tracking.scoping));
     
     fprintf(stderr, "faces        : %d\n", faces.size());
-        
+
+  
     if(faces.size() > 0) {
+      // fprintf(stderr, "Face    (%d, %d) x (%d, %d)\n", faces[0].x, faces[0].y, faces[0].width, faces[0].height); 
+      // fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);        
+
       previous_tracking.has_face = true;
       previous_tracking.face = faces[0];
       previous_tracking.face.x = previous_tracking.face.x + previous_tracking.scoping.x;
@@ -200,26 +214,20 @@ namespace Pixlib {
       } catch(const std::exception& e) {
 
       }
-      fprintf(stderr, "RealsenseTracker: pipe->start()\n");
       pipeline_profile = pipe->start(config);
-      fprintf(stderr, "RealsenseTracker: pipeline_profile.get_device()\n");
 
       rs2::device selected_device = pipeline_profile.get_device();
-      fprintf(stderr, "RealsenseTracker: pipeline_profile.get_device()\n");
 
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
-      fprintf(stderr, "RealsenseTracker: selected_device.first<rs2::depth_sensor>()\n");
 
 
       if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
       {
           depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
       }
-      fprintf(stderr, "RealsenseTracker: started = true\n");
 
       started = true;
     } else if (started && device_count == 0) {
-      fprintf(stderr, "RealsenseTracker: Stopping\n");
       started = false;
       pipe->stop();
     }
