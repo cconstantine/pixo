@@ -13,9 +13,17 @@
 #include <dlib/dnn.h>
 #include <dlib/data_io.h>
 
+#include "opencv2/objdetect.hpp"
+#include <opencv2/dnn.hpp>
+
 namespace Pixlib {
 
-  class FaceDetectDlibMMOD {
+  class  FaceDetect {
+  public:
+    virtual std::vector<cv::Rect> detect(const cv::Mat& frame) = 0;
+  };
+
+  class FaceDetectDlibMMOD : public FaceDetect {
   public:
     FaceDetectDlibMMOD();
 
@@ -31,15 +39,37 @@ namespace Pixlib {
     net_type mmodFaceDetector;
   };
 
+  class FaceDetecOpenCVDNN : public FaceDetect {
+  public:
+    FaceDetecOpenCVDNN();
+
+    virtual std::vector<cv::Rect> detect(const cv::Mat& frame);
+  private:
+
+    const std::string caffeConfigFile = "./pixlib/models/deploy.prototxt";
+    const std::string caffeWeightFile = "./pixlib/models/res10_300x300_ssd_iter_140000_fp16.caffemodel";
+
+    cv::dnn::Net net;
+  };
+
   class TrackedFace {
   public:
-    TrackedFace(const TrackedFace& copy);
+    // TrackedFace(const TrackedFace& copy);
     TrackedFace();
 
+
+    bool is_tracking();
     cv::Rect face;
+    cv::Rect scoping;
+    cv::Rect scoped_resized_face;
     bool has_face;
 
-    cv::Rect scoping;
+    cv::Mat scoped_resized_frame;
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> had_face_at;
+
+    Timer timer;
+
   };
 
   class FaceTracker
@@ -83,8 +113,6 @@ namespace Pixlib {
 	public:
 		FaceFinder();
 		~FaceFinder();
-
-    Timer timer;
 
     glm::vec3 face;
     bool face_found;

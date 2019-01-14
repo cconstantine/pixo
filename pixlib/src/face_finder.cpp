@@ -51,7 +51,7 @@ namespace Pixlib {
 
     float scale = 1.0f;
 
-    fprintf(stderr, "(%d, %d)\n", frameWidth, frameHeight);	
+    fprintf(stderr, "FaceDetectDlibMMOD::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
 
     // Convert OpenCV image format to Dlib's image format
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
@@ -73,25 +73,90 @@ namespace Pixlib {
 
     return faceRects;
   }
-  TrackedFace::TrackedFace(const TrackedFace& copy) :
-   face(copy.face), has_face(copy.has_face), scoping(copy.scoping)
-  { }
+
+  FaceDetecOpenCVDNN::FaceDetecOpenCVDNN(): net(cv::dnn::readNetFromCaffe(caffeConfigFile, caffeWeightFile)) {
+
+  }
+  
+  std::vector<cv::Rect> FaceDetecOpenCVDNN::detect(const cv::Mat& frame) {
+    const double inScaleFactor = 1.0;
+    const float confidenceThreshold = 0.7;
+    const cv::Scalar meanVal(104.0, 177.0, 123.0);
+
+    int frameHeight = frame.rows;
+    int frameWidth = frame.cols;
+
+    fprintf(stderr, "FaceDetecOpenCVDNN::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
+    cv::Mat inputBlob = cv::dnn::blobFromImage(frame, inScaleFactor, cv::Size(frameWidth, frameHeight));//, meanVal, false, false);
+
+    net.setInput(inputBlob, "data");
+    cv::Mat detection = net.forward("detection_out");
+
+
+    cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
+    std::vector<cv::Rect> faceRects;
+
+    for(int i = 0; i < detectionMat.rows; i++)
+    {
+      float confidence = detectionMat.at<float>(i, 2);
+
+      int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * frameWidth);
+      int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frameHeight);
+      int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * frameWidth);
+      int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * frameHeight);
+
+      cv::Rect cv_rect(
+        x1, y1,
+        x2 - x1, y2 - y1
+      );
+
+      if(confidence > confidenceThreshold)
+      {
+        fprintf(stderr, "FaceDetecOpenCVDNN::detect: (% 3d, % 3d) x (% 3d, % 3d) % 3.2f\%\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height, confidence*100);
+        faceRects.push_back(cv_rect);
+      }
+      
+    }
+    return faceRects;
+  }
+
+  // TrackedFace::TrackedFace(const TrackedFace& copy) :
+  //  face(copy.face), has_face(copy.has_face), scoped_resized_face(copy.scoped_resized_face), scoping(copy.scoping), had_face_at(copy.had_face_at), scoped_resized_frame(copy.scoped_resized_frame)
+  // { }
 
   TrackedFace::TrackedFace() :
-   has_face(false)
+   has_face(false), had_face_at(std::chrono::system_clock::from_time_t(0)), timer(2)
   { }
 
+  bool TrackedFace::is_tracking()
+  {
+    const float seconds_to_track = 1.0f;
+    if (has_face) {
+      return true;
+    }
+
+    std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+    std::chrono::duration<float> since_last_face = now - had_face_at;
+    return since_last_face.count() < seconds_to_track;
+  }
+
+
   TrackedFace FaceTracker::detect(const cv::Mat& frame) {
+    fprintf(stderr, "---------------------------------------------\n");
+    previous_tracking.timer.start();
+    // cv::Mat frame;
+    // external_frame.copyTo(frame);
     previous_tracking.scoping = cv::Rect(
       0,0,
       frame.cols, frame.rows);
 
-    if (previous_tracking.has_face) {
-      previous_tracking.scoping.width  = previous_tracking.face.width  * 2;
-      previous_tracking.scoping.height = previous_tracking.face.height * 2;
+    float scale = 1;
+    if ( previous_tracking.is_tracking()) {
+      previous_tracking.scoping.width  = previous_tracking.face.width  * 4;
+      previous_tracking.scoping.height = previous_tracking.face.height * 4;
 
-      previous_tracking.scoping.x = previous_tracking.face.x - previous_tracking.face.width  / 2;
-      previous_tracking.scoping.y = previous_tracking.face.y - previous_tracking.face.height / 2;
+      previous_tracking.scoping.x = previous_tracking.face.x - previous_tracking.face.width  * 1.5;
+      previous_tracking.scoping.y = previous_tracking.face.y - previous_tracking.face.height * 1.5;
 
       if (previous_tracking.scoping.x < 0) {
         previous_tracking.scoping.width = previous_tracking.scoping.width + previous_tracking.scoping.x;
@@ -108,26 +173,45 @@ namespace Pixlib {
       if (previous_tracking.scoping.height + previous_tracking.scoping.y > frame.rows) {
         previous_tracking.scoping.height = frame.rows - previous_tracking.scoping.y;
       }
-    }
+      
+      fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);     
+      const int target_scoping = 400;
+      // if (previous_tracking.scoping.width < min_scoping || previous_tracking.scoping.height < min_scoping) {
+        float scaling_based_on = previous_tracking.scoping.width < previous_tracking.scoping.height ? previous_tracking.scoping.width : previous_tracking.scoping.height;
 
-    std::vector<cv::Rect> faces = face_detect.detect(frame(previous_tracking.scoping));
+        scale = target_scoping / scaling_based_on;
+      // }
+    }
+    fprintf(stderr, "scaling: % 2.1f\n", scale);
+
+    cv::Mat scoped_frame = frame(previous_tracking.scoping);
+
+    //frame.copyTo(previous_tracking.scoped_resized_frame);
+    cv::resize(scoped_frame, previous_tracking.scoped_resized_frame, cv::Size(), scale, scale);
+
+    std::vector<cv::Rect> faces = face_detect.detect(previous_tracking.scoped_resized_frame);
     
     fprintf(stderr, "faces        : %d\n", faces.size());
 
   
     if(faces.size() > 0) {
-      // fprintf(stderr, "Face    (%d, %d) x (%d, %d)\n", faces[0].x, faces[0].y, faces[0].width, faces[0].height); 
-      // fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);        
+      fprintf(stderr, "Face    (%d, %d) x (%d, %d)\n", faces[0].x, faces[0].y, faces[0].width, faces[0].height);    
 
       previous_tracking.has_face = true;
-      previous_tracking.face = faces[0];
-      previous_tracking.face.x = previous_tracking.face.x + previous_tracking.scoping.x;
-      previous_tracking.face.y = previous_tracking.face.y + previous_tracking.scoping.y;
+      previous_tracking.had_face_at = std::chrono::high_resolution_clock::now();
+
+      previous_tracking.face.x = faces[0].x/scale + previous_tracking.scoping.x;
+      previous_tracking.face.y = faces[0].y/scale + previous_tracking.scoping.y;
+      previous_tracking.face.width = faces[0].width/scale;
+      previous_tracking.face.height = faces[0].height/scale;
+
+      previous_tracking.scoped_resized_face = faces[0];
     } else {
       previous_tracking.has_face = false;
     }
 
-
+    previous_tracking.timer.end();
+    
     return previous_tracking;
   }
 
@@ -144,28 +228,33 @@ namespace Pixlib {
   void RealsenseTracker::tick(glm::vec3 &face_location) {
    
     try {
-      rs2::frameset frames;
-      //rs2::align align(rs2_stream::RS2_STREAM_DEPTH);
+//      rs2::frameset frames;
+      rs2::frameset unaligned_frames;
+      rs2::align align(rs2_stream::RS2_STREAM_COLOR);
 
       if (started ) {
-        frames = pipe->wait_for_frames();
 
-        rs2::depth_frame depths = frames.get_depth_frame();
-        rs2::video_frame images = frames.get_infrared_frame();
-        //rs2::video_frame images = aligned_frame.get_color_frame();
-        const int scale = 2;
+        // frames = pipe->wait_for_frames();
+        // rs2::video_frame images = frames.get_infrared_frame();
+        // rs2::depth_frame depths = frames.get_depth_frame();
+        // cv::Mat frame = RealsenseTracker::frame_to_mat(images);
+        // cv::cvtColor(frame, image_matrix, cv::COLOR_GRAY2RGB);
+
+        unaligned_frames = pipe->wait_for_frames();
+        rs2::frameset aligned_frames = align.process(unaligned_frames);
+        rs2::video_frame images = aligned_frames.get_color_frame();
+        rs2::depth_frame depths = aligned_frames.get_depth_frame();
         cv::Mat frame = RealsenseTracker::frame_to_mat(images);
-        cv::Mat resized;
-        cv::resize(frame, resized, cv::Size(frame.cols*scale,frame.rows*scale));
-        cv::cvtColor(resized, image_matrix, cv::COLOR_GRAY2RGB);
+        frame.copyTo(image_matrix);
+        
 
         tracked_face = face_detect.detect(image_matrix);
         if(!tracked_face.has_face) {
           return;
         }
         cv::Rect real_face = cv::Rect(
-          tracked_face.face.x / scale, tracked_face.face.y / scale,
-          tracked_face.face.width / scale, tracked_face.face.height / scale);
+          tracked_face.face.x , tracked_face.face.y ,
+          tracked_face.face.width , tracked_face.face.height);
 
         float distance = rect_distance(depths, real_face);
 
@@ -179,8 +268,8 @@ namespace Pixlib {
         rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
         face_location.y = -face_location.y;
         
-        fprintf(stderr, "FaceFinder: Face -> (%2.2f, %2.2f, %2.2f)\n",
-          face_location.x, face_location.y, face_location.z);
+        //fprintf(stderr, "FaceFinder: Face -> (%2.2f, %2.2f, %2.2f)\n",
+        //  face_location.x, face_location.y, face_location.z);
 
       } else {
         update_pipe();
@@ -198,13 +287,10 @@ namespace Pixlib {
     size_t device_count = realsense_context.query_devices().size();
     if(!started && device_count > 0) {
       fprintf(stderr, "RealsenseTracker: starting with %d devices\n", device_count);
-      int width = 1280;
-      int height = 720;
-      int fps = 30;
       rs2::config config;
-      config.enable_stream(RS2_STREAM_INFRARED, 1);
-      config.enable_stream(RS2_STREAM_DEPTH);
-      //config.enable_stream(RS2_STREAM_COLOR);
+      config.enable_stream(RS2_STREAM_DEPTH);//, 1280, 720,  RS2_FORMAT_Z16, 30);
+      config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 30);//1920, 1080, RS2_FORMAT_RGB8, 30);
+      //config.enable_stream(RS2_STREAM_INFRARED, 1);
       // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
 
       // config.enable_stream(RS2_STREAM_INFRARED, 2);
@@ -215,12 +301,8 @@ namespace Pixlib {
 
       }
       pipeline_profile = pipe->start(config);
-
       rs2::device selected_device = pipeline_profile.get_device();
-
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
-
-
       if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
       {
           depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
@@ -268,7 +350,7 @@ namespace Pixlib {
   }
 
   FaceFinder::FaceFinder() :
-   running(true),  timer(120), face_found(false)
+   running(true), face_found(false)
   {
     reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
   }
@@ -280,10 +362,8 @@ namespace Pixlib {
 
   void FaceFinder::thread_method() {
     while (running) {
-      timer.start();
       face_detect.tick(face);
       face_found = face_detect.tracked_face.has_face;
-      timer.end();
     }
   }
 }
