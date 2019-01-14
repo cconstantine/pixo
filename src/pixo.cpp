@@ -221,7 +221,7 @@ int main( int argc, char** argv )
     [&]() -> string {
       char ret[256];
       App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%2d", app->face_finder.face_found ? 1 : 0);
+      sprintf(ret, "%2d", app->face_finder.tracked_face.has_face ? 1 : 0);
       return ret;
     },
     false)->setValue("00");
@@ -242,7 +242,7 @@ int main( int argc, char** argv )
     [&]() -> string {
       char ret[256];
       App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%4.2fms", app->face_finder.timer.duration()*1000);
+      sprintf(ret, "%4.2fms", app->face_finder.tracked_face.timer.duration()*1000);
       return ret;
     },
     false)->setValue("0000.00ms");

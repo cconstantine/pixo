@@ -115,8 +115,7 @@ namespace Pixlib {
 		~FaceFinder();
 
     glm::vec3 face;
-    bool face_found;
-
+    TrackedFace tracked_face;
 	private:
 
     bool running;

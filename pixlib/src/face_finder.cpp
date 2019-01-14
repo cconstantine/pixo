@@ -350,7 +350,7 @@ namespace Pixlib {
   }
 
   FaceFinder::FaceFinder() :
-   running(true), face_found(false)
+   running(true)
   {
     reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
   }
@@ -363,7 +363,8 @@ namespace Pixlib {
   void FaceFinder::thread_method() {
     while (running) {
       face_detect.tick(face);
-      face_found = face_detect.tracked_face.has_face;
+
+      tracked_face = face_detect.tracked_face;
     }
   }
 }
