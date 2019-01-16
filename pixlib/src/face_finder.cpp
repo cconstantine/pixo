@@ -150,7 +150,7 @@ namespace Pixlib {
       0,0,
       frame.cols, frame.rows);
 
-    float scale = 1;
+    float scale = 1.0F;
     if ( previous_tracking.is_tracking()) {
       previous_tracking.scoping.width  = previous_tracking.face.width  * 4;
       previous_tracking.scoping.height = previous_tracking.face.height * 4;
@@ -174,20 +174,22 @@ namespace Pixlib {
         previous_tracking.scoping.height = frame.rows - previous_tracking.scoping.y;
       }
       
-      fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);     
       const int target_scoping = 400;
       // if (previous_tracking.scoping.width < min_scoping || previous_tracking.scoping.height < min_scoping) {
-        float scaling_based_on = previous_tracking.scoping.width < previous_tracking.scoping.height ? previous_tracking.scoping.width : previous_tracking.scoping.height;
+      float scaling_based_on = previous_tracking.scoping.width < previous_tracking.scoping.height ? previous_tracking.scoping.width : previous_tracking.scoping.height;
 
-        scale = target_scoping / scaling_based_on;
-      // }
+      scale = target_scoping / scaling_based_on;
+
+
+      fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);     
+      cv::Mat scoped_frame = frame(previous_tracking.scoping);
+
+      fprintf(stderr, "scaling: % 2.1f\n", scale);
+      cv::resize(scoped_frame, previous_tracking.scoped_resized_frame, cv::Size(), scale, scale);
+    } else {
+      previous_tracking.scoped_resized_frame = frame;//(previous_tracking.scoping);
     }
-    fprintf(stderr, "scaling: % 2.1f\n", scale);
 
-    cv::Mat scoped_frame = frame(previous_tracking.scoping);
-
-    //frame.copyTo(previous_tracking.scoped_resized_frame);
-    cv::resize(scoped_frame, previous_tracking.scoped_resized_frame, cv::Size(), scale, scale);
 
     std::vector<cv::Rect> faces = face_detect.detect(previous_tracking.scoped_resized_frame);
     
@@ -244,8 +246,8 @@ namespace Pixlib {
         rs2::frameset aligned_frames = align.process(unaligned_frames);
         rs2::video_frame images = aligned_frames.get_color_frame();
         rs2::depth_frame depths = aligned_frames.get_depth_frame();
-        cv::Mat frame = RealsenseTracker::frame_to_mat(images);
-        frame.copyTo(image_matrix);
+        cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
+        //frame.copyTo(image_matrix);
         
 
         tracked_face = face_detect.detect(image_matrix);
@@ -288,8 +290,8 @@ namespace Pixlib {
     if(!started && device_count > 0) {
       fprintf(stderr, "RealsenseTracker: starting with %d devices\n", device_count);
       rs2::config config;
-      config.enable_stream(RS2_STREAM_DEPTH);//, 1280, 720,  RS2_FORMAT_Z16, 30);
-      config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 30);//1920, 1080, RS2_FORMAT_RGB8, 30);
+      config.enable_stream(RS2_STREAM_DEPTH, 1280, 720,  RS2_FORMAT_Z16, 15);
+      config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 15);//1920, 1080, RS2_FORMAT_RGB8, 30);
       //config.enable_stream(RS2_STREAM_INFRARED, 1);
       // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
 

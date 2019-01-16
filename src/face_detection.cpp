@@ -44,7 +44,7 @@ int main( int argc, const char** argv )
         //draw_rectangle(tracker.image_matrix, tracker.tracked_face.scoping, cv::Scalar(255,255,0));
       }
 
-      putText(tracker.tracked_face.scoped_resized_frame, cv::format("%d x %d - % 4.2fms", frameHeight, frameWidth, tracker.tracked_face.timer.duration()*1000), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.4, cv::Scalar(0, 0, 255), 4);
+      putText(tracker.tracked_face.scoped_resized_frame, cv::format("%d x %d - % 4.2fms", frameHeight, frameWidth, tracker.tracked_face.timer.duration()*1000), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 255), 4);
 
       cv::imshow( "Face Scope", tracker.tracked_face.scoped_resized_frame);
       //cv::imshow( "Face Detection", tracker.image_matrix );
