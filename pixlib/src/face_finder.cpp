@@ -181,10 +181,10 @@ namespace Pixlib {
       scale = target_scoping / scaling_based_on;
 
 
-      fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);     
+      //fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);     
       cv::Mat scoped_frame = frame(previous_tracking.scoping);
 
-      fprintf(stderr, "scaling: % 2.1f\n", scale);
+      //fprintf(stderr, "scaling: % 2.1f\n", scale);
       cv::resize(scoped_frame, previous_tracking.scoped_resized_frame, cv::Size(), scale, scale);
     } else {
       previous_tracking.scoped_resized_frame = frame;//(previous_tracking.scoping);
@@ -193,11 +193,11 @@ namespace Pixlib {
 
     std::vector<cv::Rect> faces = face_detect.detect(previous_tracking.scoped_resized_frame);
     
-    fprintf(stderr, "faces        : %d\n", faces.size());
+    //fprintf(stderr, "faces        : %d\n", faces.size());
 
   
     if(faces.size() > 0) {
-      fprintf(stderr, "Face    (%d, %d) x (%d, %d)\n", faces[0].x, faces[0].y, faces[0].width, faces[0].height);    
+      //fprintf(stderr, "Face    (%d, %d) x (%d, %d)\n", faces[0].x, faces[0].y, faces[0].width, faces[0].height);    
 
       previous_tracking.has_face = true;
       previous_tracking.had_face_at = std::chrono::high_resolution_clock::now();
