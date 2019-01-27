@@ -150,7 +150,7 @@ namespace Pixlib {
       0,0,
       frame.cols, frame.rows);
 
-    float scale = 1.0F;
+    float scale = 1.5F;
     if ( previous_tracking.is_tracking()) {
       previous_tracking.scoping.width  = previous_tracking.face.width  * 4;
       previous_tracking.scoping.height = previous_tracking.face.height * 4;
@@ -180,16 +180,13 @@ namespace Pixlib {
 
       scale = target_scoping / scaling_based_on;
 
-
-      //fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);     
-      cv::Mat scoped_frame = frame(previous_tracking.scoping);
-
-      //fprintf(stderr, "scaling: % 2.1f\n", scale);
-      cv::resize(scoped_frame, previous_tracking.scoped_resized_frame, cv::Size(), scale, scale);
-    } else {
-      previous_tracking.scoped_resized_frame = frame;//(previous_tracking.scoping);
     }
 
+    //fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);
+    cv::Mat scoped_frame = frame(previous_tracking.scoping);
+
+    //fprintf(stderr, "scaling: % 2.1f\n", scale);
+    cv::resize(scoped_frame, previous_tracking.scoped_resized_frame, cv::Size(), scale, scale);
 
     std::vector<cv::Rect> faces = face_detect.detect(previous_tracking.scoped_resized_frame);
     
