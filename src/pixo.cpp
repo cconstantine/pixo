@@ -48,6 +48,11 @@ void sig_int_handler(int s){
   glfwSetWindowShouldClose(window, GL_TRUE);
 }
 
+void GLFW_error(int error, const char* description)
+{
+    fprintf(stderr, "%d: %s\n", error, description);
+}
+
 
 int main( int argc, char** argv )
 {  
@@ -65,6 +70,7 @@ int main( int argc, char** argv )
 
   const std::string db_filename(argv[arg_i]);
   ALOGV("loading: %s\n", db_filename.c_str());
+    glfwSetErrorCallback(GLFW_error);
 
   // Initialise GLFW
   if( !glfwInit() )
@@ -94,8 +100,7 @@ int main( int argc, char** argv )
 
   window = glfwCreateWindow(width, height, "Pixo", monitor, NULL);
   if( window == NULL ){
-      fprintf( stderr, "Failed to open GLFW window.\n" );
-      getchar();
+      fprintf( stderr, "Failed to open GLFW window (%d, %d).\n", width, height );
       glfwTerminate();
       return -1;
   }

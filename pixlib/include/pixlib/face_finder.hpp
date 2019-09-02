@@ -116,6 +116,7 @@ namespace Pixlib {
 
     glm::vec3 face;
     TrackedFace tracked_face;
+    bool enabled;
 	private:
 
     bool running;

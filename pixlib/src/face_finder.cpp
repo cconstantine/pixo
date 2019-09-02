@@ -349,7 +349,7 @@ namespace Pixlib {
   }
 
   FaceFinder::FaceFinder() :
-   running(true)
+   running(true), enabled(true)
   {
     reader_thread = std::make_shared<std::thread>(&FaceFinder::thread_method, this);
   }
@@ -361,9 +361,15 @@ namespace Pixlib {
 
   void FaceFinder::thread_method() {
     while (running) {
-      face_detect.tick(face);
-
-      tracked_face = face_detect.tracked_face;
+      if (enabled) {
+        face_detect.tick(face);
+        tracked_face = face_detect.tracked_face;
+      } else {
+        tracked_face.timer.start();
+        float target = 1.0f/60;
+        std::this_thread::sleep_for(std::chrono::duration<float>(target));
+        tracked_face.timer.end();
+      }
     }
   }
 }
