@@ -21,30 +21,38 @@ namespace Pixlib {
   layout (location = 2) in vec4 framebuf_proj;
 
   out vec2 TexCoords;
+  out float led_brightness;
 
   uniform mat4 view_from;
   uniform mat4 proj_from;
+  uniform float brightness;
+  uniform vec3 camera_pos;
 
   void main()
   {
+    float led_r = length(camera_pos - position);
+    float cam_r = length(camera_pos);
+    //float c_i = 1/powe(cam_r);
+    //float l_i = 1/pow(led_r, 2);
+
       gl_Position = framebuf_proj;
 
       vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
       TexCoords =  vec2(texPos.x, texPos.y) / texPos.z * 0.5 + 0.5 ;
+      led_brightness = brightness * pow(led_r,2) * 1/pow(cam_r, 2) ;
   })",
   R"(in vec2 TexCoords;
-
+  in float led_brightness;
   out vec4 color;
 
   uniform sampler2D texture0;
 
-  uniform float brightness;
 
   void main()
   {
     if (TexCoords.x >= 0.0f && TexCoords.x <= 1.0f &&
         TexCoords.y >= 0.0f && TexCoords.y <= 1.0f)
-      color = texture(texture0, TexCoords) * brightness;
+      color = texture(texture0, TexCoords) * led_brightness;
     else
       color = vec4(0.0f);
     })")
@@ -60,8 +68,13 @@ namespace Pixlib {
     // Transformation matrices
     glm::mat4 led_projection = perspective.get_projection_matrix(perspective.get_zoom());
     glm::mat4 led_view = perspective.get_view_matrix();
+    glm::vec3 camera_pos = perspective.Position;
+
+    //fprintf(stderr, "%f, %f, %f\n", perspective.Position.x, perspective.Position.y, perspective.Position.z);
+
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "proj_from"), 1, GL_FALSE, glm::value_ptr(led_projection));
     glUniformMatrix4fv(glGetUniformLocation(shader.Program, "view_from"), 1, GL_FALSE, glm::value_ptr(led_view));
+    glUniform3fv(glGetUniformLocation(shader.Program, "camera_pos"), 1, glm::value_ptr(camera_pos));
 
     // Bind appropriate texture
     glActiveTexture(GL_TEXTURE0); // Active proper texture unit before binding
