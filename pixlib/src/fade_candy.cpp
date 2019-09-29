@@ -6,7 +6,7 @@ namespace Pixlib {
   FadeCandy::FadeCandy(const std::string& hostname, size_t size)
    : hostname(hostname), size(size),running(true), writer_thread(&FadeCandy::thread_method, this)
   {
-    // ALOGV("connecting to: %s\n", hostname.c_str());
+    //ALOGV("connecting to: %s\n", hostname.c_str());
     //opc_client.resolve(hostname.c_str());
 
     int frameBytes = size * 3;
@@ -53,7 +53,7 @@ namespace Pixlib {
       if(running || opc_client.isConnected()) {
 
         if (!opc_client.isConnected()) {
-            //fprintf(stderr, "Connecting to: %s\n", hostname.c_str());
+            ALOGV("Connecting to: %s\n", hostname.c_str());
         }
         opc_client.write(hostname.c_str(), framebuffer);
       }

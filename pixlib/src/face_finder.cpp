@@ -51,7 +51,7 @@ namespace Pixlib {
 
     float scale = 1.0f;
 
-    fprintf(stderr, "FaceDetectDlibMMOD::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
+    //fprintf(stderr, "FaceDetectDlibMMOD::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
 
     // Convert OpenCV image format to Dlib's image format
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
@@ -67,7 +67,7 @@ namespace Pixlib {
           (rect.rect.right() - rect.rect.left()),
           (rect.rect.bottom() - rect.rect.top())
         );
-      fprintf(stderr, "FaceDetectDlibMMOD::detect: (%d, %d) x (%d, %d)\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height);
+      //fprintf(stderr, "FaceDetectDlibMMOD::detect: (%d, %d) x (%d, %d)\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height);
       faceRects.push_back(cv_rect);
     }
 
@@ -86,7 +86,7 @@ namespace Pixlib {
     int frameHeight = frame.rows;
     int frameWidth = frame.cols;
 
-    fprintf(stderr, "FaceDetecOpenCVDNN::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
+    //fprintf(stderr, "FaceDetecOpenCVDNN::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
     cv::Mat inputBlob = cv::dnn::blobFromImage(frame, inScaleFactor, cv::Size(frameWidth, frameHeight));//, meanVal, false, false);
 
     net.setInput(inputBlob, "data");
@@ -112,7 +112,7 @@ namespace Pixlib {
 
       if(confidence > confidenceThreshold)
       {
-        fprintf(stderr, "FaceDetecOpenCVDNN::detect: (% 3d, % 3d) x (% 3d, % 3d) % 3.2f\%\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height, confidence*100);
+        //fprintf(stderr, "FaceDetecOpenCVDNN::detect: (% 3d, % 3d) x (% 3d, % 3d) % 3.2f\%\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height, confidence*100);
         faceRects.push_back(cv_rect);
       }
       
@@ -142,7 +142,7 @@ namespace Pixlib {
 
 
   TrackedFace FaceTracker::detect(const cv::Mat& frame) {
-    fprintf(stderr, "---------------------------------------------\n");
+    //fprintf(stderr, "---------------------------------------------\n");
     previous_tracking.timer.start();
     // cv::Mat frame;
     // external_frame.copyTo(frame);
