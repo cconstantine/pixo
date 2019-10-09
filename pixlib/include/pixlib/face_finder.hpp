@@ -39,19 +39,6 @@ namespace Pixlib {
     net_type mmodFaceDetector;
   };
 
-  class FaceDetecOpenCVDNN : public FaceDetect {
-  public:
-    FaceDetecOpenCVDNN();
-
-    virtual std::vector<cv::Rect> detect(const cv::Mat& frame);
-  private:
-
-    const std::string caffeConfigFile = "./pixlib/models/deploy.prototxt";
-    const std::string caffeWeightFile = "./pixlib/models/res10_300x300_ssd_iter_140000_fp16.caffemodel";
-
-    cv::dnn::Net net;
-  };
-
   class TrackedFace {
   public:
     // TrackedFace(const TrackedFace& copy);
@@ -64,6 +51,7 @@ namespace Pixlib {
     cv::Rect scoped_resized_face;
     bool has_face;
 
+    cv::Mat original_frame;
     cv::Mat scoped_resized_frame;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> had_face_at;
@@ -76,11 +64,12 @@ namespace Pixlib {
   {
   public:
 
-    virtual TrackedFace detect(const cv::Mat& frame);
+    virtual TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame);
 
   private:
     FaceDetectDlibMMOD face_detect;
     TrackedFace previous_tracking;
+    dlib::correlation_tracker tracker;
   };
 
   class RealsenseTracker
@@ -94,6 +83,8 @@ namespace Pixlib {
     cv::Mat image_matrix;
     FaceTracker face_detect;
 
+    Timer timer;
+
   private:
     void update_pipe();
 
@@ -105,7 +96,6 @@ namespace Pixlib {
     bool started;
 
     static cv::Mat frame_to_mat(const rs2::frame& f);
-
   };
 
 	class FaceFinder
