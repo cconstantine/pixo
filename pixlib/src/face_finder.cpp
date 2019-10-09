@@ -38,6 +38,24 @@ float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
   return sum / count;
 }
 
+cv::Rect rect_to_cvrect(dlib::rectangle rect) {
+  return cv::Rect(
+          rect.left(),
+          rect.top(),
+          (rect.right() - rect.left()),
+          (rect.bottom() - rect.top())
+        );
+}
+
+dlib::rectangle cvrect_to_rect(cv::Rect rect) {
+  return dlib::rectangle(
+          rect.x,
+          rect.y,
+          (rect.x + rect.width),
+          (rect.y + rect.height)
+        );
+}
+
 namespace Pixlib {
 
   FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
@@ -61,62 +79,11 @@ namespace Pixlib {
     std::vector<cv::Rect> faceRects;
     // Detect faces in the image
     for(dlib::mmod_rect rect : mmodFaceDetector(dlibMatrix)) {
-      cv::Rect cv_rect(
-          rect.rect.left(),
-          rect.rect.top(),
-          (rect.rect.right() - rect.rect.left()),
-          (rect.rect.bottom() - rect.rect.top())
-        );
+      cv::Rect cv_rect(rect_to_cvrect(rect.rect));
       //fprintf(stderr, "FaceDetectDlibMMOD::detect: (%d, %d) x (%d, %d)\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height);
       faceRects.push_back(cv_rect);
     }
 
-    return faceRects;
-  }
-
-  FaceDetecOpenCVDNN::FaceDetecOpenCVDNN(): net(cv::dnn::readNetFromCaffe(caffeConfigFile, caffeWeightFile)) {
-
-  }
-  
-  std::vector<cv::Rect> FaceDetecOpenCVDNN::detect(const cv::Mat& frame) {
-    const double inScaleFactor = 1.0;
-    const float confidenceThreshold = 0.7;
-    const cv::Scalar meanVal(104.0, 177.0, 123.0);
-
-    int frameHeight = frame.rows;
-    int frameWidth = frame.cols;
-
-    //fprintf(stderr, "FaceDetecOpenCVDNN::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
-    cv::Mat inputBlob = cv::dnn::blobFromImage(frame, inScaleFactor, cv::Size(frameWidth, frameHeight));//, meanVal, false, false);
-
-    net.setInput(inputBlob, "data");
-    cv::Mat detection = net.forward("detection_out");
-
-
-    cv::Mat detectionMat(detection.size[2], detection.size[3], CV_32F, detection.ptr<float>());
-    std::vector<cv::Rect> faceRects;
-
-    for(int i = 0; i < detectionMat.rows; i++)
-    {
-      float confidence = detectionMat.at<float>(i, 2);
-
-      int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * frameWidth);
-      int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frameHeight);
-      int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * frameWidth);
-      int y2 = static_cast<int>(detectionMat.at<float>(i, 6) * frameHeight);
-
-      cv::Rect cv_rect(
-        x1, y1,
-        x2 - x1, y2 - y1
-      );
-
-      if(confidence > confidenceThreshold)
-      {
-        //fprintf(stderr, "FaceDetecOpenCVDNN::detect: (% 3d, % 3d) x (% 3d, % 3d) % 3.2f\%\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height, confidence*100);
-        faceRects.push_back(cv_rect);
-      }
-      
-    }
     return faceRects;
   }
 
@@ -141,7 +108,7 @@ namespace Pixlib {
   }
 
 
-  TrackedFace FaceTracker::detect(const cv::Mat& frame) {
+  TrackedFace FaceTracker::detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
     //fprintf(stderr, "---------------------------------------------\n");
     previous_tracking.timer.start();
     // cv::Mat frame;
@@ -149,9 +116,21 @@ namespace Pixlib {
     previous_tracking.scoping = cv::Rect(
       0,0,
       frame.cols, frame.rows);
+    previous_tracking.original_frame = frame;
+
+    dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
+    //dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
 
     float scale = 1.5F;
     if ( previous_tracking.is_tracking()) {
+      tracker.update_noscale(dlibIm);
+
+      previous_tracking.face = rect_to_cvrect(tracker.get_position());
+
+      // fprintf(stderr, "FaceDetectDlibMMOD::detect: (%d, %d) x (%d, %d)\n",
+      //  previous_tracking.face.x,     previous_tracking.face.y,
+      //  previous_tracking.face.width, previous_tracking.face.height);
+
       previous_tracking.scoping.width  = previous_tracking.face.width  * 4;
       previous_tracking.scoping.height = previous_tracking.face.height * 4;
 
@@ -204,6 +183,8 @@ namespace Pixlib {
       previous_tracking.face.width = faces[0].width/scale;
       previous_tracking.face.height = faces[0].height/scale;
 
+      tracker.start_track(dlibIm, cvrect_to_rect(previous_tracking.face));
+
       previous_tracking.scoped_resized_face = faces[0];
     } else {
       previous_tracking.has_face = false;
@@ -225,7 +206,7 @@ namespace Pixlib {
   }
 
   void RealsenseTracker::tick(glm::vec3 &face_location) {
-   
+    timer.start();
     try {
 //      rs2::frameset frames;
       rs2::frameset unaligned_frames;
@@ -244,11 +225,13 @@ namespace Pixlib {
         rs2::video_frame images = aligned_frames.get_color_frame();
         rs2::depth_frame depths = aligned_frames.get_depth_frame();
         cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
+        cv::Mat depth_matrix = RealsenseTracker::frame_to_mat(depths);
         //frame.copyTo(image_matrix);
         
 
-        tracked_face = face_detect.detect(image_matrix);
-        if(!tracked_face.has_face) {
+        tracked_face = face_detect.detect(image_matrix, depth_matrix);
+        if(!tracked_face.is_tracking()) {
+          timer.end();
           return;
         }
         cv::Rect real_face = cv::Rect(
@@ -258,6 +241,7 @@ namespace Pixlib {
         float distance = rect_distance(depths, real_face);
 
         if (distance == 0.0f) {
+          timer.end();
           return;
         }
 
@@ -278,6 +262,7 @@ namespace Pixlib {
       started = false;
       update_pipe();
     }
+    timer.end();
     return;
   }
 
@@ -287,8 +272,8 @@ namespace Pixlib {
     if(!started && device_count > 0) {
       fprintf(stderr, "RealsenseTracker: starting with %d devices\n", device_count);
       rs2::config config;
-      config.enable_stream(RS2_STREAM_DEPTH, 1280, 720,  RS2_FORMAT_Z16, 15);
-      config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 15);//1920, 1080, RS2_FORMAT_RGB8, 30);
+      config.enable_stream(RS2_STREAM_DEPTH, 1280, 720,  RS2_FORMAT_Z16, 30);
+      config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 30);//1920, 1080, RS2_FORMAT_RGB8, 30);
       //config.enable_stream(RS2_STREAM_INFRARED, 1);
       // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
 
@@ -304,7 +289,7 @@ namespace Pixlib {
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
       if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
       {
-          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
+          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f); // Enable emitter
       }
 
       started = true;
