@@ -52,6 +52,7 @@ namespace Pixlib {
     bool has_face;
 
     cv::Mat original_frame;
+    cv::Mat original_depth;
     cv::Mat scoped_resized_frame;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> had_face_at;
@@ -94,6 +95,8 @@ namespace Pixlib {
     rs2::pipeline_profile pipeline_profile;
 
     bool started;
+
+    static cv::Mat depth_to_mat(const rs2::depth_frame& depth);
 
     static cv::Mat frame_to_mat(const rs2::frame& f);
   };

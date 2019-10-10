@@ -117,6 +117,7 @@ namespace Pixlib {
       0,0,
       frame.cols, frame.rows);
     previous_tracking.original_frame = frame;
+    previous_tracking.original_depth = depth_frame;
 
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     //dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
@@ -225,7 +226,7 @@ namespace Pixlib {
         rs2::video_frame images = aligned_frames.get_color_frame();
         rs2::depth_frame depths = aligned_frames.get_depth_frame();
         cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
-        cv::Mat depth_matrix = RealsenseTracker::frame_to_mat(depths);
+        cv::Mat depth_matrix;// = RealsenseTracker::depth_to_mat(depths);
         //frame.copyTo(image_matrix);
         
 
@@ -301,6 +302,18 @@ namespace Pixlib {
 
   }
 
+  cv::Mat RealsenseTracker::depth_to_mat(const rs2::depth_frame& depth) {    
+    const int w = depth.get_width();
+    const int h = depth.get_height();
+    dlib::uint16 frame_bytes[h][w];
+
+    for(int y = 0;y< h;y++) {
+      for(int x=0;x < w;x++) {
+        frame_bytes[y][x] = depth.get_distance(x, y) * 6553;
+      }
+    }
+    return cv::Mat(cv::Size(w, h), CV_16UC1, (void*)frame_bytes, cv::Mat::AUTO_STEP);
+  }
   // Convert rs2::frame to cv::Mat
   cv::Mat RealsenseTracker::frame_to_mat(const rs2::frame& f)
   {
@@ -323,6 +336,7 @@ namespace Pixlib {
       }
       else if (f.get_profile().format() == RS2_FORMAT_Z16)
       {
+
           return Mat(Size(w, h), CV_16UC1, (void*)f.get_data(), Mat::AUTO_STEP);
       }
       else if (f.get_profile().format() == RS2_FORMAT_Y8)

@@ -24,9 +24,10 @@ void draw_rectangle(cv::Mat& image, cv::Rect rect, cv::Scalar color = cv::Scalar
 
 int main( int argc, const char** argv )
 {
+  int i = 1;
   Pixlib::RealsenseTracker tracker;
   cv::namedWindow("Full Frame", cv::WINDOW_FULLSCREEN);
-  while(1)
+  while(i++)
   {
     glm::vec3 face;
     tracker.tick(face);
@@ -41,6 +42,19 @@ int main( int argc, const char** argv )
         if (tracker.tracked_face.has_face) {
           draw_rectangle(tracker.tracked_face.scoped_resized_frame, tracker.tracked_face.scoped_resized_face);
         }
+
+        // {
+        //   char filename[255];
+        //   snprintf(filename, sizeof(filename) - 1, "training/color/image_%d.png", i);
+        //   cv::imwrite(filename, tracker.tracked_face.original_frame);
+        // }
+
+        // {
+        //   char filename[255];
+        //   snprintf(filename, sizeof(filename) - 1, "training/depth/image_%d.png", i);
+        //   cv::imwrite(filename, tracker.tracked_face.original_depth);
+        // }        
+        //dlib::cv_image<dlib::uint16>    dlibIm(tracker.tracked_face.original_frame);
         //draw_rectangle(tracker.image_matrix, tracker.tracked_face.scoping, cv::Scalar(255,255,0));
       }
 
@@ -48,6 +62,8 @@ int main( int argc, const char** argv )
       fprintf(stderr, "%s: % 3.2fms ( % 3.2fms )\n", tracker.tracked_face.has_face ? " TRUE" : "FALSE", tracker.tracked_face.timer.duration()*1000, tracker.timer.duration()*1000);
       cv::imshow( "Full Frame", tracker.tracked_face.scoped_resized_frame);
       //cv::imshow( "Face Detection", tracker.image_matrix );
+
+
 
       int k = cv::waitKey(5);
       if(k == 27) {
