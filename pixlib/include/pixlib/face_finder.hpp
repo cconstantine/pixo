@@ -61,7 +61,12 @@ namespace Pixlib {
 
   };
 
-  class FaceTracker
+  class AbstractFaceTracker {
+  public:
+    virtual TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame) = 0;
+  };
+
+  class FaceTracker : public AbstractFaceTracker
   {
   public:
 
@@ -77,12 +82,11 @@ namespace Pixlib {
   {
   public:
     RealsenseTracker();
-    void tick(glm::vec3 &face_location);
+    void tick(AbstractFaceTracker& face_detect, glm::vec3 &face_location);
 
     TrackedFace  tracked_face;
     cv::Mat frame;
     cv::Mat image_matrix;
-    FaceTracker face_detect;
 
     Timer timer;
 

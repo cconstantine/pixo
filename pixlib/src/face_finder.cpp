@@ -122,7 +122,7 @@ namespace Pixlib {
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     //dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
 
-    float scale = 1.5F;
+    float scale = 1.0F;
     if ( previous_tracking.is_tracking()) {
       tracker.update_noscale(dlibIm);
 
@@ -206,7 +206,7 @@ namespace Pixlib {
     });   
   }
 
-  void RealsenseTracker::tick(glm::vec3 &face_location) {
+  void RealsenseTracker::tick(AbstractFaceTracker& face_detect, glm::vec3 &face_location) {
     timer.start();
     try {
 //      rs2::frameset frames;
@@ -226,7 +226,7 @@ namespace Pixlib {
         rs2::video_frame images = aligned_frames.get_color_frame();
         rs2::depth_frame depths = aligned_frames.get_depth_frame();
         cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
-        cv::Mat depth_matrix;// = RealsenseTracker::depth_to_mat(depths);
+        cv::Mat depth_matrix = RealsenseTracker::frame_to_mat(depths);
         //frame.copyTo(image_matrix);
         
 
@@ -359,9 +359,10 @@ namespace Pixlib {
   }
 
   void FaceFinder::thread_method() {
+    FaceTracker face_tracker;
     while (running) {
       if (enabled) {
-        face_detect.tick(face);
+        face_detect.tick(face_tracker, face);
         tracked_face = face_detect.tracked_face;
       } else {
         tracked_face.timer.start();
