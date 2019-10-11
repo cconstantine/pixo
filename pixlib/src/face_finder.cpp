@@ -38,25 +38,24 @@ float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
   return sum / count;
 }
 
-cv::Rect rect_to_cvrect(dlib::rectangle rect) {
-  return cv::Rect(
-          rect.left(),
-          rect.top(),
-          (rect.right() - rect.left()),
-          (rect.bottom() - rect.top())
-        );
-}
-
-dlib::rectangle cvrect_to_rect(cv::Rect rect) {
-  return dlib::rectangle(
-          rect.x,
-          rect.y,
-          (rect.x + rect.width),
-          (rect.y + rect.height)
-        );
-}
-
 namespace Pixlib {
+  cv::Rect rect_to_cvrect(dlib::rectangle rect) {
+    return cv::Rect(
+            rect.left(),
+            rect.top(),
+            (rect.right() - rect.left()),
+            (rect.bottom() - rect.top())
+          );
+  }
+
+  dlib::rectangle cvrect_to_rect(cv::Rect rect) {
+    return dlib::rectangle(
+            rect.x,
+            rect.y,
+            (rect.x + rect.width),
+            (rect.y + rect.height)
+          );
+  }
 
   FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
     cv::String mmodModelPath = "./pixlib/models/mmod_human_face_detector.dat";
@@ -227,7 +226,6 @@ namespace Pixlib {
         rs2::depth_frame depths = aligned_frames.get_depth_frame();
         cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
         cv::Mat depth_matrix = RealsenseTracker::frame_to_mat(depths);
-        //frame.copyTo(image_matrix);
         
 
         tracked_face = face_detect.detect(image_matrix, depth_matrix);

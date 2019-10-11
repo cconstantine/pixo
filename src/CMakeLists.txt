@@ -24,6 +24,9 @@ target_link_libraries(pixo pixlib sqlite3 nanogui ${NANOGUI_EXTRA_LIBS} libglew_
 add_executable(face_detection face_detection.cpp)
 target_link_libraries(face_detection pixlib )
 
+add_executable(trainer trainer.cpp)
+target_link_libraries(trainer dlib )
+
 
 add_executable(detectors detectors.cpp)
 target_link_libraries(detectors pixlib )
