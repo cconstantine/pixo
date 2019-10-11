@@ -266,7 +266,6 @@ namespace Pixlib {
   }
 
   void RealsenseTracker::update_pipe() {
-    fprintf(stderr, "enter update_pipe()\n");
     size_t device_count = realsense_context.query_devices().size();
     if(!started && device_count > 0) {
       fprintf(stderr, "RealsenseTracker: starting with %d devices\n", device_count);
@@ -296,8 +295,6 @@ namespace Pixlib {
       started = false;
       pipe->stop();
     }
-    fprintf(stderr, "exit update_pipe()\n");
-
   }
 
   cv::Mat RealsenseTracker::depth_to_mat(const rs2::depth_frame& depth) {    

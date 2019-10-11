@@ -21,6 +21,9 @@ target_compile_features(pixo PRIVATE cxx_std_14)
 
 target_link_libraries(pixo pixlib sqlite3 nanogui ${NANOGUI_EXTRA_LIBS} libglew_static)
 
+add_executable(capture_training capture_training.cpp)
+target_link_libraries(capture_training pixlib )
+
 add_executable(face_detection face_detection.cpp)
 target_link_libraries(face_detection pixlib )
 
