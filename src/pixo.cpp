@@ -242,12 +242,32 @@ int main( int argc, char** argv )
     false)->setValue("");
 
 
-  gui->addVariable<string>("Faces speed",
+  gui->addVariable<string>("Frame Speed",
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
       App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%4.2fms", app->face_finder.tracked_face.timer.duration()*1000);
+      sprintf(ret, "%07.2fms", app->face_finder.realsense_timer.duration()*1000 -app->face_finder.tracked_face.timer.duration()*1000);
+      return ret;
+    },
+    false)->setValue("0000.00ms");
+
+  gui->addVariable<string>("Tracking speed",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      App* app = (App*)glfwGetWindowUserPointer(window);
+      sprintf(ret, "%04.2fms", app->face_finder.tracked_face.timer.duration()*1000);
+      return ret;
+    },
+    false)->setValue("0000.00ms");
+
+  gui->addVariable<string>("Tracking FPS",
+    [&](string value) { value; },
+    [&]() -> string {
+      char ret[256];
+      App* app = (App*)glfwGetWindowUserPointer(window);
+      sprintf(ret, "%04.2ffps", 1.0f / app->face_finder.realsense_timer.duration());
       return ret;
     },
     false)->setValue("0000.00ms");

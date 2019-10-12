@@ -113,6 +113,7 @@ namespace Pixlib {
 
     glm::vec3 face;
     TrackedFace tracked_face;
+    Timer realsense_timer;
     bool enabled;
 	private:
 

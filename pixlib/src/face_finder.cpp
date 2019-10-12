@@ -121,7 +121,7 @@ namespace Pixlib {
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     //dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
 
-    float scale = 1.0F;
+    float scale = 1.5F;
     if ( previous_tracking.is_tracking()) {
       tracker.update_noscale(dlibIm);
 
@@ -359,6 +359,7 @@ namespace Pixlib {
       if (enabled) {
         face_detect.tick(face_tracker, face);
         tracked_face = face_detect.tracked_face;
+        realsense_timer = face_detect.timer;
       } else {
         tracked_face.timer.start();
         float target = 1.0f/60;
