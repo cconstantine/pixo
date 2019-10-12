@@ -119,7 +119,7 @@ namespace Pixlib {
 
   void App::render_leds() {
     face_finder.enabled = brightness > 0.01;
-    if (face_finder.tracked_face.has_face) {
+    if (face_finder.tracked_face.is_tracking()) {
       glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + face_finder.face;
       //ALOGV("face: %s\n", glm::to_string(face_finder.face).c_str());
 
