@@ -287,7 +287,7 @@ namespace Pixlib {
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
       if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
       {
-          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f); // Enable emitter
+          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
       }
 
       started = true;
