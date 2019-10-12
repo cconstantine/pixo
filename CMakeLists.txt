@@ -2,8 +2,6 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo)
 
-add_definitions(-fPIC)
-
 ###################### DLIB     ###############################
 include(./ext/dlib/dlib/cmake)
 
@@ -30,7 +28,7 @@ include_directories( ext/glm/ )
 set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
-set(BUILD_WITH_CUDA OFF CACHE BOOL " " FORCE)
+set(BUILD_WITH_CUDA ON CACHE BOOL " " FORCE)
 set(BUILD_WITH_TM2  OFF CACHE BOOL " " FORCE)
 add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
 include_directories(ext/librealsense/include)

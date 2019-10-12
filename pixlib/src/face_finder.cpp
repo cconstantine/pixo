@@ -58,7 +58,7 @@ namespace Pixlib {
   }
 
   FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
-    cv::String mmodModelPath = "./pixlib/models/mmod_human_face_detector.dat";
+    cv::String mmodModelPath = "../pixlib/models/mmod_human_face_detector.dat";
     dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
   }
 

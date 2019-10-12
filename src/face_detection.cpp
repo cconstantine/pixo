@@ -46,7 +46,7 @@ int main( int argc, const char** argv )
       }
 
       putText(tracker.tracked_face.scoped_resized_frame, cv::format("%d x %d - % 4.2fms", frameHeight, frameWidth, tracker.tracked_face.timer.duration()*1000), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 255), 4);
-      fprintf(stderr, "%s: % 3.2fms ( % 3.2fms )\n", tracker.tracked_face.has_face ? " TRUE" : "FALSE", tracker.tracked_face.timer.duration()*1000, tracker.timer.duration()*1000);
+      fprintf(stderr, "%s: % 3.2fms ( % 3.2fms, % 3.2fms )\n", tracker.tracked_face.has_face ? " TRUE" : "FALSE", tracker.timer.duration()*1000, tracker.tracked_face.timer.duration()*1000, tracker.timer.duration()*1000 - tracker.tracked_face.timer.duration()*1000);
       cv::imshow( "Full Frame", tracker.tracked_face.scoped_resized_frame);
       //cv::imshow( "Face Detection", tracker.image_matrix );
 
