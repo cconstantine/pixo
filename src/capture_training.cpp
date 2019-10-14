@@ -45,30 +45,31 @@ void draw_rectangle(cv::Mat& image, cv::Rect rect, cv::Scalar color = cv::Scalar
 class FaceTrackerRecorder : public Pixlib::AbstractFaceTracker
 {
 public:
+  FaceTrackerRecorder() : timer(20) {}
 
   virtual Pixlib::TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
     static int i = 1;
     i++;
-    previous_tracking.timer.start();
+    timer.start();
 
-    previous_tracking.scoping = cv::Rect(
-      0,0,
-      frame.cols, frame.rows);
-    previous_tracking.original_frame = frame.clone();
-    previous_tracking.original_depth = depth_frame.clone();
-
+    original_frame = frame.clone();
+    original_depth = depth_frame.clone();
 
     faces = face_detect.detect(frame);
 
-    previous_tracking.timer.end();
-    return previous_tracking;
+    timer.end();
+
+    return Pixlib::TrackedFace();
   }
 
   std::vector<cv::Rect> faces;
+  Pixlib::Timer timer;
+
+  cv::Mat original_frame;
+  cv::Mat original_depth;
 
 private:
   Pixlib::FaceDetectDlibMMOD face_detect;
-  Pixlib::TrackedFace previous_tracking;
 };
 
 class DatasetManager {
@@ -136,8 +137,8 @@ int main( int argc, const char** argv )
     glm::vec3 face;
     tracker.tick(face_tracker, face);
 
-    int frameHeight = tracker.tracked_face.original_frame.rows;
-    int frameWidth = tracker.tracked_face.original_frame.cols;
+    int frameHeight = face_tracker.original_frame.rows;
+    int frameWidth = face_tracker.original_frame.cols;
 
     if (frameHeight > 0 && frameWidth > 0) {
       dlib::image_dataset_metadata::image image;
@@ -149,18 +150,18 @@ int main( int argc, const char** argv )
 
     
       if (face_tracker.faces.size() > 0) {
-        color_dataset.addImage(tracker.tracked_face.original_frame, image);
-        depth_dataset.addImage(tracker.tracked_face.original_depth, image);
+        color_dataset.addImage(face_tracker.original_frame, image);
+        depth_dataset.addImage(face_tracker.original_depth, image);
       }
 
       for (cv::Rect face : face_tracker.faces) {
-        draw_rectangle(tracker.tracked_face.original_frame, face);
+        draw_rectangle(face_tracker.original_frame, face);
       }
 
     
-      putText(tracker.tracked_face.original_frame, cv::format("%d x %d - % 4.2fms", frameHeight, frameWidth, tracker.tracked_face.timer.duration()*1000), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 255), 4);
-      fprintf(stderr, "%s: % 3.2fms ( % 3.2fms )\n", face_tracker.faces.size() ? " TRUE" : "FALSE", tracker.tracked_face.timer.duration()*1000, tracker.timer.duration()*1000);
-      cv::imshow( "Full Frame", tracker.tracked_face.original_frame);
+      putText(face_tracker.original_frame, cv::format("%d x %d - % 4.2fms", frameHeight, frameWidth, face_tracker.timer.duration()*1000), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 255), 4);
+      fprintf(stderr, "%s: % 3.2fms ( % 3.2fms )\n", face_tracker.faces.size() ? " TRUE" : "FALSE", face_tracker.timer.duration()*1000, tracker.timer.duration()*1000);
+      cv::imshow( "Full Frame", face_tracker.original_frame);
 
       int k = cv::waitKey(5);
       if(k == 27) {

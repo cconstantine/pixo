@@ -66,10 +66,6 @@ namespace Pixlib {
     int frameHeight = frame.rows;
     int frameWidth = frame.cols;
 
-    float scale = 1.0f;
-
-    //fprintf(stderr, "FaceDetectDlibMMOD::detect: Detecting on image %d x %d\n", frameWidth, frameHeight);
-
     // Convert OpenCV image format to Dlib's image format
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     dlib::matrix<dlib::rgb_pixel> dlibMatrix;
@@ -79,16 +75,11 @@ namespace Pixlib {
     // Detect faces in the image
     for(dlib::mmod_rect rect : mmodFaceDetector(dlibMatrix)) {
       cv::Rect cv_rect(rect_to_cvrect(rect.rect));
-      //fprintf(stderr, "FaceDetectDlibMMOD::detect: (%d, %d) x (%d, %d)\n", cv_rect.x, cv_rect.y, cv_rect.width, cv_rect.height);
       faceRects.push_back(cv_rect);
     }
 
     return faceRects;
   }
-
-  // TrackedFace::TrackedFace(const TrackedFace& copy) :
-  //  face(copy.face), has_face(copy.has_face), scoped_resized_face(copy.scoped_resized_face), scoping(copy.scoping), had_face_at(copy.had_face_at), scoped_resized_frame(copy.scoped_resized_frame)
-  // { }
 
   TrackedFace::TrackedFace() :
    has_face(false), had_face_at(std::chrono::system_clock::from_time_t(0)), timer(2)
@@ -108,84 +99,73 @@ namespace Pixlib {
 
 
   TrackedFace FaceTracker::detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
-    //fprintf(stderr, "---------------------------------------------\n");
     previous_tracking.timer.start();
-    // cv::Mat frame;
-    // external_frame.copyTo(frame);
-    previous_tracking.scoping = cv::Rect(
+
+    cv::Rect scoping;
+    cv::Mat original_frame;
+    cv::Mat original_depth;
+
+    scoping = cv::Rect(
       0,0,
       frame.cols, frame.rows);
-    previous_tracking.original_frame = frame;
-    previous_tracking.original_depth = depth_frame;
+    original_frame = frame;
+    original_depth = depth_frame;
 
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     //dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
 
-    float scale = 1.5F;
+    float scale = 1.0F;
     if ( previous_tracking.is_tracking()) {
       tracker.update_noscale(dlibIm);
 
       previous_tracking.face = rect_to_cvrect(tracker.get_position());
 
-      // fprintf(stderr, "FaceDetectDlibMMOD::detect: (%d, %d) x (%d, %d)\n",
-      //  previous_tracking.face.x,     previous_tracking.face.y,
-      //  previous_tracking.face.width, previous_tracking.face.height);
 
-      previous_tracking.scoping.width  = previous_tracking.face.width  * 4;
-      previous_tracking.scoping.height = previous_tracking.face.height * 4;
+      scoping.width  = previous_tracking.face.width  * 4;
+      scoping.height = previous_tracking.face.height * 4;
 
-      previous_tracking.scoping.x = previous_tracking.face.x - previous_tracking.face.width  * 1.5;
-      previous_tracking.scoping.y = previous_tracking.face.y - previous_tracking.face.height * 1.5;
+      scoping.x = previous_tracking.face.x - previous_tracking.face.width  * 1.5;
+      scoping.y = previous_tracking.face.y - previous_tracking.face.height * 1.5;
 
-      if (previous_tracking.scoping.x < 0) {
-        previous_tracking.scoping.width = previous_tracking.scoping.width + previous_tracking.scoping.x;
-        previous_tracking.scoping.x = 0;
+      if (scoping.x < 0) {
+        scoping.width = scoping.width + scoping.x;
+        scoping.x = 0;
       }
-      if (previous_tracking.scoping.y < 0) {
-        previous_tracking.scoping.height = previous_tracking.scoping.height + previous_tracking.scoping.y;
-        previous_tracking.scoping.y = 0;
+      if (scoping.y < 0) {
+        scoping.height = scoping.height + scoping.y;
+        scoping.y = 0;
       }
 
-      if (previous_tracking.scoping.width + previous_tracking.scoping.x > frame.cols) {
-        previous_tracking.scoping.width = frame.cols - previous_tracking.scoping.x;
+      if (scoping.width + scoping.x > frame.cols) {
+        scoping.width = frame.cols - scoping.x;
       }
-      if (previous_tracking.scoping.height + previous_tracking.scoping.y > frame.rows) {
-        previous_tracking.scoping.height = frame.rows - previous_tracking.scoping.y;
+      if (scoping.height + scoping.y > frame.rows) {
+        scoping.height = frame.rows - scoping.y;
       }
       
       const int target_scoping = 400;
-      // if (previous_tracking.scoping.width < min_scoping || previous_tracking.scoping.height < min_scoping) {
-      float scaling_based_on = previous_tracking.scoping.width < previous_tracking.scoping.height ? previous_tracking.scoping.width : previous_tracking.scoping.height;
+      float scaling_based_on = scoping.width < scoping.height ? scoping.width : scoping.height;
 
       scale = target_scoping / scaling_based_on;
-
     }
 
-    //fprintf(stderr, "Scoping (%d, %d) x (%d, %d)\n", previous_tracking.scoping.x, previous_tracking.scoping.y, previous_tracking.scoping.width, previous_tracking.scoping.height);
-    cv::Mat scoped_frame = frame(previous_tracking.scoping);
+    cv::Mat scoped_frame = frame(scoping);
+    cv::resize(scoped_frame, scoped_resized_frame, cv::Size(), scale, scale);
 
-    //fprintf(stderr, "scaling: % 2.1f\n", scale);
-    cv::resize(scoped_frame, previous_tracking.scoped_resized_frame, cv::Size(), scale, scale);
-
-    std::vector<cv::Rect> faces = face_detect.detect(previous_tracking.scoped_resized_frame);
-    
-    //fprintf(stderr, "faces        : %d\n", faces.size());
-
+    std::vector<cv::Rect> faces = face_detect.detect(scoped_resized_frame);
   
     if(faces.size() > 0) {
-      //fprintf(stderr, "Face    (%d, %d) x (%d, %d)\n", faces[0].x, faces[0].y, faces[0].width, faces[0].height);    
-
       previous_tracking.has_face = true;
       previous_tracking.had_face_at = std::chrono::high_resolution_clock::now();
 
-      previous_tracking.face.x = faces[0].x/scale + previous_tracking.scoping.x;
-      previous_tracking.face.y = faces[0].y/scale + previous_tracking.scoping.y;
+      previous_tracking.face.x = faces[0].x/scale + scoping.x;
+      previous_tracking.face.y = faces[0].y/scale + scoping.y;
       previous_tracking.face.width = faces[0].width/scale;
       previous_tracking.face.height = faces[0].height/scale;
 
       tracker.start_track(dlibIm, cvrect_to_rect(previous_tracking.face));
 
-      previous_tracking.scoped_resized_face = faces[0];
+      scoped_resized_face = faces[0];
     } else {
       previous_tracking.has_face = false;
     }
@@ -208,25 +188,16 @@ namespace Pixlib {
   void RealsenseTracker::tick(AbstractFaceTracker& face_detect, glm::vec3 &face_location) {
     timer.start();
     try {
-//      rs2::frameset frames;
       rs2::frameset unaligned_frames;
       rs2::align align(rs2_stream::RS2_STREAM_COLOR);
 
       if (started ) {
-
-        // frames = pipe->wait_for_frames();
-        // rs2::video_frame images = frames.get_infrared_frame();
-        // rs2::depth_frame depths = frames.get_depth_frame();
-        // cv::Mat frame = RealsenseTracker::frame_to_mat(images);
-        // cv::cvtColor(frame, image_matrix, cv::COLOR_GRAY2RGB);
-
         unaligned_frames = pipe->wait_for_frames();
         rs2::frameset aligned_frames = align.process(unaligned_frames);
         rs2::video_frame images = aligned_frames.get_color_frame();
         rs2::depth_frame depths = aligned_frames.get_depth_frame();
         cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
         cv::Mat depth_matrix = RealsenseTracker::frame_to_mat(depths);
-        
 
         tracked_face = face_detect.detect(image_matrix, depth_matrix);
         if(!tracked_face.is_tracking()) {
@@ -249,10 +220,6 @@ namespace Pixlib {
         float pixel[2] = {real_face.x + real_face.width / 2, real_face.y + real_face.height / 2 };
         rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
         face_location.y = -face_location.y;
-        
-        //fprintf(stderr, "FaceFinder: Face -> (%2.2f, %2.2f, %2.2f)\n",
-        //  face_location.x, face_location.y, face_location.z);
-
       } else {
         update_pipe();
       }
@@ -271,8 +238,7 @@ namespace Pixlib {
       fprintf(stderr, "RealsenseTracker: starting with %d devices\n", device_count);
       rs2::config config;
       config.enable_stream(RS2_STREAM_DEPTH, 1280, 720,  RS2_FORMAT_Z16, 30);
-      config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 30);//1920, 1080, RS2_FORMAT_RGB8, 30);
-      //config.enable_stream(RS2_STREAM_INFRARED, 1);
+      config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 30);
       // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
 
       // config.enable_stream(RS2_STREAM_INFRARED, 2);
@@ -297,18 +263,6 @@ namespace Pixlib {
     }
   }
 
-  cv::Mat RealsenseTracker::depth_to_mat(const rs2::depth_frame& depth) {    
-    const int w = depth.get_width();
-    const int h = depth.get_height();
-    dlib::uint16 frame_bytes[h][w];
-
-    for(int y = 0;y< h;y++) {
-      for(int x=0;x < w;x++) {
-        frame_bytes[y][x] = depth.get_distance(x, y) * 6553;
-      }
-    }
-    return cv::Mat(cv::Size(w, h), CV_16UC1, (void*)frame_bytes, cv::Mat::AUTO_STEP);
-  }
   // Convert rs2::frame to cv::Mat
   cv::Mat RealsenseTracker::frame_to_mat(const rs2::frame& f)
   {

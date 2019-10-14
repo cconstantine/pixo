@@ -41,24 +41,16 @@ namespace Pixlib {
 
   class TrackedFace {
   public:
-    // TrackedFace(const TrackedFace& copy);
     TrackedFace();
 
 
     bool is_tracking();
     cv::Rect face;
-    cv::Rect scoping;
-    cv::Rect scoped_resized_face;
     bool has_face;
-
-    cv::Mat original_frame;
-    cv::Mat original_depth;
-    cv::Mat scoped_resized_frame;
 
     std::chrono::time_point<std::chrono::high_resolution_clock> had_face_at;
 
     Timer timer;
-
   };
 
   class AbstractFaceTracker {
@@ -72,6 +64,8 @@ namespace Pixlib {
 
     virtual TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame);
 
+    cv::Rect scoped_resized_face;;
+    cv::Mat scoped_resized_frame;
   private:
     FaceDetectDlibMMOD face_detect;
     TrackedFace previous_tracking;
@@ -93,14 +87,11 @@ namespace Pixlib {
   private:
     void update_pipe();
 
-
     rs2::context realsense_context;
     std::shared_ptr<rs2::pipeline> pipe;
     rs2::pipeline_profile pipeline_profile;
 
     bool started;
-
-    static cv::Mat depth_to_mat(const rs2::depth_frame& depth);
 
     static cv::Mat frame_to_mat(const rs2::frame& f);
   };
