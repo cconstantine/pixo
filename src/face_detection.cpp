@@ -39,14 +39,14 @@ int main( int argc, const char** argv )
       //fprintf(stderr, "%d x %d\n", frameWidth, frameHeight);
       if (tracker.tracked_face.is_tracking())
       {
-        if (tracker.tracked_face.has_face) {
+        if (tracker.tracked_face.get_has_face()) {
           draw_rectangle(face_tracker.scoped_resized_frame, face_tracker.scoped_resized_face);
         }
         //draw_rectangle(tracker.image_matrix, tracker.tracked_face.scoping, cv::Scalar(255,255,0));
       }
 
       putText(face_tracker.scoped_resized_frame, cv::format("%d x %d - % 4.2fms", frameHeight, frameWidth, tracker.tracked_face.timer.duration()*1000), cv::Point(10, 50), cv::FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(0, 0, 255), 4);
-      fprintf(stderr, "%s: % 3.2fms ( % 3.2fms, % 3.2fms )\n", tracker.tracked_face.has_face ? " TRUE" : "FALSE", tracker.timer.duration()*1000, tracker.tracked_face.timer.duration()*1000, tracker.timer.duration()*1000 - tracker.tracked_face.timer.duration()*1000);
+      fprintf(stderr, "%s: % 3.2fms ( % 3.2fms, % 3.2fms )\n", tracker.tracked_face.get_has_face() ? " TRUE" : "FALSE", tracker.timer.duration()*1000, tracker.tracked_face.timer.duration()*1000, tracker.timer.duration()*1000 - tracker.tracked_face.timer.duration()*1000);
       cv::imshow( "Full Frame", face_tracker.scoped_resized_frame);
       //cv::imshow( "Face Detection", tracker.image_matrix );
 

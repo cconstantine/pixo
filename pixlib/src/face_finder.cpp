@@ -11,7 +11,6 @@
 #include <librealsense2/rsutil.h>
 
 float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
-
   // fprintf(stderr, "rect_distance: depth: (%d, %d)\n", depth.get_width(), depth.get_height());
   // fprintf(stderr, "rect_distance: area:  (%d, %d) x (%d, %d)\n", area.x, area.y, area.width, area.height);
   float sum = 0;
@@ -82,21 +81,76 @@ namespace Pixlib {
   }
 
   TrackedFace::TrackedFace() :
-   has_face(false), had_face_at(std::chrono::system_clock::from_time_t(0)), timer(2)
+   is_copy(false),
+   has_face(false),
+   was_tracking(false),
+   started_tracking_at(std::chrono::system_clock::from_time_t(0)),
+   had_face_at(std::chrono::system_clock::from_time_t(0)),
+   timer(2)
+  { }
+
+  TrackedFace::TrackedFace(const TrackedFace& copy) :
+    is_copy(true),
+    face(copy.face),
+    has_face(copy.has_face),
+    was_tracking(copy.was_tracking),
+    started_tracking_at(copy.started_tracking_at),
+    had_face_at(copy.had_face_at),
+    timer(copy.timer)
   { }
 
   bool TrackedFace::is_tracking()
   {
-    const float seconds_to_track = 1.0f;
-    if (has_face) {
-      return true;
-    }
-
     std::chrono::time_point<std::chrono::high_resolution_clock> now = std::chrono::high_resolution_clock::now();
+
     std::chrono::duration<float> since_last_face = now - had_face_at;
-    return since_last_face.count() < seconds_to_track;
+    bool tracking = has_face || since_last_face.count() < 1.0f;
+
+    std::chrono::duration<float> since_started_tracking = now - started_tracking_at;
+    if (tracking && since_started_tracking.count() > 30.0f) {
+      if (!is_copy)
+        fprintf(stderr, "Face tracking timed out\n");
+      cancel_tracking();
+      return false;
+    }
+    return tracking;
   }
 
+  bool TrackedFace::get_has_face()
+  {
+    return has_face;
+  }
+
+  void TrackedFace::tracking(cv::Rect face)
+  {
+    if(!is_tracking()) {
+      if (!is_copy)
+        fprintf(stderr, "Face tracking started\n");
+      started_tracking_at = std::chrono::high_resolution_clock::now();
+    }
+    this->face = face;
+    has_face = true;
+    had_face_at = std::chrono::high_resolution_clock::now();
+    was_tracking = true;
+  }
+
+  void TrackedFace::not_tracking()
+  {
+    has_face = false;
+    if (was_tracking && !is_tracking()) {
+      if (!is_copy)
+        fprintf(stderr, "Face tracking stopped\n");
+      cancel_tracking();
+    }
+  }
+
+  void TrackedFace::cancel_tracking()
+  {
+      has_face = false;
+      was_tracking = false;
+      started_tracking_at = std::chrono::system_clock::from_time_t(0);
+      had_face_at = std::chrono::system_clock::from_time_t(0);
+  }
 
   TrackedFace FaceTracker::detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
     previous_tracking.timer.start();
@@ -155,19 +209,21 @@ namespace Pixlib {
     std::vector<cv::Rect> faces = face_detect.detect(scoped_resized_frame);
   
     if(faces.size() > 0) {
-      previous_tracking.has_face = true;
-      previous_tracking.had_face_at = std::chrono::high_resolution_clock::now();
+      int selected_face = rand() % faces.size();
 
-      previous_tracking.face.x = faces[0].x/scale + scoping.x;
-      previous_tracking.face.y = faces[0].y/scale + scoping.y;
-      previous_tracking.face.width = faces[0].width/scale;
-      previous_tracking.face.height = faces[0].height/scale;
+      cv::Rect face;
+      face.x = faces[selected_face].x/scale + scoping.x;
+      face.y = faces[selected_face].y/scale + scoping.y;
+      face.width = faces[selected_face].width/scale;
+      face.height = faces[selected_face].height/scale;
+
+      previous_tracking.tracking(face);
 
       tracker.start_track(dlibIm, cvrect_to_rect(previous_tracking.face));
 
-      scoped_resized_face = faces[0];
+      scoped_resized_face = faces[selected_face];
     } else {
-      previous_tracking.has_face = false;
+      previous_tracking.not_tracking();
     }
 
     previous_tracking.timer.end();

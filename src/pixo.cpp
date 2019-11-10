@@ -226,7 +226,7 @@ int main( int argc, char** argv )
     [&]() -> string {
       char ret[256];
       App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%2d", app->face_finder.tracked_face.has_face ? 1 : 0);
+      sprintf(ret, "%2d", app->face_finder.tracked_face.get_has_face() ? 1 : 0);
       return ret;
     },
     false)->setValue("00");
