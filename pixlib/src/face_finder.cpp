@@ -364,10 +364,21 @@ namespace Pixlib {
   }
 
   void FaceFinder::thread_method() {
+    std::chrono::time_point<std::chrono::high_resolution_clock> last_face_at = std::chrono::high_resolution_clock::now();
     FaceTracker face_tracker;
     while (running) {
       if (enabled) {
         face_detect.tick(face_tracker, face);
+
+        if (tracked_face.is_tracking()) {
+          last_face_at = std::chrono::high_resolution_clock::now();
+        } else {
+          std::chrono::duration<float> since_last_face = std::chrono::high_resolution_clock::now() - last_face_at;
+          if (since_last_face.count() > 300) {
+            std::this_thread::sleep_for(std::chrono::duration<float>(1));
+          }
+        }
+
         tracked_face = face_detect.tracked_face;
         realsense_timer = face_detect.timer;
       } else {
