@@ -9,7 +9,7 @@
 #include "opencv2/objdetect.hpp"
 #include <chrono>
 
-#include <pixlib/face_finder.hpp>
+#include <pixsense/face_finder.hpp>
 #include <sys/stat.h>
 
 cv::Rect rect_to_cvrect(dlib::rectangle rect) {
@@ -42,12 +42,12 @@ void draw_rectangle(cv::Mat& image, cv::Rect rect, cv::Scalar color = cv::Scalar
 }
 
 
-class FaceTrackerRecorder : public Pixlib::AbstractFaceTracker
+class FaceTrackerRecorder : public Pixsense::AbstractFaceTracker
 {
 public:
   FaceTrackerRecorder() : timer(20) {}
 
-  virtual Pixlib::TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
+  virtual Pixsense::TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
     static int i = 1;
     i++;
     timer.start();
@@ -59,7 +59,7 @@ public:
 
     timer.end();
 
-    return Pixlib::TrackedFace();
+    return Pixsense::TrackedFace();
   }
 
   std::vector<cv::Rect> faces;
@@ -69,7 +69,7 @@ public:
   cv::Mat original_depth;
 
 private:
-  Pixlib::FaceDetectDlibMMOD face_detect;
+  Pixsense::FaceDetectDlibMMOD face_detect;
 };
 
 class DatasetManager {
@@ -129,7 +129,7 @@ int main( int argc, const char** argv )
   DatasetManager color_dataset(directory, "color");
   DatasetManager depth_dataset(directory, "depth");
 
-  Pixlib::RealsenseTracker tracker;
+  Pixsense::RealsenseTracker tracker;
   FaceTrackerRecorder face_tracker;
   cv::namedWindow("Full Frame", cv::WINDOW_FULLSCREEN);
   while(true)

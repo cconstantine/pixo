@@ -1,7 +1,6 @@
 #include <librealsense2/rs.hpp>
 #include <memory>
 #include <glm/glm.hpp>
-#include <thread>
 #include <pixlib/timer.hpp>
 
 #include "opencv2/objdetect/objdetect.hpp"
@@ -16,7 +15,7 @@
 #include "opencv2/objdetect.hpp"
 #include <opencv2/dnn.hpp>
 
-namespace Pixlib {
+namespace Pixsense {
 
   class  FaceDetect {
   public:
@@ -51,7 +50,7 @@ namespace Pixlib {
     void cancel_tracking();
 
     cv::Rect face;
-    Timer timer;
+    Pixlib::Timer timer;
 
   private:
     bool is_copy;
@@ -90,7 +89,7 @@ namespace Pixlib {
     cv::Mat frame;
     cv::Mat image_matrix;
 
-    Timer timer;
+    Pixlib::Timer timer;
 
   private:
     void update_pipe();
@@ -112,7 +111,7 @@ namespace Pixlib {
 
     glm::vec3 face;
     TrackedFace tracked_face;
-    Timer realsense_timer;
+    Pixlib::Timer realsense_timer;
     bool enabled;
 	private:
 

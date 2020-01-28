@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package pixrpc;
+
+service Pattern {
+  rpc target_location (LocationRequest) returns (LocationResponse) {}
+}
+
+// The request message containing the user's name.
+message LocationRequest {
+  float x = 1;
+  float y = 2;
+  float z = 3;
+}
+
+// The response message containing the greetings
+message LocationResponse {
+
+}

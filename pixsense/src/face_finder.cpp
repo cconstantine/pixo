@@ -1,4 +1,4 @@
-#include <pixlib/face_finder.hpp>
+#include <pixsense/face_finder.hpp>
 
 #include <limits>
 #include <dlib/opencv.h>
@@ -37,7 +37,7 @@ float rect_distance(const rs2::depth_frame& depth, const cv::Rect& area) {
   return sum / count;
 }
 
-namespace Pixlib {
+namespace Pixsense {
   cv::Rect rect_to_cvrect(dlib::rectangle rect) {
     return cv::Rect(
             rect.left(),
@@ -57,7 +57,7 @@ namespace Pixlib {
   }
 
   FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
-    cv::String mmodModelPath = "../pixlib/models/mmod_human_face_detector.dat";
+    cv::String mmodModelPath = "../pixsense/models/mmod_human_face_detector.dat";
     dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
   }
 
@@ -71,6 +71,7 @@ namespace Pixlib {
     dlib::assign_image(dlibMatrix, dlibIm);
 
     std::vector<cv::Rect> faceRects;
+
     // Detect faces in the image
     for(dlib::mmod_rect rect : mmodFaceDetector(dlibMatrix)) {
       cv::Rect cv_rect(rect_to_cvrect(rect.rect));

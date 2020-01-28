@@ -48,6 +48,12 @@ include_directories(src)
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
+####################### PIXSENSE ##############################
+add_subdirectory(pixsense)
+include_directories(${PIXSENSE_INCLUDE})
+
+###################### PIXLIB   ###############################
+add_subdirectory(pixrpc)
 
 ###################### PIXO     ################################
 add_subdirectory(src)

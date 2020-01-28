@@ -10,7 +10,6 @@
 #include <pixlib/scene.hpp>
 #include <pixlib/timer.hpp>
 #include <pixlib/fade_candy.hpp>
-#include <pixlib/face_finder.hpp>
 
 #include <sstream>
 
@@ -36,6 +35,8 @@ namespace Pixlib {
     void next_pattern();
     void prev_pattern();
 
+    void set_target_location(glm::vec3 target);
+
     void register_pattern(std::shared_ptr<Pattern> pattern);
     const Pattern& get_pattern();
     const Texture& get_pattern_texture();
@@ -45,7 +46,6 @@ namespace Pixlib {
 
     float brightness;
     float rotation;
-    FaceFinder face_finder;
 
     IsoCamera viewed_from;
     IsoCamera camera;
@@ -59,5 +59,6 @@ namespace Pixlib {
     LedClusterCluster led_clusters;
 
     std::shared_ptr<Cube> focal_point;
+    glm::vec3 target;
   };
 }

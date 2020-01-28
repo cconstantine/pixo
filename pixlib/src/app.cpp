@@ -7,7 +7,8 @@ namespace Pixlib {
    scene(),
    focal_point(std::make_shared<Cube>()),
    brightness(sculpture.brightness),
-   rotation(sculpture.rotation)
+   rotation(sculpture.rotation),
+   target(glm::vec3(0.0f))
   {
     viewed_from = sculpture.projection_perspective;
     camera      = sculpture.camera_perspective;
@@ -112,20 +113,24 @@ namespace Pixlib {
     return pattern->get_texture();
   }
 
+  void App::set_target_location(glm::vec3 target) {
+    glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + target;
+
+    focal_point->move_instance(0, face);
+    this->target = face;
+  }
+
   void App::set_screen_size(int width, int height) {
     camera.width = width;
     camera.height = height;
   }
 
   void App::render_leds() {
-    face_finder.enabled = brightness > 0.01;
-    if (face_finder.tracked_face.is_tracking()) {
-      glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + face_finder.face;
-      //ALOGV("face: %s\n", glm::to_string(face_finder.face).c_str());
 
-      focal_point->move_instance(0, face);
-      viewed_from.move_towards(face, scene.get_time_delta()*10.0);
-    } 
+    if (target != glm::vec3(0.0f)) {
+      viewed_from.move_towards(target, scene.get_time_delta()*10.0);
+    }
+
     pattern->render();
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {

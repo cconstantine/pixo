@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
-
+#include <thread>
 #include <iostream>
 
 // Include GLEW
@@ -25,6 +25,16 @@ GLFWwindow* window;
 #include <storage.hpp>
 
 std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
+
+#include <grpcpp/grpcpp.h>
+#include "pixrpc.grpc.pb.h"
+
+using grpc::Server;
+using grpc::ServerBuilder;
+using grpc::ServerContext;
+using grpc::Status;
+using pixrpc::LocationRequest;
+using pixrpc::LocationResponse;
 
 using namespace glm;
 using namespace std;
@@ -52,6 +62,22 @@ void GLFW_error(int error, const char* description)
 {
     fprintf(stderr, "%d: %s\n", error, description);
 }
+// Logic and data behind the server's behavior.
+class PatternServiceImpl final : public pixrpc::Pattern::Service {
+public:
+  PatternServiceImpl(App& app) : pixrpc::Pattern::Service(), app(app) { }
+
+private:
+  Status target_location(ServerContext*  context,
+                  const LocationRequest* request,
+                  LocationResponse*      reply) override {
+    printf("location: %2.3f, %2.3f, %2.3f\n", request->x(), request->y(), request->z());
+    app.set_target_location(glm::vec3(request->x(), request->y(), request->z()));
+    return Status::OK;
+  }
+
+  App &app;
+};
 
 
 int main( int argc, char** argv )
@@ -78,9 +104,8 @@ int main( int argc, char** argv )
       fprintf( stderr, "Failed to initialize GLFW\n" );
       getchar();
       return -1;
-  }  
-
-  
+  }
+ 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
@@ -124,6 +149,15 @@ int main( int argc, char** argv )
   Storage storage(db_filename);
 
   App application = App(storage.sculpture, storage.patterns());
+
+  std::string server_address("0.0.0.0:50051");
+  PatternServiceImpl service(application);
+
+  ServerBuilder builder;
+  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+  builder.RegisterService(&service);
+  std::unique_ptr<Server> server(builder.BuildAndStart());
+  std::cout << "Server listening on " << server_address << std::endl;
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize
@@ -221,56 +255,7 @@ int main( int argc, char** argv )
     true);
 
 
-  gui->addVariable<string>("Faces Found",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%2d", app->face_finder.tracked_face.get_has_face() ? 1 : 0);
-      return ret;
-    },
-    false)->setValue("00");
 
-  gui->addVariable<string>("Face at",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%2.2f, %2.2f, %2.2f", app->face_finder.face.x, app->face_finder.face.y, app->face_finder.face.z);
-      return ret;
-    },
-    false)->setValue("");
-
-
-  gui->addVariable<string>("Frame Speed",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%07.2fms", app->face_finder.realsense_timer.duration()*1000 -app->face_finder.tracked_face.timer.duration()*1000);
-      return ret;
-    },
-    false)->setValue("0000.00ms");
-
-  gui->addVariable<string>("Tracking speed",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%04.2fms", app->face_finder.tracked_face.timer.duration()*1000);
-      return ret;
-    },
-    false)->setValue("0000.00ms");
-
-  gui->addVariable<string>("Tracking FPS",
-    [&](string value) { value; },
-    [&]() -> string {
-      char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%04.2ffps", 1.0f / app->face_finder.realsense_timer.duration());
-      return ret;
-    },
-    false)->setValue("0000.00ms");
 
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
