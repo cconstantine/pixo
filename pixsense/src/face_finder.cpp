@@ -56,15 +56,38 @@ namespace Pixsense {
           );
   }
 
-  FaceDetectDlibMMOD::FaceDetectDlibMMOD() {
-    cv::String mmodModelPath = "../pixsense/models/mmod_human_face_detector.dat";
+  FaceDetectDepthDlibMMOD::FaceDetectDepthDlibMMOD() {
+    // cv::String mmodModelPath = "../pixsense/models/mmod_human_face_detector.dat";
+
+    cv::String mmodModelPath = "../pixsense/models/mmod_human_face_detector_depth.dat";
     dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
   }
 
-  std::vector<cv::Rect> FaceDetectDlibMMOD::detect(const cv::Mat& frame) {
-    int frameHeight = frame.rows;
-    int frameWidth = frame.cols;
+  std::vector<cv::Rect> FaceDetectDepthDlibMMOD::detect(const cv::Mat& frame) {
+    // Convert OpenCV image format to Dlib's image format
+    dlib::cv_image<dlib::uint16> dlibIm(frame);
+    dlib::matrix<dlib::uint16> dlibMatrix;
+    dlib::assign_image(dlibMatrix, dlibIm);
 
+    std::vector<cv::Rect> faceRects;
+
+    // Detect faces in the image
+    for(dlib::mmod_rect rect : mmodFaceDetector(dlibMatrix)) {
+      cv::Rect cv_rect(rect_to_cvrect(rect.rect));
+      faceRects.push_back(cv_rect);
+    }
+
+    return faceRects;
+  }
+
+  FaceDetectRGBDlibMMOD::FaceDetectRGBDlibMMOD() {
+    cv::String mmodModelPath = "../pixsense/models/mmod_human_face_detector.dat";
+
+    // cv::String mmodModelPath = "./mmod_network.dat";
+    dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
+  }
+
+  std::vector<cv::Rect> FaceDetectRGBDlibMMOD::detect(const cv::Mat& frame) {
     // Convert OpenCV image format to Dlib's image format
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     dlib::matrix<dlib::rgb_pixel> dlibMatrix;
@@ -162,12 +185,12 @@ namespace Pixsense {
 
     scoping = cv::Rect(
       0,0,
-      frame.cols, frame.rows);
+      depth_frame.cols, depth_frame.rows);
     original_frame = frame;
     original_depth = depth_frame;
 
-    dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
-    //dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
+    //dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
+    dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
 
     float scale = 1.5F;
     if ( previous_tracking.is_tracking()) {
@@ -191,11 +214,11 @@ namespace Pixsense {
         scoping.y = 0;
       }
 
-      if (scoping.width + scoping.x > frame.cols) {
-        scoping.width = frame.cols - scoping.x;
+      if (scoping.width + scoping.x > depth_frame.cols) {
+        scoping.width = depth_frame.cols - scoping.x;
       }
-      if (scoping.height + scoping.y > frame.rows) {
-        scoping.height = frame.rows - scoping.y;
+      if (scoping.height + scoping.y > depth_frame.rows) {
+        scoping.height = depth_frame.rows - scoping.y;
       }
       
       const int target_scoping = 400;
@@ -204,7 +227,7 @@ namespace Pixsense {
       scale = target_scoping / scaling_based_on;
     }
 
-    cv::Mat scoped_frame = frame(scoping);
+    cv::Mat scoped_frame = depth_frame(scoping);
     cv::resize(scoped_frame, scoped_resized_frame, cv::Size(), scale, scale);
 
     std::vector<cv::Rect> faces = face_detect.detect(scoped_resized_frame);
@@ -246,7 +269,7 @@ namespace Pixsense {
     timer.start();
     try {
       rs2::frameset unaligned_frames;
-      rs2::align align(rs2_stream::RS2_STREAM_COLOR);
+      rs2::align align(rs2_stream::RS2_STREAM_DEPTH);
 
       if (started ) {
         unaligned_frames = pipe->wait_for_frames();
@@ -272,7 +295,7 @@ namespace Pixsense {
           return;
         }
 
-        rs2_intrinsics intrin = images.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
+        rs2_intrinsics intrin = depths.get_profile().as<rs2::video_stream_profile>().get_intrinsics();
 
         float pixel[2] = {real_face.x + real_face.width / 2, real_face.y + real_face.height / 2 };
         rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
@@ -310,7 +333,7 @@ namespace Pixsense {
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
       if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
       {
-          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Disable emitter
+          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f); // Enable emitter
       }
 
       started = true;

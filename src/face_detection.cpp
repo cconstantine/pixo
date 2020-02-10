@@ -59,7 +59,7 @@ class LocationClient {
  private:
   std::unique_ptr<Pattern::Stub> stub_;
 };
-void draw_rectangle(cv::Mat& image, cv::Rect rect, cv::Scalar color = cv::Scalar(0,255,0)) {
+void draw_rectangle(cv::Mat& image, cv::Rect rect, cv::Scalar color = cv::Scalar(255,255,255)) {
   int x1 = (int)(rect.x);
   int y1 = (int)(rect.y);
   int x2 = (int)((rect.x + rect.width));
@@ -78,6 +78,7 @@ int main( int argc, const char** argv )
   Pixsense::FaceTracker face_tracker;
   Pixsense::RealsenseTracker tracker;
   cv::namedWindow("Full Frame", cv::WINDOW_FULLSCREEN);
+  cv::Mat image_draw;
   while(1)
   {
     glm::vec3 face;
@@ -85,13 +86,13 @@ int main( int argc, const char** argv )
 
     int frameHeight = face_tracker.scoped_resized_frame.rows;
     int frameWidth = face_tracker.scoped_resized_frame.cols;
+    cv::normalize(face_tracker.scoped_resized_frame,face_tracker.scoped_resized_frame,0.,255.,cv::NORM_MINMAX,CV_8U);
+    // cv::cvtColor(face_tracker.scoped_resized_frame, image_draw, cv::COLOR_GRAY2BGR);
 
     if (frameHeight > 0 && frameWidth > 0) {
       //fprintf(stderr, "%d x %d\n", frameWidth, frameHeight);
       if (tracker.tracked_face.is_tracking())
       {
-
-
         bool reply = location_client.send_location(face.x, face.y, face.z);
         if (tracker.tracked_face.get_has_face()) {
           draw_rectangle(face_tracker.scoped_resized_frame, face_tracker.scoped_resized_face);

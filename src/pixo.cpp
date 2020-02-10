@@ -71,7 +71,6 @@ private:
   Status target_location(ServerContext*  context,
                   const LocationRequest* request,
                   LocationResponse*      reply) override {
-    printf("location: %2.3f, %2.3f, %2.3f\n", request->x(), request->y(), request->z());
     app.set_target_location(glm::vec3(request->x(), request->y(), request->z()));
     return Status::OK;
   }

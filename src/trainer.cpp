@@ -26,6 +26,8 @@
 #include <dlib/data_io.h>
 #include <dlib/gui_widgets.h>
 
+#include <pixsense/face_finder.hpp>
+
 using namespace std;
 using namespace dlib;
 
@@ -49,6 +51,16 @@ using namespace dlib;
 // Let's begin the network definition by creating some network blocks.
 
 // A 5x5 conv layer that does 2x downsampling
+// template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
+// template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
+
+// template <typename SUBNET> using downsampler  = dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<16,SUBNET>>>>>>>>>;
+// template <typename SUBNET> using rcon5  = dlib::relu<dlib::bn_con<con5<45,SUBNET>>>;
+
+// using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<Pixsense::input_grayscale_16bit_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+
+
+
 // template <long num_filters, typename SUBNET> using con5d = con<num_filters,5,5,2,2,SUBNET>;
 // template <long num_filters, typename SUBNET> using con3  = con<num_filters,3,3,1,1,SUBNET>;
 
@@ -56,33 +68,25 @@ using namespace dlib;
 // template <typename SUBNET> using rcon3  = relu<bn_con<con3<32,SUBNET>>>;
 // using net_type  = loss_mmod<con<1,6,6,1,1,rcon3<rcon3<rcon3<downsampler<input_rgb_image_pyramid<pyramid_down<6>>>>>>>>;
 
+// template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
+// template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
+
+// template <typename SUBNET> using downsampler  = dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<16,SUBNET>>>>>>>>>;
+// template <typename SUBNET> using rcon5  = dlib::relu<dlib::affine<con5<45,SUBNET>>>;
+
+// using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+// ----------------------------------------------------------------------------------------
+
 template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
 template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
 
-template <typename SUBNET> using downsampler  = dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<16,SUBNET>>>>>>>>>;
-template <typename SUBNET> using rcon5  = dlib::relu<dlib::affine<con5<45,SUBNET>>>;
+template <typename SUBNET> using downsampler  = dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<16,SUBNET>>>>>>>>>;
+template <typename SUBNET> using rcon5  = dlib::relu<dlib::bn_con<con5<45,SUBNET>>>;
 
-using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
-// ----------------------------------------------------------------------------------------
+using depth_training_net = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<Pixsense::input_grayscale_16bit_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
 
 int main(int argc, char** argv) try
 {
-    // In this example we are going to train a face detector based on the
-    // small faces dataset in the examples/faces directory.  So the first
-    // thing we do is load that dataset.  This means you need to supply the
-    // path to this faces folder as a command line argument so we will know
-    // where it is.
-    if (argc != 3)
-    {
-        cout << "Give the path to the examples/faces directory as the argument to this" << endl;
-        cout << "program.  For example, if you are in the examples folder then execute " << endl;
-        cout << "this program by running: " << endl;
-        cout << "   ./trainer <training_set> <testing_set>" << endl;
-        cout << endl;
-        return 0;
-    }
-    const std::string training_filename = argv[1];
-    const std::string testing_filename = argv[2];
     // The faces directory contains a training dataset and a separate
     // testing dataset.  The training data consists of 4 images, each
     // annotated with rectangles that bound each human face.  The idea is 
@@ -100,25 +104,62 @@ int main(int argc, char** argv) try
     // holds the locations of the faces in the training images.  So for
     // example, the image images_train[0] has the faces given by the
     // rectangles in face_boxes_train[0].
-    std::vector<matrix<rgb_pixel>> images_train, images_test;
+    std::vector<matrix<uint16>> images_train, images_test;
     std::vector<std::vector<mmod_rect>> face_boxes_train, face_boxes_test;
 
-    // Now we load the data.  These XML files list the images in each dataset
-    // and also contain the positions of the face boxes.  Obviously you can use
-    // any kind of input format you like so long as you store the data into
-    // images_train and face_boxes_train.  But for convenience dlib comes with
-    // tools for creating and loading XML image datasets.  Here you see how to
-    // load the data.  To create the XML files you can use the imglab tool which
-    // can be found in the tools/imglab folder.  It is a simple graphical tool
-    // for labeling objects in images with boxes.  To see how to use it read the
-    // tools/imglab/README.txt file.
-    load_image_dataset(images_train, face_boxes_train, training_filename);
-    load_image_dataset(images_test, face_boxes_test, testing_filename);
+    int i = 1;
+    for (int i = i;i < argc;i++) {
+        if (std::string(argv[i]) == "-h" || std::string(argv[i]) == "--help") {
+            cout << "Give the path to the examples/faces directory as the argument to this" << endl;
+            cout << "program.  For example, if you are in the examples folder then execute " << endl;
+            cout << "this program by running: " << endl;
+            cout << "   ./trainer --training <training_set> --testing <testing_set>" << endl;
+            cout << endl;
+            return 0;
+        } else if (std::string(argv[i]) == "--training") {
+            std::vector<matrix<uint16>>         images_load;
+            std::vector<std::vector<mmod_rect>> face_s_load;
+
+            load_image_dataset(images_load, face_s_load, std::string(argv[++i]));
+
+            images_train.insert(    images_train.end(),     images_load.begin(), images_load.end());
+            face_boxes_train.insert(face_boxes_train.end(), face_s_load.begin(), face_s_load.end());
+        } else if (std::string(argv[i]) == "--testing") {
+            std::vector<matrix<uint16>> images_load;
+            std::vector<std::vector<mmod_rect>> face_s_load;
+
+            load_image_dataset(images_load, face_s_load, std::string(argv[++i]));
+
+            images_test.insert(    images_test.end(),     images_load.begin(), images_load.end());
+            face_boxes_test.insert(face_boxes_test.end(), face_s_load.begin(), face_s_load.end());
+        } 
+    // cout << "num training images: " << images_train.size() << endl;
+    // cout << "num testing images:  " << images_test.size() << endl;
+
+    }
+
+    // const std::string training_filename = argv[1];
+    // const std::string testing_filename = argv[2];
+
+    // // Now we load the data.  These XML files list the images in each dataset
+    // // and also contain the positions of the face boxes.  Obviously you can use
+    // // any kind of input format you like so long as you store the data into
+    // // images_train and face_boxes_train.  But for convenience dlib comes with
+    // // tools for creating and loading XML image datasets.  Here you see how to
+    // // load the data.  To create the XML files you can use the imglab tool which
+    // // can be found in the tools/imglab folder.  It is a simple graphical tool
+    // // for labeling objects in images with boxes.  To see how to use it read the
+    // // tools/imglab/README.txt file.
+    // load_image_dataset(images_train, face_boxes_train, training_filename);
+    // load_image_dataset(images_test, face_boxes_test, testing_filename);
 
 
     cout << "num training images: " << images_train.size() << endl;
     cout << "num testing images:  " << images_test.size() << endl;
 
+    if (images_train.size() == 0 || images_test.size() == 0) {
+        return 0;
+    }
 
     // The MMOD algorithm has some options you can set to control its behavior.  However,
     // you can also call the constructor with your training annotations and a "target
@@ -139,11 +180,11 @@ int main(int argc, char** argv) try
     cout << "overlap NMS percent covered thresh: " << options.overlaps_nms.get_percent_covered_thresh() << endl;
 
     // Now we are ready to create our network and trainer.  
-    net_type net(options);
+    depth_training_net net(options);
     // The MMOD loss requires that the number of filters in the final network layer equal
     // options.detector_windows.size().  So we set that here as well.
     net.subnet().layer_details().set_num_filters(options.detector_windows.size());
-    dnn_trainer<net_type> trainer(net);
+    dnn_trainer<depth_training_net> trainer(net);
     trainer.set_learning_rate(0.1);
     trainer.be_verbose();
     trainer.set_synchronization_file("mmod_sync", std::chrono::minutes(5));
@@ -153,7 +194,7 @@ int main(int argc, char** argv) try
     // Now let's train the network.  We are going to use mini-batches of 150
     // images.   The images are random crops from our training set (see
     // random_cropper_ex.cpp for a discussion of the random_cropper). 
-    std::vector<matrix<rgb_pixel>> mini_batch_samples;
+    std::vector<matrix<uint16>> mini_batch_samples;
     std::vector<std::vector<mmod_rect>> mini_batch_labels; 
     random_cropper cropper;
     cropper.set_chip_dims(200, 200);
@@ -165,11 +206,11 @@ int main(int argc, char** argv) try
     // hours.
     while(trainer.get_learning_rate() >= 1e-4)
     {
-        cropper(150, images_train, face_boxes_train, mini_batch_samples, mini_batch_labels);
+        cropper(50, images_train, face_boxes_train, mini_batch_samples, mini_batch_labels);
         // We can also randomly jitter the colors and that often helps a detector
         // generalize better to new images.
-        for (auto&& img : mini_batch_samples)
-            disturb_colors(img, rnd);
+        // for (auto&& img : mini_batch_samples)
+        //     disturb_colors(img, rnd);
 
         trainer.train_one_step(mini_batch_samples, mini_batch_labels);
     }
@@ -179,7 +220,7 @@ int main(int argc, char** argv) try
 
     // Save the network to disk
     net.clean();
-    serialize("mmod_network.dat") << net;
+    serialize("../pixsense/models/mmod_human_face_detector_depth.dat") << net;
 
 
     // Now that we have a face detector we can test it.  The first statement tests it
@@ -199,11 +240,11 @@ int main(int argc, char** argv) try
     // the screen.
     cout << trainer << cropper << endl;
 
-    // Now lets run the detector on the testing images and look at the outputs.  
+    // // Now lets run the detector on the testing images and look at the outputs.  
     image_window win;
-    for (auto&& img : images_test)
+    for (auto&& img : images_train)
     {
-        pyramid_up(img);
+        //pyramid_up(img);
         auto dets = net(img);
         win.clear_overlay();
         win.set_image(img);

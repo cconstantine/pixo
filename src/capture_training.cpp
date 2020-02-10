@@ -69,7 +69,7 @@ public:
   cv::Mat original_depth;
 
 private:
-  Pixsense::FaceDetectDlibMMOD face_detect;
+  Pixsense::FaceDetectRGBDlibMMOD face_detect;
 };
 
 class DatasetManager {
