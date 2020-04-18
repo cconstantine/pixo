@@ -63,14 +63,14 @@ namespace Pixlib {
 
   class AbstractFaceTracker {
   public:
-    virtual TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame) = 0;
+    virtual TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame, const cv::Mat& greys_frame) = 0;
   };
 
   class FaceTracker : public AbstractFaceTracker
   {
   public:
 
-    virtual TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame);
+    virtual TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame, const cv::Mat& greys_frame);
 
     cv::Rect scoped_resized_face;;
     cv::Mat scoped_resized_frame;

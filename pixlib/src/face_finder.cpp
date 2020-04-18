@@ -152,12 +152,22 @@ namespace Pixlib {
       had_face_at = std::chrono::system_clock::from_time_t(0);
   }
 
-  TrackedFace FaceTracker::detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
+  TrackedFace FaceTracker::detect(const cv::Mat& color_frame, const cv::Mat& depth_frame, const cv::Mat& grays_frame) {
     previous_tracking.timer.start();
 
     cv::Rect scoping;
     cv::Mat original_frame;
     cv::Mat original_depth;
+
+    cv::Mat frame;
+    cvtColor(grays_frame, frame, cv::COLOR_GRAY2BGR);
+
+
+    // fprintf(stderr, "gray_color : %d / %d\n", gray_color.cols, gray_color.rows);
+    // fprintf(stderr, "color_frame: %d / %d\n", color_frame.cols, color_frame.rows);
+    // cv::Mat frame = grays_frame;
+    // addWeighted(color_frame, 0.5, gray_color, 0.5, 0, frame);
+
 
     scoping = cv::Rect(
       0,0,
@@ -245,17 +255,20 @@ namespace Pixlib {
     timer.start();
     try {
       rs2::frameset unaligned_frames;
-      rs2::align align(rs2_stream::RS2_STREAM_COLOR);
+      //rs2::align align(rs2_stream::RS2_STREAM_DEPTH);
 
       if (started ) {
         unaligned_frames = pipe->wait_for_frames();
-        rs2::frameset aligned_frames = align.process(unaligned_frames);
-        rs2::video_frame images = aligned_frames.get_color_frame();
-        rs2::depth_frame depths = aligned_frames.get_depth_frame();
+        //rs2::frameset aligned_frames = align.process(unaligned_frames);
+        rs2::video_frame images = unaligned_frames.get_color_frame();
+        rs2::depth_frame depths = unaligned_frames.get_depth_frame();
+        rs2::video_frame ir_frame = unaligned_frames.get_infrared_frame(1);
+
         cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
         cv::Mat depth_matrix = RealsenseTracker::frame_to_mat(depths);
+        cv::Mat greys_matrix = RealsenseTracker::frame_to_mat(ir_frame);
 
-        tracked_face = face_detect.detect(image_matrix, depth_matrix);
+        tracked_face = face_detect.detect(image_matrix, depth_matrix, greys_matrix);
         if(!tracked_face.is_tracking()) {
           timer.end();
           return;
@@ -295,7 +308,7 @@ namespace Pixlib {
       rs2::config config;
       config.enable_stream(RS2_STREAM_DEPTH, 1280, 720,  RS2_FORMAT_Z16, 30);
       config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 30);
-      // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
+      config.enable_stream(RS2_STREAM_INFRARED, 1, 1280, 720, RS2_FORMAT_Y8, 30);
 
       // config.enable_stream(RS2_STREAM_INFRARED, 2);
       // config.enable_stream(RS2_STREAM_DEPTH, 1);
