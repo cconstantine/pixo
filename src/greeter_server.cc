@@ -19,43 +19,69 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <thread>
 
+#include <mutex>
+#include <condition_variable>
+ 
 #include <grpcpp/grpcpp.h>
 #include "pixrpc.grpc.pb.h"
 
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::Status;
-using pixrpc::LocationRequest;
-using pixrpc::LocationResponse;
-using pixrpc::Pattern;
-
 // Logic and data behind the server's behavior.
-class PatternServiceImpl final : public Pattern::Service {
-  Status target_location(ServerContext*  context,
-                  const LocationRequest* request,
-                  LocationResponse*      reply) override {
-    printf("location: %2.3f, %2.3f, %2.3f\n", request->x(), request->y(), request->z());
-    
-    return Status::OK;
+class TrackingServiceImpl final : public pixrpc::Tracking::Service {
+public:
+  void set_location(float x, float y, float z) {
+
+    {
+      std::lock_guard<std::mutex> lk(m);
+
+      current_location.set_x(x);
+      current_location.set_y(y);
+      current_location.set_z(z);
+    }
+
+    cv.notify_all();
   }
+
+private:
+  grpc::Status location_stream(
+    grpc::ServerContext* context,
+    const pixrpc::LocationStreamArgs* args,
+    grpc::ServerWriter<pixrpc::Location>* stream
+  ) override {
+    while(true) {
+      std::unique_lock<std::mutex> lk(m);
+      cv.wait(lk);
+
+      stream->Write(current_location);
+    }
+    return grpc::Status::OK;
+  }
+
+  std::mutex m;
+  std::condition_variable cv;
+  pixrpc::Location current_location;
 };
 
 void RunServer() {
   std::string server_address("0.0.0.0:50051");
-  PatternServiceImpl service;
+  TrackingServiceImpl service;
 
-  ServerBuilder builder;
+  grpc::ServerBuilder builder;
   // Listen on the given address without any authentication mechanism.
   builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
   // Register "service" as the instance through which we'll communicate with
   // clients. In this case it corresponds to an *synchronous* service.
   builder.RegisterService(&service);
   // Finally assemble the server.
-  std::unique_ptr<Server> server(builder.BuildAndStart());
+  std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
   std::cout << "Server listening on " << server_address << std::endl;
 
+  int i = 0;
+  while(true) {
+    service.set_location(i++, i++, i++);
+    std::this_thread::sleep_for(std::chrono::duration<float>(1.0));
+  }
   // Wait for the server to shutdown. Note that some other thread must be
   // responsible for shutting down the server for this call to ever return.
   server->Wait();

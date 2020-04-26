@@ -47,7 +47,11 @@ class FaceTrackerRecorder : public Pixsense::AbstractFaceTracker
 public:
   FaceTrackerRecorder() : timer(20) {}
 
+<<<<<<< HEAD
   virtual Pixsense::TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame) {
+=======
+  virtual Pixlib::TrackedFace detect(const cv::Mat& frame, const cv::Mat& depth_frame, const cv::Mat& gray_frame) {
+>>>>>>> b4b144f... Fix capture_training.cpp to compile, and add more default config for cmake
     static int i = 1;
     i++;
     timer.start();

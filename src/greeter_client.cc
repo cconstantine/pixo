@@ -26,46 +26,30 @@
 using grpc::Channel;
 using grpc::ClientContext;
 using grpc::Status;
-using pixrpc::LocationRequest;
-using pixrpc::LocationResponse;
-using pixrpc::Pattern;
 
-class LocationClient {
+class TrackingClient {
  public:
-  LocationClient(std::shared_ptr<Channel> channel)
-      : stub_(Pattern::NewStub(channel)) {}
+  TrackingClient(std::shared_ptr<Channel> channel)
+      : stub_(pixrpc::Tracking::NewStub(channel)) {}
 
   // Assembles the client's payload, sends it and presents the response back
   // from the server.
-  bool send_location(float x, float y, float z) {
-    // Data we are sending to the server.
-    LocationRequest request;
-    request.set_x(x);
-    request.set_y(y);
-    request.set_z(z);
-
-    // Container for the data we expect from the server.
-    LocationResponse reply;
-
-    // Context for the client. It could be used to convey extra information to
-    // the server and/or tweak certain RPC behaviors.
+  bool get_locations() {
+    pixrpc::LocationStreamArgs args;
+    pixrpc::Location location;
     ClientContext context;
 
-    // The actual RPC.
-    Status status = stub_->target_location(&context, request, &reply);
+    std::unique_ptr<grpc::ClientReader<pixrpc::Location> > reader(stub_->location_stream(&context, args));
 
-    // Act upon its status.
-    if (status.ok()) {
-      return true;
-    } else {
-      std::cout << status.error_code() << ": " << status.error_message()
-                << std::endl;
-      return false;
+    while (reader->Read(&location)) {
+      printf("%f, %f, %f\n", location.x(), location.y(), location.z());
     }
+    Status status = reader->Finish();
+    std::cout << "location_stream rpc" << (status.ok() ? " succeded." : " failed.")<< std::endl;
   }
 
  private:
-  std::unique_ptr<Pattern::Stub> stub_;
+  std::unique_ptr<pixrpc::Tracking::Stub> stub_;
 };
 
 int main(int argc, char** argv) {
@@ -73,10 +57,10 @@ int main(int argc, char** argv) {
   // are created. This channel models a connection to an endpoint (in this case,
   // localhost at port 50051). We indicate that the channel isn't authenticated
   // (use of InsecureChannelCredentials()).
-  LocationClient location_client(grpc::CreateChannel(
+  TrackingClient location_client(grpc::CreateChannel(
       "localhost:50051", grpc::InsecureChannelCredentials()));
 
-  bool reply = location_client.send_location(1.0, 1.0, 1.0);
+  bool reply = location_client.get_locations();
   std::cout << "Greeter received: " << reply << std::endl;
 
   return 0;

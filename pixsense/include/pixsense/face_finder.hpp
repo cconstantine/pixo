@@ -160,7 +160,7 @@ namespace Pixsense
     cv::Rect scoped_resized_face;;
     cv::Mat scoped_resized_frame;
   private:
-    FaceDetectDepthDlibMMOD face_detect;
+    FaceDetectRGBDlibMMOD face_detect;
     TrackedFace previous_tracking;
     dlib::correlation_tracker tracker;
   };

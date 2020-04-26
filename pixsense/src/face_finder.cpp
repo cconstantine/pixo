@@ -189,8 +189,8 @@ namespace Pixsense {
     original_frame = frame;
     original_depth = depth_frame;
 
-    //dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
-    dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
+    dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
+    // dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
 
     float scale = 1.5F;
     if ( previous_tracking.is_tracking()) {
@@ -214,11 +214,11 @@ namespace Pixsense {
         scoping.y = 0;
       }
 
-      if (scoping.width + scoping.x > depth_frame.cols) {
-        scoping.width = depth_frame.cols - scoping.x;
+      if (scoping.width + scoping.x > frame.cols) {
+        scoping.width = frame.cols - scoping.x;
       }
-      if (scoping.height + scoping.y > depth_frame.rows) {
-        scoping.height = depth_frame.rows - scoping.y;
+      if (scoping.height + scoping.y > frame.rows) {
+        scoping.height = frame.rows - scoping.y;
       }
       
       const int target_scoping = 400;
@@ -227,7 +227,7 @@ namespace Pixsense {
       scale = target_scoping / scaling_based_on;
     }
 
-    cv::Mat scoped_frame = depth_frame(scoping);
+    cv::Mat scoped_frame = frame(scoping);
     cv::resize(scoped_frame, scoped_resized_frame, cv::Size(), scale, scale);
 
     std::vector<cv::Rect> faces = face_detect.detect(scoped_resized_frame);
@@ -269,7 +269,7 @@ namespace Pixsense {
     timer.start();
     try {
       rs2::frameset unaligned_frames;
-      rs2::align align(rs2_stream::RS2_STREAM_DEPTH);
+      rs2::align align(rs2_stream::RS2_STREAM_COLOR);
 
       if (started ) {
         unaligned_frames = pipe->wait_for_frames();

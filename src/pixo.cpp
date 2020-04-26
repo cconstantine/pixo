@@ -29,21 +29,45 @@ std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 #include <grpcpp/grpcpp.h>
 #include "pixrpc.grpc.pb.h"
 
-using grpc::Server;
-using grpc::ServerBuilder;
-using grpc::ServerContext;
-using grpc::Status;
-using pixrpc::LocationRequest;
-using pixrpc::LocationResponse;
-
 using namespace glm;
 using namespace std;
-using namespace Pixlib;
 
+
+class TrackingClient {
+ public:
+  TrackingClient(std::shared_ptr<grpc::Channel> channel)
+      : stub_(pixrpc::Tracking::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  bool get_locations(Pixlib::App* app) {
+    pixrpc::LocationStreamArgs args;
+    pixrpc::Location location;
+    grpc::ClientContext context;
+
+    std::unique_ptr<grpc::ClientReader<pixrpc::Location> > reader(stub_->location_stream(&context, args));
+
+    while (reader->Read(&location)) {
+      app->set_target_location(glm::vec3(location.x(), location.y(), location.z()));
+      printf("%f, %f, %f\n", location.x(), location.y(), location.z());
+    }
+    grpc::Status status = reader->Finish();
+    std::cout << "location_stream rpc" << (status.ok() ? " succeded." : " failed.")<< std::endl;
+  }
+
+ private:
+  std::unique_ptr<pixrpc::Tracking::Stub> stub_;
+};
+
+void thread_function(Pixlib::App *app) {
+  TrackingClient location_client(grpc::CreateChannel(
+      "localhost:50051", grpc::InsecureChannelCredentials()));
+  bool reply = location_client.get_locations(app);
+}
 
 nanogui::Screen *screen = nullptr;
 
-Timer global_timer = Timer(120);
+Pixlib::Timer global_timer = Pixlib::Timer(120);
 
 static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
@@ -62,21 +86,6 @@ void GLFW_error(int error, const char* description)
 {
     fprintf(stderr, "%d: %s\n", error, description);
 }
-// Logic and data behind the server's behavior.
-class PatternServiceImpl final : public pixrpc::Pattern::Service {
-public:
-  PatternServiceImpl(App& app) : pixrpc::Pattern::Service(), app(app) { }
-
-private:
-  Status target_location(ServerContext*  context,
-                  const LocationRequest* request,
-                  LocationResponse*      reply) override {
-    app.set_target_location(glm::vec3(request->x(), request->y(), request->z()));
-    return Status::OK;
-  }
-
-  App &app;
-};
 
 
 int main( int argc, char** argv )
@@ -147,16 +156,7 @@ int main( int argc, char** argv )
   glEnable(GL_DEPTH_TEST);
   Storage storage(db_filename);
 
-  App application = App(storage.sculpture, storage.patterns());
-
-  std::string server_address("0.0.0.0:50051");
-  PatternServiceImpl service(application);
-
-  ServerBuilder builder;
-  builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
-  builder.RegisterService(&service);
-  std::unique_ptr<Server> server(builder.BuildAndStart());
-  std::cout << "Server listening on " << server_address << std::endl;
+  Pixlib::App application = Pixlib::App(storage.sculpture, storage.patterns());
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize
@@ -196,7 +196,7 @@ int main( int argc, char** argv )
     [&]() -> string {
 
       char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
       sprintf(ret, "%2.02fms", app->scene_render_time()*1000);
       return ret;
@@ -207,7 +207,7 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       sprintf(ret, "%2.02fms", app->led_render_time()*1000);
       return ret;
     },
@@ -216,7 +216,7 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
       return app->get_pattern().name.c_str();
     },
@@ -234,7 +234,7 @@ int main( int argc, char** argv )
   brightness_slider->setValue(application.brightness);
   brightness_slider->setRange(std::pair<float, float>(0.0f, 1.0f));
   brightness_slider->setCallback([](float value) {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       app->brightness = value;
   });
 
@@ -243,11 +243,11 @@ int main( int argc, char** argv )
 
   gui->addVariable<float>("Rotation",
     [&](float value) {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       app->rotation = value;
     },
     [&]() -> float {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
       return app->rotation;
     },
@@ -260,7 +260,7 @@ int main( int argc, char** argv )
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-            App* app = (App*)glfwGetWindowUserPointer(window);
+            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
   
             GLfloat xoffset = x - lastX;
             GLfloat yoffset = y - lastY; 
@@ -295,7 +295,7 @@ int main( int argc, char** argv )
               return;
             }
 
-            App* app = (App*)glfwGetWindowUserPointer(window);
+            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
             if(key == GLFW_KEY_ESCAPE) {
               glfwSetWindowShouldClose(window, GL_TRUE);
@@ -335,7 +335,7 @@ int main( int argc, char** argv )
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
           if (!screen->scrollCallbackEvent(x, y)) {
-            App* app = (App*)glfwGetWindowUserPointer(window);
+            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
             app->process_mouse_scroll(y);
           }
@@ -344,7 +344,7 @@ int main( int argc, char** argv )
 
   glfwSetFramebufferSizeCallback(window,
       [](GLFWwindow *window, int width, int height) {
-        App* app = (App*)glfwGetWindowUserPointer(window);
+        Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
         app->set_screen_size(width, height);
         screen->resizeCallbackEvent(width, height);
@@ -358,6 +358,8 @@ int main( int argc, char** argv )
       ALOGV("Preloop %04x\n", glErr);
       glErr = glGetError();
   }
+
+  std::thread t(&thread_function, &application);
 
 
   std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
