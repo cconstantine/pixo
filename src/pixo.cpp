@@ -49,10 +49,9 @@ class TrackingClient {
 
     while (reader->Read(&location)) {
       app->set_target_location(glm::vec3(location.x(), location.y(), location.z()));
-      printf("%f, %f, %f\n", location.x(), location.y(), location.z());
     }
     grpc::Status status = reader->Finish();
-    std::cout << "location_stream rpc" << (status.ok() ? " succeded." : " failed.")<< std::endl;
+    return status.ok();
   }
 
  private:
@@ -62,7 +61,15 @@ class TrackingClient {
 void thread_function(Pixlib::App *app) {
   TrackingClient location_client(grpc::CreateChannel(
       "localhost:50051", grpc::InsecureChannelCredentials()));
-  bool reply = location_client.get_locations(app);
+  bool last_success = true;
+  while (true) {
+    bool this_success = location_client.get_locations(app);
+    if (last_success && !this_success) {
+      std::cout << "location_stream rpc failed." << std::endl;
+      last_success = this_success;
+    }
+    std::this_thread::sleep_for(std::chrono::duration<float>(0.1));
+  }
 }
 
 nanogui::Screen *screen = nullptr;
