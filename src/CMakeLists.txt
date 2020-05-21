@@ -36,7 +36,11 @@ target_link_libraries(pixo pixlib sqlite3 nanogui ${NANOGUI_EXTRA_LIBS} libglew_
 # target_link_libraries(trainer dlib )
 
 add_executable(face_detection face_detection.cpp)
-target_link_libraries(face_detection pixsense ${PIXRPC_LIBRARY})
+target_link_libraries(face_detection pixsense)
+
+
+add_executable(tracking_service tracking_service.cpp)
+target_link_libraries(tracking_service pixsense ${PIXRPC_LIBRARY})
 
 
 # add_executable(detectors detectors.cpp)

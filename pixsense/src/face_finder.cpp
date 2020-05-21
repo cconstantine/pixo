@@ -300,6 +300,7 @@ namespace Pixsense {
         float pixel[2] = {real_face.x + real_face.width / 2, real_face.y + real_face.height / 2 };
         rs2_deproject_pixel_to_point(&face_location[0], &intrin, pixel, distance);
         face_location.y = -face_location.y;
+        face_location.x = -face_location.x;
       } else {
         update_pipe();
       }

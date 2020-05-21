@@ -39,7 +39,7 @@ namespace Pixlib {
     int per_fc = height / num_fadecandies;
 
     for(int y = height;y > 0;y--) {
-      int direction = 1;
+      int direction = -1;
       int selection = (y-1) / per_fc;
 
       LedGeometry& geom = leds[selection];
@@ -49,6 +49,7 @@ namespace Pixlib {
           geom.locations->push_back(glm::vec3( ((float)x + x_offset)*spacing,
                                                ((float)z + z_offset)*spacing,
                                                ((float)y + y_offset)*spacing));
+          // if(geom.locations->size() > 5) { return; }
         }
         direction *= -1;
       }
