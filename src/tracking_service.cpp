@@ -67,11 +67,6 @@ int main( int argc, const char** argv )
     glm::vec3 face;
     tracker.tick(face_tracker, face);
 
-    int frameHeight = face_tracker.scoped_resized_frame.rows;
-    int frameWidth = face_tracker.scoped_resized_frame.cols;
-    cv::normalize(face_tracker.scoped_resized_frame,face_tracker.scoped_resized_frame,0.,255.,cv::NORM_MINMAX,CV_8U);
-    // cv::cvtColor(face_tracker.scoped_resized_frame, image_draw, cv::COLOR_GRAY2BGR);
-
     if (tracker.tracked_face.is_tracking())
     {
       service.send_location(face.x, face.y, face.z);
