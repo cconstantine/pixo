@@ -62,14 +62,22 @@ int main( int argc, const char** argv )
 
   Pixsense::FaceTracker face_tracker;
   Pixsense::RealsenseTracker tracker;
+
+  std::chrono::time_point<std::chrono::high_resolution_clock> last_face_at = std::chrono::high_resolution_clock::now();
   while(1)
   {
     glm::vec3 face;
     tracker.tick(face_tracker, face);
 
-    if (tracker.tracked_face.is_tracking())
-    {
+    if (tracker.tracked_face.is_tracking()) {
+      last_face_at = std::chrono::high_resolution_clock::now();
       service.send_location(face.x, face.y, face.z);
+    } else {
+      std::chrono::duration<float> since_last_face = std::chrono::high_resolution_clock::now() - last_face_at;
+      if (since_last_face.count() > 10) {
+        std::this_thread::sleep_for(std::chrono::duration<float>(1));
+      }
     }
+
   }
 }
