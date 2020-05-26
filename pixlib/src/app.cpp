@@ -114,10 +114,8 @@ namespace Pixlib {
   }
 
   void App::set_target_location(glm::vec3 target) {
-    glm::vec3 face = glm::vec3(0.0f, viewed_from.scope.y, viewed_from.scope.z) + target;
-
-    focal_point->move_instance(0, face);
-    this->target = face;
+    focal_point->move_instance(0, target);
+    this->target = target;
   }
 
   void App::set_screen_size(int width, int height) {

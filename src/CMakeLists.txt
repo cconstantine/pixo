@@ -24,6 +24,10 @@ add_executable(pixo-patterns pixo-patterns.cpp storage.cpp )
 target_compile_features(pixo-patterns PRIVATE cxx_std_14)
 target_link_libraries(pixo-patterns pixlib libglew_static sqlite3 )
 
+add_executable(pixo-tracker pixo-tracker.cpp storage.cpp )
+target_compile_features(pixo-tracker PRIVATE cxx_std_14)
+target_link_libraries(pixo-tracker pixlib libglew_static sqlite3 )
+
 add_executable(pixo pixo.cpp storage.cpp)
 target_compile_features(pixo PRIVATE cxx_std_14)
 

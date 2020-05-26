@@ -62,6 +62,17 @@ inline auto init_storage(const std::string &path) {
                                                &Pixlib::PatternCode::shader_code),
                                    make_column("enabled",
                                                &Pixlib::PatternCode::enabled)
+                                   ),
+                        make_table("tracking_services",
+                                   make_column("id",
+                                               &Pixlib::TrackingService::id,
+                                               autoincrement(),
+                                               primary_key()),
+                                   make_column("address",
+                                               &Pixlib::TrackingService::address,
+                                               unique()),
+                                   make_column("tracking_offset",
+                                               &Pixlib::TrackingService::tracking_offset)
                                    )
                         );
 }
@@ -78,8 +89,10 @@ public:
   Storage(const std::string& filename,  const Pixlib::Sculpture& Sculpture);
   Storage(const std::string& filename);
 
-  std::vector<Pixlib::PatternCode> patterns();
+  std::vector<Pixlib::TrackingService> tracking_services();
+  void upsert_tracker_service(const std::string& addr, const Pixlib::Point& offset);
 
+  std::vector<Pixlib::PatternCode> patterns();
   void upsert_patterns(const std::vector<std::string>& filenames);
   void      save_app_state();
 

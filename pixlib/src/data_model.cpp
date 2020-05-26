@@ -49,13 +49,13 @@ namespace Pixlib {
           geom.locations->push_back(glm::vec3( ((float)x + x_offset)*spacing,
                                                ((float)z + z_offset)*spacing,
                                                ((float)y + y_offset)*spacing));
-          // if(geom.locations->size() > 5) { return; }
         }
         direction *= -1;
       }
     }
   }
 
+  TrackingService::TrackingService() {}
 
   PatternCode::PatternCode() {}
 

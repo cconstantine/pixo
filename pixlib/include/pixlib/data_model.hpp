@@ -30,6 +30,15 @@ namespace Pixlib {
     double yaw, pitch, zoom;
   };
 
+  class TrackingService {
+  public:
+    TrackingService();
+
+    int id;
+    std::string address;
+    Point tracking_offset;
+  };
+
   class Sculpture {
   public:
 

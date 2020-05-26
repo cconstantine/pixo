@@ -40,7 +40,7 @@ class TrackingClient {
 
   // Assembles the client's payload, sends it and presents the response back
   // from the server.
-  bool get_locations(Pixlib::App* app) {
+  bool get_locations(const Pixlib::TrackingService& tracking_service, Pixlib::App* app) {
     pixrpc::LocationStreamArgs args;
     pixrpc::Location location;
     grpc::ClientContext context;
@@ -48,7 +48,7 @@ class TrackingClient {
     std::unique_ptr<grpc::ClientReader<pixrpc::Location> > reader(stub_->location_stream(&context, args));
 
     while (reader->Read(&location)) {
-      app->set_target_location(glm::vec3(location.x(), location.y(), location.z()));
+      app->set_target_location(tracking_service.tracking_offset + glm::vec3(location.x(), location.y(), location.z()));
     }
     grpc::Status status = reader->Finish();
     return status.ok();
@@ -58,12 +58,12 @@ class TrackingClient {
   std::unique_ptr<pixrpc::Tracking::Stub> stub_;
 };
 
-void thread_function(Pixlib::App *app) {
+void thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app) {
   TrackingClient location_client(grpc::CreateChannel(
-      "localhost:50051", grpc::InsecureChannelCredentials()));
+      tracking_service.address, grpc::InsecureChannelCredentials()));
   bool last_success = true;
   while (true) {
-    bool this_success = location_client.get_locations(app);
+    bool this_success = location_client.get_locations(tracking_service, app);
     if (last_success && !this_success) {
       std::cout << "location_stream rpc failed." << std::endl;
       last_success = this_success;
@@ -164,6 +164,11 @@ int main( int argc, char** argv )
   Storage storage(db_filename);
 
   Pixlib::App application = Pixlib::App(storage.sculpture, storage.patterns());
+  std::vector<Pixlib::TrackingService> tracking_services = storage.tracking_services();
+  std::vector<std::thread> threads;
+  for(Pixlib::TrackingService service : tracking_services) {
+    threads.push_back(std::thread(&thread_function, service, &application));
+  }
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize
@@ -259,9 +264,6 @@ int main( int argc, char** argv )
       return app->rotation;
     },
     true);
-
-
-
 
   glfwSetCursorPosCallback(window,
           [](GLFWwindow *window, double x, double y) {
@@ -365,9 +367,6 @@ int main( int argc, char** argv )
       ALOGV("Preloop %04x\n", glErr);
       glErr = glGetError();
   }
-
-  std::thread t(&thread_function, &application);
-
 
   std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
   struct sigaction sigIntHandler;

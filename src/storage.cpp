@@ -163,9 +163,37 @@ void Storage::save_app_state()
   storage.commit();
 }
 
+std::vector<TrackingService> Storage::tracking_services() {
+  return storage.get_all<Pixlib::TrackingService>();
+}
 
 std::vector<PatternCode> Storage::patterns() {
   return storage.get_all<Pixlib::PatternCode>(where(c(&PatternCode::enabled) == true));
+}
+
+void Storage::upsert_tracker_service(const std::string& addr, const Pixlib::Point& offset) {
+  storage.begin_transaction();
+
+  std::vector<Pixlib::TrackingService> services = storage.get_all<Pixlib::TrackingService>(where(c(&Pixlib::TrackingService::address) == addr));
+
+  if(services.size() == 0) {
+    printf("Inserting %s\n", addr.c_str());
+
+    TrackingService ts;
+    ts.address = addr;
+    ts.tracking_offset = offset;
+
+    storage.insert(ts);
+  } else {
+    printf("Updating %s\n", addr.c_str());
+
+    for(Pixlib::TrackingService service : services) {
+      service.tracking_offset = offset;
+
+      storage.update(service);
+    }
+  }
+  storage.commit();
 }
 
 void Storage::upsert_patterns(const std::vector<std::string>& filenames) {
@@ -182,12 +210,12 @@ void Storage::upsert_patterns(const std::vector<std::string>& filenames) {
 
     std::vector<Pixlib::PatternCode> patterns = storage.get_all<Pixlib::PatternCode>(where(c(&Pixlib::PatternCode::name) == pattern_name));
     if (patterns.size() == 0) {
-      fprintf(stderr, "Inserting %s\n", pattern_name.c_str());
+      printf("Inserting %s\n", pattern_name.c_str());
 
       storage.insert(Pixlib::PatternCode(pattern_name, code));
     }
     else {
-      fprintf(stderr, "Updating %s\n", pattern_name.c_str());
+      printf("Updating %s\n", pattern_name.c_str());
       
       for(Pixlib::PatternCode pattern : patterns) {
         pattern.shader_code = code;
