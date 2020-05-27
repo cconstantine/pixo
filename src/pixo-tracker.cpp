@@ -5,7 +5,7 @@ std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
 
 int main( int argc, char** argv )
-{  
+{
   if(argc < 5) {
     fprintf(stderr, "Usage: %s sqlite3_db addr x_offset y_offset z_offset\n", argv[0]);
     exit(1);

@@ -13,8 +13,10 @@ RelWithDebInfo MinSizeRel."
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+if (NOT SKIP_TRACKER)
 ###################### DLIB     ###############################
 include(./ext/dlib/dlib/cmake)
+endif(NOT SKIP_TRACKER)
 
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
@@ -35,6 +37,7 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 ###################### GLM     ###############################
 include_directories( ext/glm/ )
 
+if (NOT SKIP_TRACKER)
 ###################### librealsense ###########################
 set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL " " FORCE)
 set(BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
@@ -43,6 +46,7 @@ set(BUILD_WITH_CUDA ON CACHE BOOL " " FORCE)
 set(BUILD_WITH_TM2  OFF CACHE BOOL " " FORCE)
 add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
 include_directories(ext/librealsense/include)
+endif(NOT SKIP_TRACKER)
 
 
 ###################### GLEW     ###############################
@@ -59,9 +63,11 @@ include_directories(src)
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
+if (NOT SKIP_TRACKER)
 ####################### PIXSENSE ##############################
 add_subdirectory(pixsense)
 include_directories(${PIXSENSE_INCLUDE})
+endif(NOT SKIP_TRACKER)
 
 ###################### PIXLIB   ###############################
 add_subdirectory(pixrpc)
