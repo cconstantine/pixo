@@ -3,7 +3,7 @@ project(pixrpc)
 
 
 ###################### GRPC ##################################
-add_subdirectory(../ext/grpc ${CMAKE_CURRENT_BINARY_DIR}/grpc EXCLUDE_FROM_ALL)
+add_subdirectory(./ext/grpc ${CMAKE_CURRENT_BINARY_DIR}/grpc EXCLUDE_FROM_ALL)
 
 set(_PROTOBUF_LIBPROTOBUF libprotobuf)
 set(_PROTOBUF_PROTOC $<TARGET_FILE:protoc>)

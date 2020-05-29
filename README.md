@@ -6,6 +6,9 @@ $ sudo apt-get install build-essential cmake git xorg-dev libglu1-mesa-dev libus
 ### Building
 $ cd build && cmake .. && make
 
+If you do not wish to compile the person tracker:
+$ cd build && cmake -DPIXO_BUILD_TRACKER=off .. && make
+
 ### Create cube records
 $ ./pixo-creator db.sqlite LEDS_PER_SIDE hostname_of_fadecandy [hostname_of_fadecandy*]  # localhost is fine
 

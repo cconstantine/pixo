@@ -2,8 +2,10 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo)
 
-set(CMAKE_C_COMPILER /usr/bin/gcc-8 CACHE BOOL " " FORCE)
-set(CMAKE_CXX_COMPILER /usr/bin/g++-8 CACHE BOOL " " FORCE)
+# set(CMAKE_C_COMPILER /usr/bin/gcc-8 CACHE BOOL " " FORCE)
+# set(CMAKE_CXX_COMPILER /usr/bin/g++-8 CACHE BOOL " " FORCE)
+
+option(PIXO_BUILD_TRACKER  "Build realsense camera based target tracking." ON)
 
 
 if(NOT CMAKE_BUILD_TYPE)
@@ -12,11 +14,6 @@ if(NOT CMAKE_BUILD_TYPE)
 RelWithDebInfo MinSizeRel."
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
-
-if (NOT SKIP_TRACKER)
-###################### DLIB     ###############################
-include(./ext/dlib/dlib/cmake)
-endif(NOT SKIP_TRACKER)
 
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
@@ -37,20 +34,7 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 ###################### GLM     ###############################
 include_directories( ext/glm/ )
 
-if (NOT SKIP_TRACKER)
-###################### librealsense ###########################
-set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL " " FORCE)
-set(BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
-set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
-set(BUILD_WITH_CUDA ON CACHE BOOL " " FORCE)
-set(BUILD_WITH_TM2  OFF CACHE BOOL " " FORCE)
-add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
-include_directories(ext/librealsense/include)
-endif(NOT SKIP_TRACKER)
-
-
 ###################### GLEW     ###############################
-# glew
 set(glew-cmake_BUILD_MULTI_CONTEXT       OFF CACHE BOOL " " FORCE)
 set(glew-cmake_BUILD_SHARED              OFF CACHE BOOL " " FORCE)
 
@@ -63,11 +47,11 @@ include_directories(src)
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
-if (NOT SKIP_TRACKER)
+if (PIXO_BUILD_TRACKER)
 ####################### PIXSENSE ##############################
 add_subdirectory(pixsense)
 include_directories(${PIXSENSE_INCLUDE})
-endif(NOT SKIP_TRACKER)
+endif(PIXO_BUILD_TRACKER)
 
 ###################### PIXLIB   ###############################
 add_subdirectory(pixrpc)

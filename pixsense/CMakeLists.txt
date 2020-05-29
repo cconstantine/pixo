@@ -5,7 +5,19 @@ project(pixsense)
 find_package( OpenCV REQUIRED )
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS})
 
+
+###################### librealsense ###########################
+set(BUILD_GRAPHICAL_EXAMPLES OFF CACHE BOOL " " FORCE)
+set(BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL " " FORCE)
+set(BUILD_WITH_CUDA ON CACHE BOOL " " FORCE)
+set(BUILD_WITH_TM2  OFF CACHE BOOL " " FORCE)
+add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
+include_directories(ext/librealsense/include)
 add_definitions(-fPIC -std=c++14 -std=gnu++14)
+
+###################### DLIB     ###############################
+include(./ext/dlib/dlib/cmake)
 
 ###################### GLM     ###############################
 include_directories( ../ext/glm/ )
