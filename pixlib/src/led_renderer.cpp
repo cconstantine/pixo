@@ -60,8 +60,13 @@ namespace Pixlib {
     GLubyte* src = (GLubyte*)glMapBufferRange(GL_PIXEL_PACK_BUFFER, 0,size, GL_MAP_READ_BIT);
     if(src)
     {
+      char testblock [size];
+      memset(testblock, 0, sizeof testblock);
+      memcmp(testblock, buffer, size);
       memcpy(buffer, src, size);
       glUnmapBuffer(GL_PIXEL_PACK_BUFFER);
+    } else {
+      ALOGV("Failed to get frame from GPU\n");
     }
   }
 }

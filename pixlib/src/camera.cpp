@@ -93,7 +93,10 @@ namespace Pixlib {
     update_camera_vectors();
   }
 
-
+  void IsoCamera::move_towards(const glm::vec3 target, float timeScale)
+  {
+    Position = Position + (target - Position)*timeScale;
+  }
 
   // http://elvers.us/perception/visualAngle/
   float IsoCamera::get_zoom() const

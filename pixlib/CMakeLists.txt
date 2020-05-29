@@ -1,8 +1,8 @@
 
 cmake_minimum_required(VERSION 3.0)
 project(pixlib)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
 
+add_definitions(-fPIC -std=c++14 -std=gnu++14)
 
 ###################### GLM     ###############################
 include_directories( ../ext/glm/ )
@@ -27,8 +27,8 @@ add_library(pixlib STATIC
  src/data_model.cpp
  )
 
- target_link_libraries(pixlib sqlite3)
+target_link_libraries(pixlib pthread )
 
 
-set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include ${CMAKE_CURRENT_SOURCE_DIR}/../ext/sqlite_orm/include PARENT_SCOPE)
+set(PIXLIB_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
 

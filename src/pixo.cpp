@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <vector>
-
+#include <thread>
 #include <iostream>
 
 // Include GLEW
@@ -20,17 +20,61 @@ GLFWwindow* window;
 #include <glm/gtx/string_cast.hpp>
 #include <pixlib.hpp>
 
-
 #include <nanogui/nanogui.h>
+
+#include <storage.hpp>
 
 std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
+#include <grpcpp/grpcpp.h>
+#include "pixrpc.grpc.pb.h"
+
 using namespace glm;
 using namespace std;
-using namespace Pixlib;
+
+
+class TrackingClient {
+ public:
+  TrackingClient(std::shared_ptr<grpc::Channel> channel)
+      : stub_(pixrpc::Tracking::NewStub(channel)) {}
+
+  // Assembles the client's payload, sends it and presents the response back
+  // from the server.
+  bool get_locations(const Pixlib::TrackingService& tracking_service, Pixlib::App* app) {
+    pixrpc::LocationStreamArgs args;
+    pixrpc::Location location;
+    grpc::ClientContext context;
+
+    std::unique_ptr<grpc::ClientReader<pixrpc::Location> > reader(stub_->location_stream(&context, args));
+
+    while (reader->Read(&location)) {
+      app->set_target_location(tracking_service.tracking_offset + glm::vec3(location.x(), location.y(), location.z()));
+    }
+    grpc::Status status = reader->Finish();
+    return status.ok();
+  }
+
+ private:
+  std::unique_ptr<pixrpc::Tracking::Stub> stub_;
+};
+
+void thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app) {
+  TrackingClient location_client(grpc::CreateChannel(
+      tracking_service.address, grpc::InsecureChannelCredentials()));
+  bool last_success = true;
+  while (true) {
+    bool this_success = location_client.get_locations(tracking_service, app);
+    if (last_success && !this_success) {
+      std::cout << "location_stream rpc failed." << std::endl;
+      last_success = this_success;
+    }
+    std::this_thread::sleep_for(std::chrono::duration<float>(0.1));
+  }
+}
+
 nanogui::Screen *screen = nullptr;
 
-Timer global_timer = Timer(120);
+Pixlib::Timer global_timer = Pixlib::Timer(120);
 
 static GLfloat lastX = 400, lastY = 300;
 static bool firstMouse = true;
@@ -43,6 +87,11 @@ void sig_int_handler(int s){
     exit(1);
   }
   glfwSetWindowShouldClose(window, GL_TRUE);
+}
+
+void GLFW_error(int error, const char* description)
+{
+    fprintf(stderr, "%d: %s\n", error, description);
 }
 
 
@@ -62,6 +111,7 @@ int main( int argc, char** argv )
 
   const std::string db_filename(argv[arg_i]);
   ALOGV("loading: %s\n", db_filename.c_str());
+    glfwSetErrorCallback(GLFW_error);
 
   // Initialise GLFW
   if( !glfwInit() )
@@ -69,9 +119,8 @@ int main( int argc, char** argv )
       fprintf( stderr, "Failed to initialize GLFW\n" );
       getchar();
       return -1;
-  }  
-
-  
+  }
+ 
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
   glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
   glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE); // To make MacOS happy; should not be needed
@@ -91,8 +140,7 @@ int main( int argc, char** argv )
 
   window = glfwCreateWindow(width, height, "Pixo", monitor, NULL);
   if( window == NULL ){
-      fprintf( stderr, "Failed to open GLFW window.\n" );
-      getchar();
+      fprintf( stderr, "Failed to open GLFW window (%d, %d).\n", width, height );
       glfwTerminate();
       return -1;
   }
@@ -113,8 +161,14 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
+  Storage storage(db_filename);
 
-  App application = App(Storage(db_filename));
+  Pixlib::App application = Pixlib::App(storage.sculpture, storage.patterns());
+  std::vector<Pixlib::TrackingService> tracking_services = storage.tracking_services();
+  std::vector<std::thread> threads;
+  for(Pixlib::TrackingService service : tracking_services) {
+    threads.push_back(std::thread(&thread_function, service, &application));
+  }
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize
@@ -154,7 +208,7 @@ int main( int argc, char** argv )
     [&]() -> string {
 
       char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
       sprintf(ret, "%2.02fms", app->scene_render_time()*1000);
       return ret;
@@ -165,7 +219,7 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       sprintf(ret, "%2.02fms", app->led_render_time()*1000);
       return ret;
     },
@@ -174,7 +228,7 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
       return app->get_pattern().name.c_str();
     },
@@ -192,7 +246,7 @@ int main( int argc, char** argv )
   brightness_slider->setValue(application.brightness);
   brightness_slider->setRange(std::pair<float, float>(0.0f, 1.0f));
   brightness_slider->setCallback([](float value) {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       app->brightness = value;
   });
 
@@ -201,11 +255,11 @@ int main( int argc, char** argv )
 
   gui->addVariable<float>("Rotation",
     [&](float value) {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       app->rotation = value;
     },
     [&]() -> float {
-      App* app = (App*)glfwGetWindowUserPointer(window);
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
       return app->rotation;
     },
@@ -215,25 +269,17 @@ int main( int argc, char** argv )
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-            App* app = (App*)glfwGetWindowUserPointer(window);
-
-            if (state != GLFW_PRESS) {
-              firstMouse = true;
-            }
-            if(firstMouse)
-            {
-              lastX = x;
-              lastY = y;
-              firstMouse = false;
-            }
-
+            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+  
             GLfloat xoffset = x - lastX;
             GLfloat yoffset = y - lastY; 
 
             lastX = x;
             lastY = y;
 
-            app->process_mouse_movement(xoffset, yoffset);
+            if (state == GLFW_PRESS) {
+              app->process_mouse_movement(xoffset, yoffset);
+            }
           }
       }
   );
@@ -258,7 +304,7 @@ int main( int argc, char** argv )
               return;
             }
 
-            App* app = (App*)glfwGetWindowUserPointer(window);
+            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
             if(key == GLFW_KEY_ESCAPE) {
               glfwSetWindowShouldClose(window, GL_TRUE);
@@ -298,7 +344,7 @@ int main( int argc, char** argv )
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
           if (!screen->scrollCallbackEvent(x, y)) {
-            App* app = (App*)glfwGetWindowUserPointer(window);
+            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
             app->process_mouse_scroll(y);
           }
@@ -307,7 +353,7 @@ int main( int argc, char** argv )
 
   glfwSetFramebufferSizeCallback(window,
       [](GLFWwindow *window, int width, int height) {
-        App* app = (App*)glfwGetWindowUserPointer(window);
+        Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
 
         app->set_screen_size(width, height);
         screen->resizeCallbackEvent(width, height);
@@ -321,7 +367,6 @@ int main( int argc, char** argv )
       ALOGV("Preloop %04x\n", glErr);
       glErr = glGetError();
   }
-
 
   std::chrono::time_point<std::chrono::high_resolution_clock> last_pattern_change = std::chrono::high_resolution_clock::now();
   struct sigaction sigIntHandler;
@@ -368,6 +413,21 @@ int main( int argc, char** argv )
     }
 
   }
+
+  storage.sculpture.camera_perspective.yaw = application.camera.Yaw;
+  storage.sculpture.camera_perspective.pitch = application.camera.Pitch;
+  storage.sculpture.camera_perspective.zoom = application.camera.Zoom;
+  storage.sculpture.camera_perspective.scope = application.camera.scope;
+
+  storage.sculpture.projection_perspective.yaw = application.viewed_from.Yaw;
+  storage.sculpture.projection_perspective.pitch = application.viewed_from.Pitch;
+  storage.sculpture.projection_perspective.zoom = application.viewed_from.Zoom;
+  storage.sculpture.projection_perspective.scope = application.viewed_from.scope;
+
+  storage.sculpture.active_pattern_name = application.get_pattern().name;
+  storage.sculpture.brightness = application.brightness;
+  storage.sculpture.rotation = application.rotation;
+  storage.save_app_state();
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();

@@ -2,21 +2,24 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fPIC")
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+# set(CMAKE_C_COMPILER /usr/bin/gcc-8 CACHE BOOL " " FORCE)
+# set(CMAKE_CXX_COMPILER /usr/bin/g++-8 CACHE BOOL " " FORCE)
 
-###################### GLFW     ################################
-set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL " " FORCE)
-set(GLFW_BUILD_TESTS    OFF CACHE BOOL " " FORCE)
-set(GLFW_BUILD_DOCS     OFF CACHE BOOL " " FORCE)
-set(GLFW_INSTALL        OFF CACHE BOOL " " FORCE)
-#add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/ext/glfw EXCLUDE_FROM_ALL)
+option(PIXO_BUILD_TRACKER  "Build realsense camera based target tracking." ON)
 
+
+if(NOT CMAKE_BUILD_TYPE)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING
+      "Choose the type of build, options are: Debug Release
+RelWithDebInfo MinSizeRel."
+      FORCE)
+endif(NOT CMAKE_BUILD_TYPE)
 
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)
 set(NANOGUI_BUILD_PYTHON  OFF CACHE BOOL " " FORCE)
+set(NANOGUI_BUILD_SHARED  OFF CACHE BOOL " " FORCE)
 set(NANOGUI_INSTALL       OFF CACHE BOOL " " FORCE)
 
 # Disable warnings because assimp and nanogui have too many
@@ -32,18 +35,27 @@ add_definitions(${NANOGUI_EXTRA_DEFS})
 include_directories( ext/glm/ )
 
 ###################### GLEW     ###############################
-# glew
 set(glew-cmake_BUILD_MULTI_CONTEXT       OFF CACHE BOOL " " FORCE)
 set(glew-cmake_BUILD_SHARED              OFF CACHE BOOL " " FORCE)
 
 add_subdirectory(ext/glew EXCLUDE_FROM_ALL)
 include_directories(ext/glew/include lib/glew/src)
 
+
 ###################### PIXLIB   ###############################
 include_directories(src)
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
+if (PIXO_BUILD_TRACKER)
+####################### PIXSENSE ##############################
+add_subdirectory(pixsense)
+include_directories(${PIXSENSE_INCLUDE})
+endif(PIXO_BUILD_TRACKER)
+
+###################### PIXLIB   ###############################
+add_subdirectory(pixrpc)
 
 ###################### PIXO     ################################
 add_subdirectory(src)
+

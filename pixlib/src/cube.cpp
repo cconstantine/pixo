@@ -12,6 +12,37 @@ using namespace std;
 #include <pixlib/mesh.hpp>
 
 namespace Pixlib {
+  // Constructor, expects a filepath to a 3D model.
+  Cube::Cube( ) :defaultTexture(1,1),
+     shader(
+  R"(
+  layout (location = 0) in vec3 position;
+  layout (location = 1) in vec3 normal;
+  layout (location = 2) in vec2 texCoords;
+  layout (location = 3) in vec2 texCoordsOffset;
+  layout (location = 4) in mat4 positionOffset;
+
+  out vec2 TexCoords;
+
+  uniform mat4 view;
+  uniform mat4 projection;
+
+  uniform mat4 MVP;
+
+  void main()
+  {
+      gl_Position = projection * view  * positionOffset * vec4(position, 1.0f);
+  })",
+  R"(
+  out vec4 color;
+
+  void main()
+  {
+    color = vec4(1.0f);
+  })")
+  {
+    this->load_model();
+  }
 
   // Constructor, expects a filepath to a 3D model.
   Cube::Cube(const Texture& defaultTexture ) :defaultTexture(defaultTexture),

@@ -1,4 +1,7 @@
-#include <pixlib.hpp>
+#include <storage.hpp>
+
+std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
+
 
 int main( int argc, char** argv )
 {  
@@ -9,7 +12,7 @@ int main( int argc, char** argv )
 
   int argc_i = 1;
   std::string filename(argv[argc_i++]);
-  Pixlib::Storage storage(filename);
+  Storage storage(filename);
 
   std::vector<std::string> filenames;
 

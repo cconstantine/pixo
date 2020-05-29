@@ -7,3 +7,15 @@
 [submodule "ext/nanogui"]
 	path = ext/nanogui
 	url = https://github.com/wjakob/nanogui.git
+[submodule "ext/librealsense"]
+	path = pixsense/ext/librealsense
+	url = https://github.com/IntelRealSense/librealsense.git
+[submodule "ext/opencv"]
+	path = ext/opencv
+	url = https://github.com/opencv/opencv.git
+[submodule "ext/dlib"]
+	path = pixsense/ext/dlib
+	url = https://github.com/davisking/dlib.git
+[submodule "ext/grpc"]
+	path = pixrpc/ext/grpc
+	url = https://github.com/grpc/grpc.git

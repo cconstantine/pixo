@@ -21,6 +21,7 @@ namespace Pixlib {
   public:
     /*  Functions   */
     Cube(const Texture& defaultTexture);
+    Cube();
 
     // Draws the model, and thus all its meshes
     virtual void draw(const IsoCamera& perspective, float brightness);

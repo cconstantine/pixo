@@ -18,7 +18,7 @@ namespace Pixlib {
   class App {
   public:
 
-    App(const Storage& storage);
+    App(const Sculpture& sculpture, const std::vector<PatternCode> pattern_codes);
     ~App();
 
     float scene_fps();
@@ -35,6 +35,9 @@ namespace Pixlib {
     void next_pattern();
     void prev_pattern();
 
+    void set_target_location(glm::vec3 target);
+
+    void register_pattern(std::shared_ptr<Pattern> pattern);
     const Pattern& get_pattern();
     const Texture& get_pattern_texture();
 
@@ -44,8 +47,9 @@ namespace Pixlib {
     float brightness;
     float rotation;
 
+    IsoCamera viewed_from;
+    IsoCamera camera;
   private:
-    void register_pattern(std::shared_ptr<Pattern> pattern);
 
     std::map<std::string, std::shared_ptr<Pattern> > patterns;
     std::shared_ptr<Pattern> pattern;
@@ -54,9 +58,7 @@ namespace Pixlib {
 
     LedClusterCluster led_clusters;
 
-    IsoCamera viewed_from;
-    IsoCamera camera;
-
-    Storage storage;
+    std::shared_ptr<Cube> focal_point;
+    glm::vec3 target;
   };
 }

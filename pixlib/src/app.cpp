@@ -1,47 +1,38 @@
 #include <pixlib/app.hpp>
+#include <glm/ext.hpp>
 
 namespace Pixlib {
 
-  App::App(const Storage& storage) :
-   storage(storage),
+  App::App(const Sculpture& sculpture, const std::vector<PatternCode> pattern_codes) :
    scene(),
-   brightness(storage.sculpture.brightness),
-   rotation(storage.sculpture.rotation)
+   focal_point(std::make_shared<Cube>()),
+   brightness(sculpture.brightness),
+   rotation(sculpture.rotation),
+   target(glm::vec3(0.0f))
   {
-    viewed_from = storage.sculpture.projection_perspective;
-    camera      = storage.sculpture.camera_perspective;
+    viewed_from = sculpture.projection_perspective;
+    camera      = sculpture.camera_perspective;
 
-    for(const LedGeometry& geom : storage.sculpture.leds) {
+    for(const LedGeometry& geom : sculpture.leds) {
       std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom);
 
       scene.add_cluster(lc->get_drawable());
       led_clusters.push_back(lc);
     }
 
-    for(const PatternCode& pattern : this->storage.patterns()) {
+    for(const PatternCode& pattern : pattern_codes) {
       register_pattern(std::make_shared<Pattern>(pattern.name, pattern.shader_code.c_str()));
     }
 
-    if (patterns.find(storage.sculpture.active_pattern_name) != patterns.end()) {
-      this->pattern = this->patterns[storage.sculpture.active_pattern_name];
+    if (patterns.find(sculpture.active_pattern_name) != patterns.end()) {
+      this->pattern = this->patterns[sculpture.active_pattern_name];
     }
+
+    focal_point->add_instance(glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f));
+    scene.add_cluster(focal_point);
   }
 
   App::~App() {
-    storage.sculpture.camera_perspective.yaw = camera.Yaw;
-    storage.sculpture.camera_perspective.pitch = camera.Pitch;
-    storage.sculpture.camera_perspective.zoom = camera.Zoom;
-    storage.sculpture.camera_perspective.scope = camera.scope;
-
-    storage.sculpture.projection_perspective.yaw = viewed_from.Yaw;
-    storage.sculpture.projection_perspective.pitch = viewed_from.Pitch;
-    storage.sculpture.projection_perspective.zoom = viewed_from.Zoom;
-    storage.sculpture.projection_perspective.scope = viewed_from.scope;
-
-    storage.sculpture.active_pattern_name = get_pattern().name;
-    storage.sculpture.brightness = brightness;
-    storage.sculpture.rotation = rotation;
-    storage.save_app_state();
   }
 
   float App::scene_fps() {
@@ -69,11 +60,12 @@ namespace Pixlib {
   }
 
   void App::move_perspective_to_camera() {
-    viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
+    //viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
   }
 
   void App::register_pattern(std::shared_ptr<Pattern> pattern)
   {
+    ALOGV("Registering: %s\n", pattern->name.c_str());
     this->pattern = pattern;
     patterns[pattern->name] = pattern;
   }
@@ -121,12 +113,22 @@ namespace Pixlib {
     return pattern->get_texture();
   }
 
+  void App::set_target_location(glm::vec3 target) {
+    focal_point->move_instance(0, target);
+    this->target = target;
+  }
+
   void App::set_screen_size(int width, int height) {
     camera.width = width;
     camera.height = height;
   }
 
   void App::render_leds() {
+
+    if (target != glm::vec3(0.0f)) {
+      viewed_from.move_towards(target, scene.get_time_delta()*10.0);
+    }
+
     pattern->render();
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
