@@ -68,22 +68,22 @@ using namespace dlib;
 // template <typename SUBNET> using rcon3  = relu<bn_con<con3<32,SUBNET>>>;
 // using net_type  = loss_mmod<con<1,6,6,1,1,rcon3<rcon3<rcon3<downsampler<input_rgb_image_pyramid<pyramid_down<6>>>>>>>>;
 
-// template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
-// template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
-
-// template <typename SUBNET> using downsampler  = dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<16,SUBNET>>>>>>>>>;
-// template <typename SUBNET> using rcon5  = dlib::relu<dlib::affine<con5<45,SUBNET>>>;
-
-// using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
-// ----------------------------------------------------------------------------------------
-
 template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
 template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
 
-template <typename SUBNET> using downsampler  = dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<16,SUBNET>>>>>>>>>;
-template <typename SUBNET> using rcon5  = dlib::relu<dlib::bn_con<con5<45,SUBNET>>>;
+template <typename SUBNET> using downsampler  = dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<16,SUBNET>>>>>>>>>;
+template <typename SUBNET> using rcon5  = dlib::relu<dlib::affine<con5<45,SUBNET>>>;
 
-using depth_training_net = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<Pixsense::input_grayscale_16bit_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+// ----------------------------------------------------------------------------------------
+
+// template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
+// template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
+
+// template <typename SUBNET> using downsampler  = dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<16,SUBNET>>>>>>>>>;
+// template <typename SUBNET> using rcon5  = dlib::relu<dlib::bn_con<con5<45,SUBNET>>>;
+
+// using depth_training_net = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
 
 int main(int argc, char** argv) try
 {
@@ -104,7 +104,7 @@ int main(int argc, char** argv) try
     // holds the locations of the faces in the training images.  So for
     // example, the image images_train[0] has the faces given by the
     // rectangles in face_boxes_train[0].
-    std::vector<matrix<uint16>> images_train, images_test;
+    std::vector<matrix<rgb_pixel>> images_train, images_test;
     std::vector<std::vector<mmod_rect>> face_boxes_train, face_boxes_test;
 
     int i = 1;
@@ -117,7 +117,7 @@ int main(int argc, char** argv) try
             cout << endl;
             return 0;
         } else if (std::string(argv[i]) == "--training") {
-            std::vector<matrix<uint16>>         images_load;
+            std::vector<matrix<rgb_pixel>>         images_load;
             std::vector<std::vector<mmod_rect>> face_s_load;
 
             load_image_dataset(images_load, face_s_load, std::string(argv[++i]));
@@ -125,7 +125,7 @@ int main(int argc, char** argv) try
             images_train.insert(    images_train.end(),     images_load.begin(), images_load.end());
             face_boxes_train.insert(face_boxes_train.end(), face_s_load.begin(), face_s_load.end());
         } else if (std::string(argv[i]) == "--testing") {
-            std::vector<matrix<uint16>> images_load;
+            std::vector<matrix<rgb_pixel>> images_load;
             std::vector<std::vector<mmod_rect>> face_s_load;
 
             load_image_dataset(images_load, face_s_load, std::string(argv[++i]));
@@ -180,11 +180,11 @@ int main(int argc, char** argv) try
     cout << "overlap NMS percent covered thresh: " << options.overlaps_nms.get_percent_covered_thresh() << endl;
 
     // Now we are ready to create our network and trainer.  
-    depth_training_net net(options);
+    net_type net(options);
     // The MMOD loss requires that the number of filters in the final network layer equal
     // options.detector_windows.size().  So we set that here as well.
     net.subnet().layer_details().set_num_filters(options.detector_windows.size());
-    dnn_trainer<depth_training_net> trainer(net);
+    dnn_trainer<net_type> trainer(net);
     trainer.set_learning_rate(0.1);
     trainer.be_verbose();
     trainer.set_synchronization_file("mmod_sync", std::chrono::minutes(5));
@@ -194,7 +194,7 @@ int main(int argc, char** argv) try
     // Now let's train the network.  We are going to use mini-batches of 150
     // images.   The images are random crops from our training set (see
     // random_cropper_ex.cpp for a discussion of the random_cropper). 
-    std::vector<matrix<uint16>> mini_batch_samples;
+    std::vector<matrix<rgb_pixel>> mini_batch_samples;
     std::vector<std::vector<mmod_rect>> mini_batch_labels; 
     random_cropper cropper;
     cropper.set_chip_dims(200, 200);
