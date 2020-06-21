@@ -66,24 +66,24 @@ using namespace dlib;
 
 // template <typename SUBNET> using downsampler  = relu<bn_con<con5d<32, relu<bn_con<con5d<32, relu<bn_con<con5d<32,SUBNET>>>>>>>>>;
 // template <typename SUBNET> using rcon3  = relu<bn_con<con3<32,SUBNET>>>;
-// using net_type  = loss_mmod<con<1,6,6,1,1,rcon3<rcon3<rcon3<downsampler<input_rgb_image_pyramid<pyramid_down<6>>>>>>>>;
-
-template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
-template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
-
-template <typename SUBNET> using downsampler  = dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<16,SUBNET>>>>>>>>>;
-template <typename SUBNET> using rcon5  = dlib::relu<dlib::affine<con5<45,SUBNET>>>;
-
-using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
-// ----------------------------------------------------------------------------------------
+// // using net_type  = loss_mmod<con<1,6,6,1,1,rcon3<rcon3<rcon3<downsampler<input_rgb_image_pyramid<pyramid_down<6>>>>>>>>;
 
 // template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
 // template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
 
-// template <typename SUBNET> using downsampler  = dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<16,SUBNET>>>>>>>>>;
-// template <typename SUBNET> using rcon5  = dlib::relu<dlib::bn_con<con5<45,SUBNET>>>;
+// template <typename SUBNET> using downsampler  = dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<32, dlib::relu<dlib::affine<con5d<16,SUBNET>>>>>>>>>;
+// template <typename SUBNET> using rcon5  = dlib::relu<dlib::affine<con5<45,SUBNET>>>;
 
-// using depth_training_net = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+// using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+// ----------------------------------------------------------------------------------------
+
+template <long num_filters, typename SUBNET> using con5d = dlib::con<num_filters,5,5,2,2,SUBNET>;
+template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters,5,5,1,1,SUBNET>;
+
+template <typename SUBNET> using downsampler  = dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<16,SUBNET>>>>>>>>>;
+template <typename SUBNET> using rcon5  = dlib::relu<dlib::bn_con<con5<45,SUBNET>>>;
+
+using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
 
 int main(int argc, char** argv) try
 {
@@ -107,13 +107,15 @@ int main(int argc, char** argv) try
     std::vector<matrix<rgb_pixel>> images_train, images_test;
     std::vector<std::vector<mmod_rect>> face_boxes_train, face_boxes_test;
 
+    int cropper_count = 50;
+    int progress_threshold = 300;
     int i = 1;
     for (int i = i;i < argc;i++) {
         if (std::string(argv[i]) == "-h" || std::string(argv[i]) == "--help") {
             cout << "Give the path to the examples/faces directory as the argument to this" << endl;
             cout << "program.  For example, if you are in the examples folder then execute " << endl;
             cout << "this program by running: " << endl;
-            cout << "   ./trainer --training <training_set> --testing <testing_set>" << endl;
+            cout << "   ./trainer --training <training_set> --testing <testing_set> --cropper_count <count> --progress_threshold <count>" << endl;
             cout << endl;
             return 0;
         } else if (std::string(argv[i]) == "--training") {
@@ -132,7 +134,11 @@ int main(int argc, char** argv) try
 
             images_test.insert(    images_test.end(),     images_load.begin(), images_load.end());
             face_boxes_test.insert(face_boxes_test.end(), face_s_load.begin(), face_s_load.end());
-        } 
+        }  else if (std::string(argv[i]) == "--cropper_count") {
+            cropper_count = atoi(argv[++i]);
+        }  else if (std::string(argv[i]) == "--progress_threshold") {
+            progress_threshold = atoi(argv[++i]);
+        }
     // cout << "num training images: " << images_train.size() << endl;
     // cout << "num testing images:  " << images_test.size() << endl;
 
@@ -156,6 +162,8 @@ int main(int argc, char** argv) try
 
     cout << "num training images: " << images_train.size() << endl;
     cout << "num testing images:  " << images_test.size() << endl;
+    cout << "num of crops in cropper: " << cropper_count << endl;
+    cout << "num iterations without progress: " << progress_threshold << endl;
 
     if (images_train.size() == 0) {
         return 0;
@@ -170,7 +178,7 @@ int main(int argc, char** argv) try
     // pick a good sliding window width and height.  It will also automatically set the
     // non-max-suppression parameters to something reasonable.  For further details see the
     // mmod_options documentation.
-    mmod_options options(face_boxes_train, 40,40);
+    mmod_options options(face_boxes_train, 80,80);
     // The detector will automatically decide to use multiple sliding windows if needed.
     // For the face data, only one is needed however.
     cout << "num detector windows: "<< options.detector_windows.size() << endl;
@@ -188,7 +196,7 @@ int main(int argc, char** argv) try
     trainer.set_learning_rate(0.1);
     trainer.be_verbose();
     trainer.set_synchronization_file("mmod_sync", std::chrono::minutes(5));
-    trainer.set_iterations_without_progress_threshold(300);
+    trainer.set_iterations_without_progress_threshold(progress_threshold);
 
 
     // Now let's train the network.  We are going to use mini-batches of 150
@@ -200,17 +208,17 @@ int main(int argc, char** argv) try
     cropper.set_chip_dims(200, 200);
     // Usually you want to give the cropper whatever min sizes you passed to the
     // mmod_options constructor, which is what we do here.
-    cropper.set_min_object_size(40,40);
+    cropper.set_min_object_size(80,80);
     dlib::rand rnd;
     // Run the trainer until the learning rate gets small.  This will probably take several
     // hours.
     while(trainer.get_learning_rate() >= 1e-4)
     {
-        cropper(50, images_train, face_boxes_train, mini_batch_samples, mini_batch_labels);
+        cropper(cropper_count, images_train, face_boxes_train, mini_batch_samples, mini_batch_labels);
         // We can also randomly jitter the colors and that often helps a detector
         // generalize better to new images.
-        // for (auto&& img : mini_batch_samples)
-        //     disturb_colors(img, rnd);
+        for (auto&& img : mini_batch_samples)
+            disturb_colors(img, rnd);
 
         trainer.train_one_step(mini_batch_samples, mini_batch_labels);
     }
@@ -228,29 +236,33 @@ int main(int argc, char** argv) try
     // This statement should indicate that the network works perfectly on the
     // training data.
     cout << "training results: " << test_object_detection_function(net, images_train, face_boxes_train) << endl;
-    // However, to get an idea if it really worked without overfitting we need to run
-    // it on images it wasn't trained on.  The next line does this.   Happily,
-    // this statement indicates that the detector finds most of the faces in the
-    // testing data.
-    cout << "testing results:  " << test_object_detection_function(net, images_test, face_boxes_test) << endl;
+
+    if (images_train.size() == 0) {
+
+        // However, to get an idea if it really worked without overfitting we need to run
+        // it on images it wasn't trained on.  The next line does this.   Happily,
+        // this statement indicates that the detector finds most of the faces in the
+        // testing data.
+        cout << "testing results:  " << test_object_detection_function(net, images_test, face_boxes_test) << endl;
 
 
-    // If you are running many experiments, it's also useful to log the settings used
-    // during the training experiment.  This statement will print the settings we used to
-    // the screen.
-    cout << trainer << cropper << endl;
+        // If you are running many experiments, it's also useful to log the settings used
+        // during the training experiment.  This statement will print the settings we used to
+        // the screen.
+        cout << trainer << cropper << endl;
 
-    // // Now lets run the detector on the testing images and look at the outputs.  
-    image_window win;
-    for (auto&& img : images_train)
-    {
-        //pyramid_up(img);
-        auto dets = net(img);
-        win.clear_overlay();
-        win.set_image(img);
-        for (auto&& d : dets)
-            win.add_overlay(d);
-        cin.get();
+        // // Now lets run the detector on the testing images and look at the outputs.  
+        image_window win;
+        for (auto&& img : images_train)
+        {
+            //pyramid_up(img);
+            auto dets = net(img);
+            win.clear_overlay();
+            win.set_image(img);
+            for (auto&& d : dets)
+                win.add_overlay(d);
+            cin.get();
+        }
     }
     return 0;
 
