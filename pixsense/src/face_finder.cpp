@@ -191,7 +191,7 @@ namespace Pixsense {
 
     dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
     // dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
-
+    // dlib::pyramid_up(dlibIm);
     float scale = 1.5F;
     if ( previous_tracking.is_tracking()) {
       tracker.update_noscale(dlibIm);

@@ -35,3 +35,5 @@ file(COPY models DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 set(PIXSENSE_INCLUDE ${CMAKE_CURRENT_SOURCE_DIR}/include PARENT_SCOPE)
 
+add_executable(trainer src/trainer.cpp)
+target_link_libraries(trainer dlib )

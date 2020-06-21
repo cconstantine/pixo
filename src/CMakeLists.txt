@@ -9,6 +9,7 @@ set(EXECUTABLE_OUTPUT_PATH "${CMAKE_BINARY_DIR}")
 
 add_definitions(-std=c++14)
 
+
 add_executable(pixo-creator pixo-creator.cpp storage.cpp )
 target_compile_features(pixo-creator PRIVATE cxx_std_14)
 target_link_libraries(pixo-creator pixlib libglew_static sqlite3 )
