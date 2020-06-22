@@ -189,6 +189,11 @@ int main(int argc, char** argv) try
 
     // Now we are ready to create our network and trainer.  
     net_type net(options);
+    net_type original_net(options);
+    deserialize("../pixsense/models/mmod_human_face_detector.dat") >> original_net;
+    cout << "original results: " << test_object_detection_function(original_net, images_train, face_boxes_train) << endl;
+
+
     // The MMOD loss requires that the number of filters in the final network layer equal
     // options.detector_windows.size().  So we set that here as well.
     net.subnet().layer_details().set_num_filters(options.detector_windows.size());
@@ -228,7 +233,7 @@ int main(int argc, char** argv) try
 
     // Save the network to disk
     net.clean();
-    serialize("../pixsense/models/mmod_human_face_detector_depth.dat") << net;
+    serialize("../pixsense/models/mmod_human_face_detector.dat") << net;
 
 
     // Now that we have a face detector we can test it.  The first statement tests it
