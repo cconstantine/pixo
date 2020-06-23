@@ -83,7 +83,7 @@ template <long num_filters, typename SUBNET> using con5  = dlib::con<num_filters
 template <typename SUBNET> using downsampler  = dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<32, dlib::relu<dlib::bn_con<con5d<16,SUBNET>>>>>>>>>;
 template <typename SUBNET> using rcon5  = dlib::relu<dlib::bn_con<con5<45,SUBNET>>>;
 
-using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+using net_type = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<input_grayscale_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
 
 int main(int argc, char** argv) try
 {
@@ -104,7 +104,7 @@ int main(int argc, char** argv) try
     // holds the locations of the faces in the training images.  So for
     // example, the image images_train[0] has the faces given by the
     // rectangles in face_boxes_train[0].
-    std::vector<matrix<rgb_pixel>> images_train, images_test;
+    std::vector<matrix<unsigned char>> images_train, images_test;
     std::vector<std::vector<mmod_rect>> face_boxes_train, face_boxes_test;
 
     int cropper_count = 50;
@@ -119,7 +119,7 @@ int main(int argc, char** argv) try
             cout << endl;
             return 0;
         } else if (std::string(argv[i]) == "--training") {
-            std::vector<matrix<rgb_pixel>>         images_load;
+            std::vector<matrix<unsigned char>>         images_load;
             std::vector<std::vector<mmod_rect>> face_s_load;
 
             load_image_dataset(images_load, face_s_load, std::string(argv[++i]));
@@ -127,7 +127,7 @@ int main(int argc, char** argv) try
             images_train.insert(    images_train.end(),     images_load.begin(), images_load.end());
             face_boxes_train.insert(face_boxes_train.end(), face_s_load.begin(), face_s_load.end());
         } else if (std::string(argv[i]) == "--testing") {
-            std::vector<matrix<rgb_pixel>> images_load;
+            std::vector<matrix<unsigned char>> images_load;
             std::vector<std::vector<mmod_rect>> face_s_load;
 
             load_image_dataset(images_load, face_s_load, std::string(argv[++i]));
@@ -189,10 +189,6 @@ int main(int argc, char** argv) try
 
     // Now we are ready to create our network and trainer.  
     net_type net(options);
-    net_type original_net(options);
-    deserialize("../pixsense/models/mmod_human_face_detector.dat") >> original_net;
-    cout << "original results: " << test_object_detection_function(original_net, images_train, face_boxes_train) << endl;
-
 
     // The MMOD loss requires that the number of filters in the final network layer equal
     // options.detector_windows.size().  So we set that here as well.
@@ -207,7 +203,7 @@ int main(int argc, char** argv) try
     // Now let's train the network.  We are going to use mini-batches of 150
     // images.   The images are random crops from our training set (see
     // random_cropper_ex.cpp for a discussion of the random_cropper). 
-    std::vector<matrix<rgb_pixel>> mini_batch_samples;
+    std::vector<matrix<unsigned char>> mini_batch_samples;
     std::vector<std::vector<mmod_rect>> mini_batch_labels; 
     random_cropper cropper;
     cropper.set_chip_dims(200, 200);
@@ -233,7 +229,7 @@ int main(int argc, char** argv) try
 
     // Save the network to disk
     net.clean();
-    serialize("../pixsense/models/mmod_human_face_detector.dat") << net;
+    serialize("../pixsense/models/mmod_human_face_detector_gray.dat") << net;
 
 
     // Now that we have a face detector we can test it.  The first statement tests it
