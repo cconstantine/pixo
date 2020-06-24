@@ -104,6 +104,30 @@ namespace Pixsense {
     return faceRects;
   }
 
+  FaceDetectGrayDlibMMOD::FaceDetectGrayDlibMMOD() {
+    cv::String mmodModelPath = "../pixsense/models/mmod_human_face_detector_gray.dat";
+
+    // cv::String mmodModelPath = "./mmod_network.dat";
+    dlib::deserialize(mmodModelPath) >> mmodFaceDetector;
+  }
+
+  std::vector<cv::Rect> FaceDetectGrayDlibMMOD::detect(const cv::Mat& frame) {
+    // Convert OpenCV image format to Dlib's image format
+    dlib::cv_image<unsigned char> dlibIm(frame);
+    dlib::matrix<unsigned char> dlibMatrix;
+    dlib::assign_image(dlibMatrix, dlibIm);
+
+    std::vector<cv::Rect> faceRects;
+
+    // Detect faces in the image
+    for(dlib::mmod_rect rect : mmodFaceDetector(dlibMatrix)) {
+      cv::Rect cv_rect(rect_to_cvrect(rect.rect));
+      faceRects.push_back(cv_rect);
+    }
+
+    return faceRects;
+  }
+
   TrackedFace::TrackedFace() :
    is_copy(false),
    has_face(false),
@@ -189,7 +213,7 @@ namespace Pixsense {
     original_frame = frame;
     original_depth = depth_frame;
 
-    dlib::cv_image<dlib::bgr_pixel> dlibIm(frame);
+    dlib::cv_image<unsigned char> dlibIm(frame);
     // dlib::cv_image<dlib::uint16>    dlibIm(depth_frame);
     // dlib::pyramid_up(dlibIm);
     float scale = 1.5F;
@@ -273,13 +297,15 @@ namespace Pixsense {
 
       if (started ) {
         unaligned_frames = pipe->wait_for_frames();
-        rs2::frameset aligned_frames = align.process(unaligned_frames);
-        rs2::video_frame images = aligned_frames.get_color_frame();
-        rs2::depth_frame depths = aligned_frames.get_depth_frame();
+        // rs2::frameset aligned_frames = align.process(unaligned_frames);
+        rs2::video_frame images = unaligned_frames.get_color_frame();
+        rs2::video_frame grays  = unaligned_frames.get_infrared_frame(1);
+        rs2::depth_frame depths = unaligned_frames.get_depth_frame();
         cv::Mat image_matrix = RealsenseTracker::frame_to_mat(images);
+        cv::Mat grays_matrix = RealsenseTracker::frame_to_mat(grays);
         cv::Mat depth_matrix = RealsenseTracker::frame_to_mat(depths);
 
-        tracked_face = face_detect.detect(image_matrix, depth_matrix);
+        tracked_face = face_detect.detect(grays_matrix, depth_matrix);
         if(!tracked_face.is_tracking()) {
           timer.end();
           return;
@@ -320,7 +346,7 @@ namespace Pixsense {
       rs2::config config;
       config.enable_stream(RS2_STREAM_DEPTH, 1280, 720,  RS2_FORMAT_Z16, 30);
       config.enable_stream(RS2_STREAM_COLOR, 1920, 1080, RS2_FORMAT_RGB8, 30);
-      // config.enable_stream(RS2_STREAM_INFRARED, 2, width, height, RS2_FORMAT_Y8, fps);
+      config.enable_stream(RS2_STREAM_INFRARED, 1, 1280, 720, RS2_FORMAT_Y8, 30);
 
       // config.enable_stream(RS2_STREAM_INFRARED, 2);
       // config.enable_stream(RS2_STREAM_DEPTH, 1);
@@ -334,7 +360,7 @@ namespace Pixsense {
       auto depth_sensor = selected_device.first<rs2::depth_sensor>();
       if (depth_sensor.supports(RS2_OPTION_EMITTER_ENABLED))
       {
-          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 1.f); // Enable emitter
+          depth_sensor.set_option(RS2_OPTION_EMITTER_ENABLED, 0.f); // Enable emitter
       }
 
       started = true;

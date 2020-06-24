@@ -99,6 +99,7 @@ namespace Pixsense
 
   using depth_net = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<Pixsense::input_grayscale_16bit_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
   using image_net = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_rgb_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
+  using gray_net  = dlib::loss_mmod<dlib::con<1,9,9,1,1,rcon5<rcon5<rcon5<downsampler<dlib::input_grayscale_image_pyramid<dlib::pyramid_down<6>>>>>>>>;
 
 
   class  FaceDetect {
@@ -122,6 +123,15 @@ namespace Pixsense
     virtual std::vector<cv::Rect> detect(const cv::Mat& frame);
   private:
     image_net mmodFaceDetector;
+  };
+
+  class FaceDetectGrayDlibMMOD : public FaceDetect {
+  public:
+    FaceDetectGrayDlibMMOD();
+
+    virtual std::vector<cv::Rect> detect(const cv::Mat& frame);
+  private:
+    gray_net mmodFaceDetector;
   };
 
   class TrackedFace {
@@ -160,7 +170,7 @@ namespace Pixsense
     cv::Rect scoped_resized_face;;
     cv::Mat scoped_resized_frame;
   private:
-    FaceDetectRGBDlibMMOD face_detect;
+    FaceDetectGrayDlibMMOD face_detect;
     TrackedFace previous_tracking;
     dlib::correlation_tracker tracker;
   };
