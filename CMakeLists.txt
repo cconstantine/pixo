@@ -14,6 +14,9 @@ RelWithDebInfo MinSizeRel."
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
 
+###################### DLIB     ###############################
+include(./ext/dlib/dlib/cmake)
+
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
 set(NANOGUI_BUILD_EXAMPLE OFF CACHE BOOL " " FORCE)

@@ -14,7 +14,7 @@
 	path = ext/opencv
 	url = https://github.com/opencv/opencv.git
 [submodule "ext/dlib"]
-	path = pixsense/ext/dlib
+	path = ext/dlib
 	url = https://github.com/davisking/dlib.git
 [submodule "ext/grpc"]
 	path = pixrpc/ext/grpc

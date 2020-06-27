@@ -28,6 +28,7 @@ std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
 #include <grpcpp/grpcpp.h>
 #include "pixrpc.grpc.pb.h"
+#include <pixrpc/pixrpc.hpp>
 
 using namespace glm;
 using namespace std;
@@ -58,7 +59,7 @@ class TrackingClient {
   std::unique_ptr<pixrpc::Tracking::Stub> stub_;
 };
 
-void thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app) {
+void grpc_thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app) {
   TrackingClient location_client(grpc::CreateChannel(
       tracking_service.address, grpc::InsecureChannelCredentials()));
   bool last_success = true;
@@ -72,6 +73,16 @@ void thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app)
   }
 }
 
+void dlibrpc_thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app) {
+  Pixrpc::Client client("127.0.0.1", 5000);
+
+  bool last_success = true;
+  while (true) {
+    struct Pixrpc::Location loc;
+    client.receive_location(loc);
+    app->set_target_location(tracking_service.tracking_offset + glm::vec3(loc.x, loc.y, loc.z));
+  }
+}
 nanogui::Screen *screen = nullptr;
 
 Pixlib::Timer global_timer = Pixlib::Timer(120);
@@ -167,7 +178,8 @@ int main( int argc, char** argv )
   std::vector<Pixlib::TrackingService> tracking_services = storage.tracking_services();
   std::vector<std::thread> threads;
   for(Pixlib::TrackingService service : tracking_services) {
-    threads.push_back(std::thread(&thread_function, service, &application));
+    threads.push_back(std::thread(&grpc_thread_function, service, &application));
+    threads.push_back(std::thread(&dlibrpc_thread_function, service, &application));
   }
 
   glfwSetWindowUserPointer(window, &application);

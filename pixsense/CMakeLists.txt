@@ -16,8 +16,6 @@ add_subdirectory(ext/librealsense EXCLUDE_FROM_ALL)
 include_directories(ext/librealsense/include)
 add_definitions(-fPIC -std=c++14 -std=gnu++14)
 
-###################### DLIB     ###############################
-include(./ext/dlib/dlib/cmake)
 
 ###################### GLM     ###############################
 include_directories( ../ext/glm/ )

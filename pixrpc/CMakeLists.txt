@@ -17,7 +17,7 @@ set(proto_hdrs "${CMAKE_CURRENT_BINARY_DIR}/pixrpc.pb.h")
 set(grpc_srcs "${CMAKE_CURRENT_BINARY_DIR}/pixrpc.grpc.pb.cc")
 set(grpc_hdrs "${CMAKE_CURRENT_BINARY_DIR}/pixrpc.grpc.pb.h")
 
-set(PIXRPC_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}")
+set(PIXRPC_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}" "${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 set(proto "pixrpc.proto")
 
@@ -38,9 +38,10 @@ include_directories(${PROTOBUF_INCLUDE_DIR})
 add_library(pixrpc STATIC
   ${proto_srcs}
   ${grpc_srcs}
+  pixrpc.cpp
 )
 
-target_link_libraries(pixrpc grpc++ ${PROTOBUF_LIBRARY} )
+target_link_libraries(pixrpc grpc++ dlib::dlib ${PROTOBUF_LIBRARY} )
 set(PIXRPC_INCLUDE ${PIXRPC_INCLUDE} PARENT_SCOPE)
 set(PIXRPC_LIBRARY pixrpc grpc++  ${PROTOBUF_LIBRARY} PARENT_SCOPE)
 
