@@ -6,10 +6,11 @@
 
 #include <dlib/bridge.h>
 #include <dlib/type_safe_union.h>
+#include <glm/glm.hpp>
 
 namespace Pixrpc {
   struct Location {
-    float x, y, z;
+    glm::vec3 point;
   };
   void serialize (const Location& item, std::ostream& out);
   void deserialize (Location& item, std::istream& in);

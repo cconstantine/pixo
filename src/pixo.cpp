@@ -80,7 +80,7 @@ void dlibrpc_thread_function(Pixlib::TrackingService tracking_service, Pixlib::A
   while (true) {
     struct Pixrpc::Location loc;
     client.receive_location(loc);
-    app->set_target_location(tracking_service.tracking_offset + glm::vec3(loc.x, loc.y, loc.z));
+    app->set_target_location(loc.point);
   }
 }
 nanogui::Screen *screen = nullptr;

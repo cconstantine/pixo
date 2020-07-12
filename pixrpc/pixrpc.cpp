@@ -5,16 +5,16 @@ namespace Pixrpc
 
   void serialize (const Location& item, std::ostream& out)
   {
-    dlib::serialize(item.x, out);
-    dlib::serialize(item.y, out);
-    dlib::serialize(item.z, out);
+    dlib::serialize(item.point.x, out);
+    dlib::serialize(item.point.y, out);
+    dlib::serialize(item.point.z, out);
   }
 
   void deserialize (Location& item, std::istream& in)
   {
-    dlib::deserialize(item.x, in);
-    dlib::deserialize(item.y, in);
-    dlib::deserialize(item.z, in);
+    dlib::deserialize(item.point.x, in);
+    dlib::deserialize(item.point.y, in);
+    dlib::deserialize(item.point.z, in);
   }
 
   Server::Server(unsigned short port) :
