@@ -42,7 +42,7 @@ namespace Pixlib {
       vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
       TexCoords =  vec2(texPos.x, texPos.y) / texPos.z * 0.5 + 0.5 ;
       led_brightness = brightness * pow(led_r,2) * 1/pow(cam_r, 2) ;
-      //led_gamma = gamma;
+      led_gamma = gamma;
   })",
   R"(in vec2 TexCoords;
   in float led_brightness;
@@ -56,7 +56,7 @@ namespace Pixlib {
   {
     if (TexCoords.x >= 0.0f && TexCoords.x <= 1.0f &&
         TexCoords.y >= 0.0f && TexCoords.y <= 1.0f)
-      color = pow(texture(texture0, TexCoords), vec4(1.0/2.2)) * led_brightness;
+      color = pow(texture(texture0, TexCoords), vec4(1.0/led_gamma)) * led_brightness;
     else
       color = vec4(0.0f);
     })")
@@ -68,7 +68,7 @@ namespace Pixlib {
     shader.use();
 
     glUniform1f(glGetUniformLocation(shader.Program, "brightness"), brightness);
-    glUniform1f(glGetUniformLocation(shader.Program, "gamma"), brightness);
+    glUniform1f(glGetUniformLocation(shader.Program, "gamma"), gamma);
 
     // Transformation matrices
     glm::mat4 led_projection = perspective.get_projection_matrix(perspective.get_zoom());
