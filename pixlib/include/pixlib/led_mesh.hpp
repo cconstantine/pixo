@@ -27,7 +27,7 @@ namespace Pixlib {
     LedMesh();
     
     // Render the mesh
-    void draw(const Texture& textures, const IsoCamera& perspective, float brightness);
+    void draw(const Texture& textures, const IsoCamera& perspective, float brightness, float gamma);
 
     size_t num_vertices();
 

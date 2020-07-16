@@ -46,6 +46,7 @@ namespace Pixlib {
 
     float brightness;
     float rotation;
+    float gamma;
 
     IsoCamera viewed_from;
     IsoCamera camera;

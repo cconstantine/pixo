@@ -7,6 +7,7 @@ namespace Pixlib {
    scene(),
    focal_point(std::make_shared<Cube>()),
    brightness(sculpture.brightness),
+   gamma(2.2),
    rotation(sculpture.rotation),
    target(glm::vec3(0.0f))
   {
@@ -132,7 +133,7 @@ namespace Pixlib {
     pattern->render();
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
-      led_cluster->render(get_pattern(), viewed_from, brightness);
+      led_cluster->render(get_pattern(), viewed_from, brightness, gamma);
     }
 
     camera.rotate(scene.get_time_delta()*rotation);

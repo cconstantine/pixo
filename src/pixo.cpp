@@ -264,6 +264,16 @@ int main( int argc, char** argv )
 
   gui->addWidget("Brightness", brightness_slider);
 
+  nanogui::Slider *gamma_slider = new nanogui::Slider(nanoguiWindow);
+  gamma_slider->setValue(application.gamma);
+  gamma_slider->setRange(std::pair<float, float>(0.0f, 5.0f));
+  gamma_slider->setCallback([](float value) {
+      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+      app->gamma = value;
+  });
+
+  gui->addWidget("Gamma", gamma_slider);
+
 
   gui->addVariable<float>("Rotation",
     [&](float value) {
@@ -408,6 +418,7 @@ int main( int argc, char** argv )
     screen->drawWidgets();
 
     brightness_slider->setValue(application.brightness);
+    gamma_slider->setValue(application.gamma);
 
     if (application.get_pattern().get_time_elapsed() > 10*60 ) {
       application.set_random_pattern();

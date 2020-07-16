@@ -14,7 +14,7 @@ namespace Pixlib {
   public:
     LedRender(const Texture& renderTo);
 
-    void render(const Texture& texture,  const IsoCamera& perspective, float brightness, uint8_t* data, size_t size);
+    void render(const Texture& texture,  const IsoCamera& perspective, float brightness, float gamma, uint8_t* data, size_t size);
 
     LedMesh* leds;
 

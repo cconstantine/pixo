@@ -31,7 +31,7 @@ namespace Pixlib {
 
     std::shared_ptr<Drawable> get_drawable();
 
-    void render(const Pattern& pattern, const IsoCamera& viewed_from, float brightness);
+    void render(const Pattern& pattern, const IsoCamera& viewed_from, float brightness, float gamma);
 
     GLuint num_leds();
 
