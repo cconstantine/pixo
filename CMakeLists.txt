@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo)
 
-set(CMAKE_C_COMPILER /usr/bin/gcc-8 CACHE BOOL " " FORCE)
-set(CMAKE_CXX_COMPILER /usr/bin/g++-8 CACHE BOOL " " FORCE)
+#set(CMAKE_C_COMPILER /usr/bin/gcc-8 CACHE BOOL " " FORCE)
+#set(CMAKE_CXX_COMPILER /usr/bin/g++-8 CACHE BOOL " " FORCE)
 
 option(PIXO_BUILD_TRACKER  "Build realsense camera based target tracking." ON)
 

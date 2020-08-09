@@ -270,6 +270,7 @@ int main( int argc, char** argv )
   gamma_slider->setCallback([](float value) {
       Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       app->gamma = value;
+      fprintf(stderr, "gamma: %f\n", value);
   });
 
   gui->addWidget("Gamma", gamma_slider);

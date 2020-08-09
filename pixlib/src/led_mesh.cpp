@@ -22,6 +22,7 @@ namespace Pixlib {
 
   out vec2 TexCoords;
   out float led_brightness;
+  out float distance_compensation;
   out float led_gamma;
 
   uniform mat4 view_from;
@@ -41,11 +42,13 @@ namespace Pixlib {
 
       vec4 texPos = proj_from  * view_from * vec4(position, 1.0f);
       TexCoords =  vec2(texPos.x, texPos.y) / texPos.z * 0.5 + 0.5 ;
-      led_brightness = brightness * pow(led_r,2) * 1/pow(cam_r, 2) ;
+      led_brightness = brightness;
       led_gamma = gamma;
+      distance_compensation = pow(led_r,2) * 1/pow(cam_r, 2) ;
   })",
   R"(in vec2 TexCoords;
   in float led_brightness;
+  in float distance_compensation;
   in float led_gamma;
   out vec4 color;
 
@@ -56,7 +59,7 @@ namespace Pixlib {
   {
     if (TexCoords.x >= 0.0f && TexCoords.x <= 1.0f &&
         TexCoords.y >= 0.0f && TexCoords.y <= 1.0f)
-      color = pow(texture(texture0, TexCoords), vec4(1.0/led_gamma)) * led_brightness;
+      color = pow(texture(texture0, TexCoords), vec4(1.0/led_gamma)) * led_brightness* distance_compensation;
     else
       color = vec4(0.0f);
     })")
