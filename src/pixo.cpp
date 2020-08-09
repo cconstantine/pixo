@@ -266,7 +266,7 @@ int main( int argc, char** argv )
 
   nanogui::Slider *gamma_slider = new nanogui::Slider(nanoguiWindow);
   gamma_slider->setValue(application.gamma);
-  gamma_slider->setRange(std::pair<float, float>(0.0f, 5.0f));
+  gamma_slider->setRange(std::pair<float, float>(1.0f, 3.0f));
   gamma_slider->setCallback([](float value) {
       Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
       app->gamma = value;
@@ -449,6 +449,7 @@ int main( int argc, char** argv )
 
   storage.sculpture.active_pattern_name = application.get_pattern().name;
   storage.sculpture.brightness = application.brightness;
+  storage.sculpture.gamma = application.gamma;
   storage.sculpture.rotation = application.rotation;
   storage.save_app_state();
 

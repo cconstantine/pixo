@@ -43,7 +43,7 @@ namespace Pixlib {
   public:
 
     Sculpture();
-    Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size);
+    Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size, bool reverse);
 
     int id;
     int camera_perspective_id;
@@ -57,6 +57,7 @@ namespace Pixlib {
 
     std::string active_pattern_name;
     double brightness;
+    double gamma;
     double rotation;
   };
 

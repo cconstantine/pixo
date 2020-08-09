@@ -10,8 +10,8 @@ namespace Pixlib {
   Perspective::Perspective() : id(0) {}
 
   Sculpture::Sculpture() {}
-  Sculpture::Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size) :
-      canvas_width(per_size*per_size), canvas_height(per_size*per_size), id(id), brightness(1.0), rotation(0.0)
+  Sculpture::Sculpture(int id, const std::vector<std::string>& fadecandies, unsigned int per_size, bool reverse) :
+      canvas_width(per_size*per_size), canvas_height(per_size*per_size), id(id), brightness(1.0), gamma(1.0), rotation(0.0)
   {
     for(std::string host : fadecandies) {
       leds.push_back(LedGeometry(host));
@@ -39,7 +39,7 @@ namespace Pixlib {
     int per_fc = height / num_fadecandies;
 
     for(int y = height;y > 0;y--) {
-      int direction = -1;
+      int direction = reverse ? 1 : -1;
       int selection = (y-1) / per_fc;
 
       LedGeometry& geom = leds[selection];

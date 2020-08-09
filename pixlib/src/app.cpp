@@ -7,7 +7,7 @@ namespace Pixlib {
    scene(),
    focal_point(std::make_shared<Cube>()),
    brightness(sculpture.brightness),
-   gamma(2.2),
+   gamma(sculpture.gamma),
    rotation(sculpture.rotation),
    target(glm::vec3(0.0f))
   {

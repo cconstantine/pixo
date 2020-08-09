@@ -42,6 +42,8 @@ inline auto init_storage(const std::string &path) {
                                                &Pixlib::Sculpture::active_pattern_name ),
                                    make_column("brightness",
                                                &Pixlib::Sculpture::brightness ),
+                                   make_column("gamma",
+                                               &Pixlib::Sculpture::gamma ),
                                    make_column("rotation",
                                                &Pixlib::Sculpture::rotation ),
                                    make_column("canvas_width",
