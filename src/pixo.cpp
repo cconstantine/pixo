@@ -348,6 +348,10 @@ int main( int argc, char** argv )
             if( key ==  GLFW_KEY_COMMA) {
               app->prev_pattern();
             }
+
+            if (key == GLFW_KEY_P) {
+              app->paused = !app->paused;
+            }
           }
       }
   );

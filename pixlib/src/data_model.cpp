@@ -23,8 +23,8 @@ namespace Pixlib {
     int depth = per_size;
 
     float x_offset = -(float)width  / 2.0f  + 0.5f;
-    float y_offset = -(float)height / 2.0f - 0.5f;
-    float z_offset = -(float)depth  / 2.0f  + 0.5f;
+    float y_offset = -(float)height / 2.0f + 0.5f;
+    float z_offset = -(float)depth  / 2.0f  - 0.5f;
 
     camera_perspective.yaw = 108.0f;
     camera_perspective.pitch = 12.0f;
@@ -44,11 +44,11 @@ namespace Pixlib {
 
       LedGeometry& geom = leds[selection];
 
-      for(int z = 0;z < height;z++) {
+      for(int z = 0;z < depth;z++) {
         for(int x = std::max(-direction * (width - 1), 0); x >= 0 && x < width;x+=direction) {
           geom.locations->push_back(glm::vec3( ((float)x + x_offset)*spacing,
-                                               ((float)z + z_offset)*spacing,
-                                               ((float)y + y_offset)*spacing));
+                                               ((float)z + y_offset)*spacing,
+                                               ((float)y + z_offset)*spacing));
         }
         direction *= -1;
       }

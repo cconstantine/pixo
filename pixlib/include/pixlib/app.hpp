@@ -50,6 +50,8 @@ namespace Pixlib {
 
     IsoCamera viewed_from;
     IsoCamera camera;
+
+    bool paused;
   private:
 
     std::map<std::string, std::shared_ptr<Pattern> > patterns;

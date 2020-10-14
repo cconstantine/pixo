@@ -6,7 +6,7 @@ uniform vec2 resolution;
 
 float checker(in float u, in float v)
 {
-  float checkSize = 5.0;
+  float checkSize = 10.0;
   float fmodResult = mod(floor(checkSize * u) + floor(checkSize * v), 2.0);
   float fin = max(sign(fmodResult), 0.0);
   return fin;

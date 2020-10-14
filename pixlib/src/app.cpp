@@ -9,7 +9,7 @@ namespace Pixlib {
    brightness(sculpture.brightness),
    gamma(sculpture.gamma),
    rotation(sculpture.rotation),
-   target(glm::vec3(0.0f))
+   target(glm::vec3(0.0f)), paused(false)
   {
     viewed_from = sculpture.projection_perspective;
     camera      = sculpture.camera_perspective;
@@ -127,10 +127,12 @@ namespace Pixlib {
   void App::render_leds() {
 
     if (target != glm::vec3(0.0f)) {
-      viewed_from.move_towards(target, scene.get_time_delta()*10.0);
+      viewed_from.move_towards(target, scene.get_time_delta()*20.0);
     }
 
-    pattern->render();
+    if (!paused) {
+      pattern->render();
+    }
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
       led_cluster->render(get_pattern(), viewed_from, brightness, gamma);
