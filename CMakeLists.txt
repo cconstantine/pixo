@@ -4,9 +4,6 @@ project(pixo)
 #set(CMAKE_C_COMPILER /usr/bin/gcc-8 CACHE BOOL " " FORCE)
 #set(CMAKE_CXX_COMPILER /usr/bin/g++-8 CACHE BOOL " " FORCE)
 
-option(PIXO_BUILD_TRACKER  "Build realsense camera based target tracking." ON)
-
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
       "Choose the type of build, options are: Debug Release
@@ -49,14 +46,9 @@ include_directories(src)
 add_subdirectory(pixlib)
 include_directories(${PIXLIB_INCLUDE})
 
-if (PIXO_BUILD_TRACKER)
-####################### PIXSENSE ##############################
-add_subdirectory(pixsense)
-include_directories(${PIXSENSE_INCLUDE})
-endif(PIXO_BUILD_TRACKER)
-
-###################### PIXLIB   ###############################
-add_subdirectory(pixrpc)
+###################### PIXPQ    ###############################
+add_subdirectory("pixpq/")
+include_directories("${PIXPQ_INCLUDE}")
 
 ###################### PIXO     ################################
 add_subdirectory(src)

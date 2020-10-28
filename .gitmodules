@@ -16,6 +16,6 @@
 [submodule "ext/dlib"]
 	path = ext/dlib
 	url = https://github.com/davisking/dlib.git
-[submodule "ext/grpc"]
-	path = pixrpc/ext/grpc
-	url = https://github.com/grpc/grpc.git
+[submodule "pixpq"]
+	path = pixpq
+	url = https://github.com/cconstantine/pixpq.git

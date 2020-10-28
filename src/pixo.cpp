@@ -26,63 +26,25 @@ GLFWwindow* window;
 
 std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
-#include <grpcpp/grpcpp.h>
-#include "pixrpc.grpc.pb.h"
-#include <pixrpc/pixrpc.hpp>
+
+#include <pixpq/pixpq.hpp>
 
 using namespace glm;
 using namespace std;
 
 
-class TrackingClient {
+class PixPQDB : public pixpq::db {
  public:
-  TrackingClient(std::shared_ptr<grpc::Channel> channel)
-      : stub_(pixrpc::Tracking::NewStub(channel)) {}
+  PixPQDB(Pixlib::App *app) : app(app) {}
 
-  // Assembles the client's payload, sends it and presents the response back
-  // from the server.
-  bool get_locations(const Pixlib::TrackingService& tracking_service, Pixlib::App* app) {
-    pixrpc::LocationStreamArgs args;
-    pixrpc::Location location;
-    grpc::ClientContext context;
-
-    std::unique_ptr<grpc::ClientReader<pixrpc::Location> > reader(stub_->location_stream(&context, args));
-
-    while (reader->Read(&location)) {
-      app->set_target_location(tracking_service.tracking_offset + glm::vec3(location.x(), location.y(), location.z()));
-    }
-    grpc::Status status = reader->Finish();
-    return status.ok();
+  virtual void receive(const std::string& name, const pixpq::location& loc) {
+    app->set_target_location(glm::vec3(loc.x, loc.y, loc.z));
   }
 
  private:
-  std::unique_ptr<pixrpc::Tracking::Stub> stub_;
+  Pixlib::App *app;
 };
 
-void grpc_thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app) {
-  TrackingClient location_client(grpc::CreateChannel(
-      tracking_service.address, grpc::InsecureChannelCredentials()));
-  bool last_success = true;
-  while (true) {
-    bool this_success = location_client.get_locations(tracking_service, app);
-    if (last_success && !this_success) {
-      std::cout << "location_stream rpc failed." << std::endl;
-      last_success = this_success;
-    }
-    std::this_thread::sleep_for(std::chrono::duration<float>(0.1));
-  }
-}
-
-void dlibrpc_thread_function(Pixlib::TrackingService tracking_service, Pixlib::App *app) {
-  Pixrpc::Client client("127.0.0.1", 5000);
-
-  bool last_success = true;
-  while (true) {
-    struct Pixrpc::Location loc;
-    client.receive_location(loc);
-    app->set_target_location(loc.point);
-  }
-}
 nanogui::Screen *screen = nullptr;
 
 Pixlib::Timer global_timer = Pixlib::Timer(120);
@@ -175,12 +137,7 @@ int main( int argc, char** argv )
   Storage storage(db_filename);
 
   Pixlib::App application = Pixlib::App(storage.sculpture, storage.patterns());
-  std::vector<Pixlib::TrackingService> tracking_services = storage.tracking_services();
-  std::vector<std::thread> threads;
-  for(Pixlib::TrackingService service : tracking_services) {
-    threads.push_back(std::thread(&grpc_thread_function, service, &application));
-    threads.push_back(std::thread(&dlibrpc_thread_function, service, &application));
-  }
+  PixPQDB connection(&application);
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize
