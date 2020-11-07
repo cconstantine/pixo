@@ -27,17 +27,17 @@ GLFWwindow* window;
 std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
 
-#include <pixpq/pixpq.hpp>
+#include <pixpq/pixpq.hh>
 
 using namespace glm;
 using namespace std;
 
 
-class PixPQDB : public pixpq::db {
+class PixoLocationListener : public pixpq::tracking::listener {
  public:
-  PixPQDB(Pixlib::App *app) : app(app) {}
+  PixoLocationListener(Pixlib::App *app) : app(app) {}
 
-  virtual void receive(const std::string& name, const pixpq::location& loc) {
+  virtual void update(const std::string& name, const pixpq::tracking::location& loc) {
     app->set_target_location(glm::vec3(loc.x, loc.y, loc.z));
   }
 
@@ -137,7 +137,13 @@ int main( int argc, char** argv )
   Storage storage(db_filename);
 
   Pixlib::App application = Pixlib::App(storage.sculpture, storage.patterns());
-  PixPQDB connection(&application);
+  
+  std::shared_ptr<PixoLocationListener> listener = std::make_shared<PixoLocationListener>(&application);
+
+  pixpq::tracking::manager location_manager("");
+  location_manager.ensure_schema();
+  location_manager.set_listener(listener);
+
 
   glfwSetWindowUserPointer(window, &application);
   // Create a nanogui screen and pass the glfw pointer to initialize
