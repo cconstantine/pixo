@@ -45,6 +45,17 @@ class PixoLocationListener : public pixpq::tracking::listener {
   Pixlib::App *app;
 };
 
+class PixoSettingsListener : public pixpq::sculpture::listener {
+public:
+  PixoSettingsListener(Pixlib::App *app) : app(app) {}
+
+  virtual void update(const std::string& name, const pixpq::sculpture::settings& s) {
+    app->brightness = s.brightness;
+  }
+ private:
+  Pixlib::App *app;
+};
+
 nanogui::Screen *screen = nullptr;
 
 Pixlib::Timer global_timer = Pixlib::Timer(120);
@@ -138,11 +149,27 @@ int main( int argc, char** argv )
 
   Pixlib::App application = Pixlib::App(storage.sculpture, storage.patterns());
   
-  std::shared_ptr<PixoLocationListener> listener = std::make_shared<PixoLocationListener>(&application);
-
+  std::shared_ptr<PixoLocationListener> loc_listener = std::make_shared<PixoLocationListener>(&application);
   pixpq::tracking::manager location_manager("");
   location_manager.ensure_schema();
-  location_manager.set_listener(listener);
+  location_manager.set_listener(loc_listener);
+
+  try {
+    pixpq::tracking::location loc = location_manager.get("pixo-16.local");
+    loc_listener->update("pixo-16.local", loc);
+  } catch( const pqxx::unexpected_rows& e) { /* use application defults if nothing is found */ }
+
+  std::shared_ptr<PixoSettingsListener> setttings_listener = std::make_shared<PixoSettingsListener>(&application);
+  pixpq::sculpture::manager sculpture_manager("");
+  sculpture_manager.ensure_schema();
+  sculpture_manager.set_listener(setttings_listener);
+
+  try {
+    pixpq::sculpture::settings settings = sculpture_manager.get("pixo-16.local");
+
+    setttings_listener->update("pixo-16.local", settings);
+  } catch( const pqxx::unexpected_rows& e) { /* use application defults if nothing is found */ }
+
 
 
   glfwSetWindowUserPointer(window, &application);
