@@ -51,8 +51,18 @@ public:
 
   virtual void update(const std::string& name, const pixpq::sculpture::settings& s) {
     app->brightness = s.brightness;
+    app->gamma = s.gamma;
   }
+
  private:
+  Pixlib::App *app;
+};
+
+
+class PixoSettingsManager : public pixpq::sculpture::manager {
+public:
+  PixoSettingsManager(const std::string& opts, Pixlib::App* app) : pixpq::sculpture::manager(opts), app(app) { }
+
   Pixlib::App *app;
 };
 
@@ -160,7 +170,7 @@ int main( int argc, char** argv )
   } catch( const pqxx::unexpected_rows& e) { /* use application defults if nothing is found */ }
 
   std::shared_ptr<PixoSettingsListener> setttings_listener = std::make_shared<PixoSettingsListener>(&application);
-  pixpq::sculpture::manager sculpture_manager("");
+  PixoSettingsManager sculpture_manager("", &application);
   sculpture_manager.ensure_schema();
   sculpture_manager.set_listener(setttings_listener);
 
@@ -172,7 +182,7 @@ int main( int argc, char** argv )
 
 
 
-  glfwSetWindowUserPointer(window, &application);
+  glfwSetWindowUserPointer(window, &sculpture_manager);
   // Create a nanogui screen and pass the glfw pointer to initialize
   screen = new nanogui::Screen();
   screen->initialize(window, true);
@@ -210,9 +220,9 @@ int main( int argc, char** argv )
     [&]() -> string {
 
       char ret[256];
-      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
 
-      sprintf(ret, "%2.02fms", app->scene_render_time()*1000);
+      sprintf(ret, "%2.02fms", manager->app->scene_render_time()*1000);
       return ret;
     },
     false)->setValue("00.00");
@@ -221,8 +231,8 @@ int main( int argc, char** argv )
     [&](string value) { value; },
     [&]() -> string {
       char ret[256];
-      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
-      sprintf(ret, "%2.02fms", app->led_render_time()*1000);
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      sprintf(ret, "%2.02fms", manager->app->led_render_time()*1000);
       return ret;
     },
     false)->setValue("00.00");
@@ -230,9 +240,9 @@ int main( int argc, char** argv )
   gui->addVariable<string>("Shader",
     [&](string value) { value; },
     [&]() -> string {
-      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
 
-      return app->get_pattern().name.c_str();
+      return manager->app->get_pattern().name.c_str();
     },
     false)->setValue("                 ");
 
@@ -248,8 +258,10 @@ int main( int argc, char** argv )
   brightness_slider->setValue(application.brightness);
   brightness_slider->setRange(std::pair<float, float>(0.0f, 1.0f));
   brightness_slider->setCallback([](float value) {
-      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
-      app->brightness = value;
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      pixpq::sculpture::settings settings = manager->get("pixo-16.local");
+      settings.brightness = value;
+      manager->store("pixo-16.local", settings);
   });
 
   gui->addWidget("Brightness", brightness_slider);
@@ -258,23 +270,23 @@ int main( int argc, char** argv )
   gamma_slider->setValue(application.gamma);
   gamma_slider->setRange(std::pair<float, float>(1.0f, 3.0f));
   gamma_slider->setCallback([](float value) {
-      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
-      app->gamma = value;
-      fprintf(stderr, "gamma: %f\n", value);
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      pixpq::sculpture::settings settings = manager->get("pixo-16.local");
+      settings.gamma = value;
+      manager->store("pixo-16.local", settings);
   });
 
   gui->addWidget("Gamma", gamma_slider);
 
-
   gui->addVariable<float>("Rotation",
     [&](float value) {
-      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
-      app->rotation = value;
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      manager->app->rotation = value;
     },
     [&]() -> float {
-      Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
 
-      return app->rotation;
+      return manager->app->rotation;
     },
     true);
 
@@ -282,7 +294,7 @@ int main( int argc, char** argv )
           [](GLFWwindow *window, double x, double y) {
           if (!screen->cursorPosCallbackEvent(x, y)) {
             int state = glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT);
-            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+            PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
   
             GLfloat xoffset = x - lastX;
             GLfloat yoffset = y - lastY; 
@@ -291,7 +303,7 @@ int main( int argc, char** argv )
             lastY = y;
 
             if (state == GLFW_PRESS) {
-              app->process_mouse_movement(xoffset, yoffset);
+              manager->app->process_mouse_movement(xoffset, yoffset);
             }
           }
       }
@@ -317,31 +329,33 @@ int main( int argc, char** argv )
               return;
             }
 
-            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+            PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+            pixpq::sculpture::settings settings = manager->get("pixo-16.local");
 
             if(key == GLFW_KEY_ESCAPE) {
               glfwSetWindowShouldClose(window, GL_TRUE);
             }
 
             if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
-              app->brightness = (key - GLFW_KEY_0 ) / 9.0f;
+              settings.brightness = (key - GLFW_KEY_0 ) / 9.0f;
             }
 
             if( key == GLFW_KEY_ENTER) {
-              app->set_random_pattern();
+              manager->app->set_random_pattern();
             }
 
             if( key ==  GLFW_KEY_PERIOD) {
-              app->next_pattern();
+              manager->app->next_pattern();
             }
 
             if( key ==  GLFW_KEY_COMMA) {
-              app->prev_pattern();
+              manager->app->prev_pattern();
             }
 
             if (key == GLFW_KEY_P) {
-              app->paused = !app->paused;
+              manager->app->paused = !manager->app->paused;
             }
+             manager->store("pixo-16.local", settings);
           }
       }
   );
@@ -361,22 +375,21 @@ int main( int argc, char** argv )
   glfwSetScrollCallback(window,
       [](GLFWwindow *window, double x, double y) {
           if (!screen->scrollCallbackEvent(x, y)) {
-            Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+            PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
 
-            app->process_mouse_scroll(y);
+            manager->app->process_mouse_scroll(y);
           }
      }
   );
 
   glfwSetFramebufferSizeCallback(window,
       [](GLFWwindow *window, int width, int height) {
-        Pixlib::App* app = (Pixlib::App*)glfwGetWindowUserPointer(window);
+        PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
 
-        app->set_screen_size(width, height);
+        manager->app->set_screen_size(width, height);
         screen->resizeCallbackEvent(width, height);
       }
   );
-
 
   glErr = glGetError();
   while (glErr != GL_NO_ERROR)
