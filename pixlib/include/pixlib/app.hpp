@@ -18,7 +18,7 @@ namespace Pixlib {
   class App {
   public:
 
-    App(const Sculpture& sculpture, const std::vector<PatternCode> pattern_codes);
+    App(const Sculpture& sculpture);
     ~App();
 
     float scene_fps();
@@ -31,15 +31,18 @@ namespace Pixlib {
     void move_perspective_to_camera();
     void set_screen_size(int width, int height);
 
-    void set_random_pattern();
-    void next_pattern();
-    void prev_pattern();
+
+    std::shared_ptr<Pattern> get_pattern();
+    void set_pattern(const std::string& name);
+    const Texture& get_pattern_texture();
+    void register_pattern(std::shared_ptr<Pattern> pattern);
+
+    std::string random_pattern();
+    std::string next_pattern();
+    std::string prev_pattern();
 
     void set_target_location(glm::vec3 target);
 
-    void register_pattern(std::shared_ptr<Pattern> pattern);
-    const Pattern& get_pattern();
-    const Texture& get_pattern_texture();
 
     void render_leds();
     void render_scene();
@@ -53,9 +56,8 @@ namespace Pixlib {
 
     bool paused;
   private:
-
     std::map<std::string, std::shared_ptr<Pattern> > patterns;
-    std::shared_ptr<Pattern> pattern;
+    std::string active_pattern;
 
     Scene scene;
 

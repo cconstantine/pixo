@@ -3,7 +3,7 @@
 
 namespace Pixlib {
 
-  App::App(const Sculpture& sculpture, const std::vector<PatternCode> pattern_codes) :
+  App::App(const Sculpture& sculpture) :
    scene(),
    focal_point(std::make_shared<Cube>()),
    brightness(sculpture.brightness),
@@ -19,14 +19,6 @@ namespace Pixlib {
 
       scene.add_cluster(lc->get_drawable());
       led_clusters.push_back(lc);
-    }
-
-    for(const PatternCode& pattern : pattern_codes) {
-      register_pattern(std::make_shared<Pattern>(pattern.name, pattern.shader_code.c_str()));
-    }
-
-    if (patterns.find(sculpture.active_pattern_name) != patterns.end()) {
-      this->pattern = this->patterns[sculpture.active_pattern_name];
     }
 
     focal_point->add_instance(glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f));
@@ -64,54 +56,59 @@ namespace Pixlib {
     //viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
   }
 
-  void App::register_pattern(std::shared_ptr<Pattern> pattern)
-  {
-    ALOGV("Registering: %s\n", pattern->name.c_str());
-    this->pattern = pattern;
+  std::shared_ptr<Pattern> App::get_pattern() {
+    if (patterns.size() == 0) {
+    }
+
+    auto pattern = patterns.find(active_pattern);
+    if (pattern == patterns.end()) {
+      throw std::runtime_error("Active pattern not found.");
+    }
+    return pattern->second;
+  }
+
+  void App::set_pattern(const std::string& name) {
+    if (name != active_pattern) {
+      ALOGV("Switching to pattern: %s\n", name.c_str());
+      active_pattern = name;
+      get_pattern()->reset_start();
+    }
+  }
+
+  const Texture& App::get_pattern_texture() {
+    return get_pattern()->get_texture();
+  }
+
+  void App::register_pattern(std::shared_ptr<Pattern> pattern) {
     patterns[pattern->name] = pattern;
   }
 
-  void App::set_random_pattern()
+  std::string App::random_pattern()
   {
     auto it = patterns.begin();
     std::advance(it, rand() % patterns.size());
-    pattern = it->second;
-    pattern->reset_start();
-    ALOGV("Switching to pattern: %s\n", it->first.c_str());
+    return it->first;
   }
 
-  void App::next_pattern() {
-    auto it = patterns.find(get_pattern().name);
+  std::string App::next_pattern() {
+    auto it = patterns.find(active_pattern);
     it++;
 
     if (it == patterns.end()) {
       it = patterns.begin();
     }
 
-    pattern = it->second;
-    pattern->reset_start();
-    ALOGV("Switching to pattern: %s\n", it->first.c_str());
+    return it->first;
   }
 
-  void App::prev_pattern() {
-    auto it = patterns.find(get_pattern().name);
+  std::string App::prev_pattern() {
+    auto it = patterns.find(get_pattern()->name);
     if (it == patterns.begin()) {
       it = patterns.end();
     }
     it--;
 
-    pattern = it->second;
-    pattern->reset_start();
-
-  }
-
-  const Pattern& App::get_pattern()
-  {
-    return *pattern.get();
-  }
- 
-  const Texture& App::get_pattern_texture() {
-    return pattern->get_texture();
+    return it->first;
   }
 
   void App::set_target_location(glm::vec3 target) {
@@ -131,11 +128,11 @@ namespace Pixlib {
     }
 
     if (!paused) {
-      pattern->render();
+      get_pattern()->render();
     }
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
-      led_cluster->render(get_pattern(), viewed_from, brightness, gamma);
+      led_cluster->render(*get_pattern(), viewed_from, brightness, gamma);
     }
 
     camera.rotate(scene.get_time_delta()*rotation);
