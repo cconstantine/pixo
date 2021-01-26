@@ -36,6 +36,7 @@ namespace Pixlib {
     void set_pattern(const std::string& name);
     const Texture& get_pattern_texture();
     void register_pattern(std::shared_ptr<Pattern> pattern);
+    void disable_pattern(const std::string& name);
 
     std::string random_pattern();
     std::string next_pattern();

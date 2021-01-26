@@ -10,9 +10,9 @@ add_executable(pixo-creator pixo-creator.cpp storage.cpp )
 target_compile_features(pixo-creator PRIVATE cxx_std_17)
 target_link_libraries(pixo-creator pixlib libglew_static sqlite3 )
  
-add_executable(pixo-patterns pixo-patterns.cpp storage.cpp )
+add_executable(pixo-patterns pixo-patterns.cpp )
 target_compile_features(pixo-patterns PRIVATE cxx_std_17)
-target_link_libraries(pixo-patterns pixlib libglew_static sqlite3 )
+target_link_libraries(pixo-patterns ${PIXPQ_LIBRARY})
 
 add_executable(pixo pixo.cpp storage.cpp)
 target_compile_features(pixo PRIVATE cxx_std_17)

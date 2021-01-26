@@ -34,6 +34,7 @@ using namespace std;
 
 class PixoListener
  : public pixpq::listener<pixpq::sculpture::settings>,
+   public pixpq::listener<pixpq::sculpture::pattern>,
    public pixpq::listener<pixpq::tracking::location> {
 public:
   PixoListener(Pixlib::App *app) : app(app) {}
@@ -46,6 +47,14 @@ public:
 
   virtual void update(const std::string& name, const pixpq::tracking::location& loc) {
     app->set_target_location(glm::vec3(loc.x, loc.y, loc.z));
+  }
+
+  virtual void update(const std::string& name, const pixpq::sculpture::pattern& pattern) {
+    if (pattern.enabled) {
+      app->register_pattern(make_shared<Pixlib::Pattern>(name, pattern.glsl_code));
+    } else {
+      app->disable_pattern(name);
+    }
   }
 
  private:
@@ -153,28 +162,33 @@ int main( int argc, char** argv )
 
   Pixlib::App application = Pixlib::App(storage.sculpture);
 
-
   
   std::shared_ptr<PixoListener> updates_listener = std::make_shared<PixoListener>(&application);
   PixoSettingsManager manager("", &application);
   manager.ensure_schema();
   manager.set_listener<pixpq::sculpture::settings>(updates_listener);
+  manager.set_listener<pixpq::sculpture::pattern>(updates_listener);
   manager.set_listener<pixpq::tracking::location>(updates_listener);
 
   for(auto& [name, pattern] : manager.get_all<pixpq::sculpture::pattern>()) {
-    application.register_pattern(make_shared<Pixlib::Pattern>(name, pattern.glsl_code));
+    if (pattern.enabled) {
+      application.register_pattern(make_shared<Pixlib::Pattern>(name, pattern.glsl_code));
+    }
   }
 
   try {
     pixpq::tracking::location loc = manager.get<pixpq::tracking::location>("pixo-16.local");
     updates_listener->update("pixo-16.local", loc);
-  } catch( const pqxx::unexpected_rows& e) { /* use application defults if nothing is found */ }
+  } catch( const pqxx::unexpected_rows& e) { }
 
   try {
     pixpq::sculpture::settings settings = manager.get<pixpq::sculpture::settings>("pixo-16.local");
-
     updates_listener->update("pixo-16.local", settings);
-  } catch( const pqxx::unexpected_rows& e) { /* use application defults if nothing is found */ }
+  } catch( const pqxx::unexpected_rows& e) {
+    pixpq::sculpture::settings s(application.random_pattern(), 0.2, 1.0);
+    manager.store<pixpq::sculpture::settings>("pixo-16.local", s);
+    updates_listener->update("pixo-16.local", s);
+  }
 
 
   glfwSetWindowUserPointer(window, &manager);

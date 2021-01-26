@@ -6,9 +6,6 @@ namespace Pixlib {
   App::App(const Sculpture& sculpture) :
    scene(),
    focal_point(std::make_shared<Cube>()),
-   brightness(sculpture.brightness),
-   gamma(sculpture.gamma),
-   rotation(sculpture.rotation),
    target(glm::vec3(0.0f)), paused(false)
   {
     viewed_from = sculpture.projection_perspective;
@@ -62,7 +59,9 @@ namespace Pixlib {
 
     auto pattern = patterns.find(active_pattern);
     if (pattern == patterns.end()) {
-      throw std::runtime_error("Active pattern not found.");
+      fprintf(stderr, "Warning: active pattern (%s) not found, randomizing\n", active_pattern.c_str());
+      active_pattern = random_pattern();
+      return get_pattern();
     }
     return pattern->second;
   }
@@ -81,6 +80,13 @@ namespace Pixlib {
 
   void App::register_pattern(std::shared_ptr<Pattern> pattern) {
     patterns[pattern->name] = pattern;
+  }
+
+  void App::disable_pattern(const std::string& name) {
+    auto pattern = patterns.find(name);
+    if (pattern != patterns.end()) {
+      patterns.erase(pattern);
+    }
   }
 
   std::string App::random_pattern()
