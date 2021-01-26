@@ -22,7 +22,6 @@ int main( int argc, char** argv )
     exit(1);
   }
 
-
   bool enabled = std::string(argv[1]) != std::string("--disable");
   int argc_i = 1;
 
@@ -58,10 +57,6 @@ int main( int argc, char** argv )
         printf("Inserting %s\n", name.c_str());
         manager.store<pixpq::sculpture::pattern>(name, p);
       }
-      
-    
-    // pixpq::sculpture::pattern p(name, code)
-    // printf("%20s: %s\n", name.c_str(), pathname.c_str());
   }
 }
 
