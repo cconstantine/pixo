@@ -186,7 +186,7 @@ int main( int argc, char** argv )
     updates_listener->update("pixo-16.local", settings);
   } catch( const pqxx::unexpected_rows& e) {
     pixpq::sculpture::settings s(application.random_pattern(), 0.2, 1.0);
-    manager.store<pixpq::sculpture::settings>("pixo-16.local", s);
+    manager.store<std::string, pixpq::sculpture::settings>(std::string("pixo-16.local"), s);
     updates_listener->update("pixo-16.local", s);
   }
 
@@ -270,7 +270,7 @@ int main( int argc, char** argv )
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
       pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>("pixo-16.local");
       settings.brightness = value;
-      manager->store("pixo-16.local", settings);
+      manager->store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
   });
 
   gui->addWidget("Brightness", brightness_slider);
@@ -282,7 +282,7 @@ int main( int argc, char** argv )
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
       pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>("pixo-16.local");
       settings.gamma = value;
-      manager->store("pixo-16.local", settings);
+      manager->store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
   });
 
   gui->addWidget("Gamma", gamma_slider);
@@ -364,7 +364,7 @@ int main( int argc, char** argv )
             if (key == GLFW_KEY_P) {
               manager->app->paused = !manager->app->paused;
             }
-             manager->store("pixo-16.local", settings);
+             manager->store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
           }
       }
   );
@@ -442,7 +442,7 @@ int main( int argc, char** argv )
     if (application.get_pattern()->get_time_elapsed() > 10*60 ) {
       pixpq::sculpture::settings settings = manager.get<pixpq::sculpture::settings>("pixo-16.local");
       settings.active_pattern = application.random_pattern();
-      manager.store<pixpq::sculpture::settings>("pixo-16.local", settings);
+      manager.store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
     }
 
     global_timer.end();

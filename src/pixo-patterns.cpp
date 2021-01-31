@@ -51,11 +51,11 @@ int main( int argc, char** argv )
         pixpq::sculpture::pattern p = manager.get<pixpq::sculpture::pattern>(name);  
         p.glsl_code = code;
         printf("Updating  %s\n", name.c_str());
-        manager.store<pixpq::sculpture::pattern>(name, p);
+        manager.store<std::string, pixpq::sculpture::pattern>(name, p);
       } catch (const pqxx::unexpected_rows &e) {
         pixpq::sculpture::pattern p(code, enabled);\
         printf("Inserting %s\n", name.c_str());
-        manager.store<pixpq::sculpture::pattern>(name, p);
+        manager.store<std::string, pixpq::sculpture::pattern>(name, p);
       }
   }
 }
