@@ -6,7 +6,8 @@ namespace Pixlib {
   App::App(const Sculpture& sculpture) :
    scene(),
    focal_point(std::make_shared<Cube>()),
-   target(glm::vec3(0.0f)), paused(false)
+   target(glm::vec3(0.0f)), paused(false),
+   tracking_camera(false)
   {
     viewed_from = sculpture.projection_perspective;
     camera      = sculpture.camera_perspective;
@@ -50,7 +51,7 @@ namespace Pixlib {
   }
 
   void App::move_perspective_to_camera() {
-    //viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
+    viewed_from.move_towards(camera, scene.get_time_delta()*0.8);
   }
 
   std::shared_ptr<Pattern> App::get_pattern() {
@@ -128,7 +129,6 @@ namespace Pixlib {
   }
 
   void App::render_leds() {
-
     if (target != glm::vec3(0.0f)) {
       viewed_from.move_towards(target, scene.get_time_delta()*20.0);
     }
@@ -141,10 +141,13 @@ namespace Pixlib {
       led_cluster->render(*get_pattern(), viewed_from, brightness, gamma);
     }
 
-    camera.rotate(scene.get_time_delta()*rotation);
+    // camera.rotate(scene.get_time_delta()*rotation);
   }
 
   void App::render_scene() {
+    focal_point->hidden = glm::distance(camera.Position, target) < 0.1;
+
     scene.render(camera, brightness);
   }
+
 }

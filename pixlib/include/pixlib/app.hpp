@@ -56,6 +56,8 @@ namespace Pixlib {
     IsoCamera camera;
 
     bool paused;
+    bool tracking_camera;
+
   private:
     std::map<std::string, std::shared_ptr<Pattern> > patterns;
     std::string active_pattern;

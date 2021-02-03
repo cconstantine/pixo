@@ -179,7 +179,10 @@ int main( int argc, char** argv )
   try {
     pixpq::tracking::location loc = manager.get<pixpq::tracking::location>("pixo-16.local");
     updates_listener->update("pixo-16.local", loc);
-  } catch( const pqxx::unexpected_rows& e) { }
+  } catch( const pqxx::unexpected_rows& e) {
+    pixpq::tracking::location loc(application.camera.Position.x, application.camera.Position.y, application.camera.Position.z);
+    manager.store<std::string, pixpq::tracking::location>(std::string("pixo-16.local") ,loc);
+  }
 
   try {
     pixpq::sculpture::settings settings = manager.get<pixpq::sculpture::settings>("pixo-16.local");
@@ -287,15 +290,17 @@ int main( int argc, char** argv )
 
   gui->addWidget("Gamma", gamma_slider);
 
-  gui->addVariable<float>("Rotation",
-    [&](float value) {
+  // nanogui::ComboBox *tracker = new nanogui::ComboBox(nanoguiWindow);
+
+  gui->addVariable<bool>("Track Camera",
+    [&](bool value) {
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
-      manager->app->rotation = value;
+      manager->app->tracking_camera = value;
     },
-    [&]() -> float {
+    [&]() -> bool {
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
 
-      return manager->app->rotation;
+      return manager->app->tracking_camera;
     },
     true);
 
@@ -422,13 +427,19 @@ int main( int argc, char** argv )
     global_timer.start();
 
     manager.process_updates();
+    if (application.tracking_camera) {
+      pixpq::tracking::location loc(
+        application.camera.Position.x,
+        application.camera.Position.y,
+        application.camera.Position.z);
+      manager.store<std::string, pixpq::tracking::location>("pixo-16.local", loc);
+    }
 
     glfwPollEvents();
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     application.render_leds();
     application.render_scene();
-    application.move_perspective_to_camera();
 
     imageWidget->bindImage(application.get_pattern()->get_texture().id);
     gui->refresh();

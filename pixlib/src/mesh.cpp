@@ -136,11 +136,12 @@ namespace Pixlib {
     dirty = true;
     instancePositionOffset.push_back(glm::translate(glm::mat4(), position ));
     instanceTextureOffset.push_back( textureCoords);
-    return 0;//numInstances() - 1;
+
+    return num_instances() - 1;
   }
 
   int Mesh::num_instances()
   {
-    instancePositionOffset.size();
+    return instancePositionOffset.size();
   }
 }

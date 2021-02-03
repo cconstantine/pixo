@@ -12,7 +12,6 @@ using namespace std;
 #include <pixlib/mesh.hpp>
 
 namespace Pixlib {
-  // Constructor, expects a filepath to a 3D model.
   Cube::Cube( ) :defaultTexture(1,1),
      shader(
   R"(
@@ -44,7 +43,6 @@ namespace Pixlib {
     this->load_model();
   }
 
-  // Constructor, expects a filepath to a 3D model.
   Cube::Cube(const Texture& defaultTexture ) :defaultTexture(defaultTexture),
      shader(
   R"(
@@ -105,6 +103,9 @@ namespace Pixlib {
   // Draws the model, and thus all its meshes
   void Cube::draw(const IsoCamera& perspective, float brightness)
   {
+    if (hidden) {
+      return;
+    }
     shader.use();
 
     glUniform1f(glGetUniformLocation(shader.Program, "brightness"), brightness);

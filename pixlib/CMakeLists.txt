@@ -12,6 +12,7 @@ add_library(pixlib STATIC
  src/shader.cpp
  src/scene.cpp
  src/texture.cpp
+ src/drawable.cpp
  src/cube.cpp
  src/dot.cpp
  src/mesh.cpp
