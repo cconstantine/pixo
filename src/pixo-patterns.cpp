@@ -48,14 +48,14 @@ int main( int argc, char** argv )
                       std::istreambuf_iterator<char>());
 
       try {
-        pixpq::sculpture::pattern p = manager.get<pixpq::sculpture::pattern>(name);  
+        pixpq::sculpture::pattern p = manager.get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::by_id(name));  
         p.glsl_code = code;
         printf("Updating  %s\n", name.c_str());
-        manager.store<std::string, pixpq::sculpture::pattern>(name, p);
+        manager.get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::upsert(p));
       } catch (const pqxx::unexpected_rows &e) {
-        pixpq::sculpture::pattern p(code, enabled);\
+        pixpq::sculpture::pattern p(name, code, enabled);\
         printf("Inserting %s\n", name.c_str());
-        manager.store<std::string, pixpq::sculpture::pattern>(name, p);
+        manager.get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::upsert(p));
       }
   }
 }

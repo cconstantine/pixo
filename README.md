@@ -1,7 +1,7 @@
 ## Building
 
 ### Installing deps in Ubuntu
-$ sudo apt-get install build-essential cmake git xorg-dev libglu1-mesa-dev [ libpq5 | postgresql ]
+$ sudo apt-get install build-essential cmake git xorg-dev libglu1-mesa-dev libpq-dev [ postgresql ]
 
 ### Configure database
 $ sudo -u postgres createuser ${USER}
