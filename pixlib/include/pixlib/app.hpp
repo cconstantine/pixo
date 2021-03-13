@@ -18,9 +18,9 @@ namespace Pixlib {
   class App {
   public:
 
-    App(const Sculpture& sculpture);
-    ~App();
+    App();
 
+    void add_fadecandy(const std::string& hostname, const std::list<glm::vec3> leds);
     float scene_fps();
     float scene_render_time();
     float led_render_time();

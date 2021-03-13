@@ -22,8 +22,6 @@ GLFWwindow* window;
 
 #include <nanogui/nanogui.h>
 
-#include <storage.hpp>
-
 std::string Pixlib::Shader::ShaderPreamble = "#version 330\n";
 
 
@@ -39,21 +37,21 @@ class PixoListener
 public:
   PixoListener(Pixlib::App *app) : app(app) {}
 
-  virtual void update(const std::string& name, const pixpq::sculpture::settings& s) {
+  virtual void update(const pixpq::sculpture::settings& s) {
     app->set_pattern(s.active_pattern);
     app->brightness = s.brightness;
     app->gamma = s.gamma;
   }
 
-  virtual void update(const std::string& name, const pixpq::tracking::location& loc) {
+  virtual void update(const pixpq::tracking::location& loc) {
     app->set_target_location(glm::vec3(loc.x, loc.y, loc.z));
   }
 
-  virtual void update(const std::string& name, const pixpq::sculpture::pattern& pattern) {
+  virtual void update(const pixpq::sculpture::pattern& pattern) {
     if (pattern.enabled) {
-      app->register_pattern(make_shared<Pixlib::Pattern>(name, pattern.glsl_code));
+      app->register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code));
     } else {
-      app->disable_pattern(name);
+      app->disable_pattern(pattern.name);
     }
   }
 
@@ -64,9 +62,10 @@ public:
 
 class PixoSettingsManager : public pixpq::manager {
 public:
-  PixoSettingsManager(const std::string& opts, Pixlib::App* app) : pixpq::manager(opts), app(app) { }
+  PixoSettingsManager(const std::string& sculpture_name, Pixlib::App* app) : pixpq::manager(""), app(app), sculpture_name(sculpture_name) { }
 
   Pixlib::App *app;
+  std::string sculpture_name;
 };
 
 nanogui::Screen *screen = nullptr;
@@ -97,7 +96,7 @@ int main( int argc, char** argv )
   int arg_i = 1;
   bool fullscreen = false;
   if(argc < 2) {
-    fprintf(stderr, "Usage: %s [--fullscreen] db_filename\n", argv[0]);
+    fprintf(stderr, "Usage: %s [--fullscreen] sculpture_name\n", argv[0]);
     exit(1);
   }
 
@@ -106,9 +105,9 @@ int main( int argc, char** argv )
     arg_i += 1;
   }
 
-  const std::string db_filename(argv[arg_i]);
-  ALOGV("loading: %s\n", db_filename.c_str());
-    glfwSetErrorCallback(GLFW_error);
+  const std::string sculpture_name(argv[arg_i]);
+  ALOGV("loading: %s\n", sculpture_name.c_str());
+  glfwSetErrorCallback(GLFW_error);
 
   // Initialise GLFW
   if( !glfwInit() )
@@ -158,40 +157,41 @@ int main( int argc, char** argv )
   // Setup some OpenGL options
   // Enable depth test
   glEnable(GL_DEPTH_TEST);
-  Storage storage(db_filename);
+  Pixlib::App application = Pixlib::App();
 
-  Pixlib::App application = Pixlib::App(storage.sculpture);
+  PixoSettingsManager manager(sculpture_name, &application);
+  manager.ensure_schema();
 
+  pixpq::sculpture::settings settings = manager.get<pixpq::sculpture::settings>(pixpq::sculpture::settings::by_id(sculpture_name));
+
+  std::vector<pixpq::sculpture::fadecandy> fadecandies = manager.get_all<pixpq::sculpture::fadecandy>(pixpq::sculpture::fadecandy::get(settings));
+
+  for(pixpq::sculpture::fadecandy fc : fadecandies) {
+    std::list<glm::vec3> leds;
+    for(pixpq::sculpture::led led : manager.get_all<pixpq::sculpture::led>(pixpq::sculpture::led::find(fc))) {
+      leds.push_back(glm::vec3(led.x, led.y, led.z));
+    }
+    application.add_fadecandy(fc.address, leds);
+  }
   
   std::shared_ptr<PixoListener> updates_listener = std::make_shared<PixoListener>(&application);
-  PixoSettingsManager manager("", &application);
-  manager.ensure_schema();
   manager.set_listener<pixpq::sculpture::settings>(updates_listener);
   manager.set_listener<pixpq::sculpture::pattern>(updates_listener);
   manager.set_listener<pixpq::tracking::location>(updates_listener);
 
-  for(auto& [name, pattern] : manager.get_all<pixpq::sculpture::pattern>()) {
-    if (pattern.enabled) {
-      application.register_pattern(make_shared<Pixlib::Pattern>(name, pattern.glsl_code));
-    }
+  for(pixpq::sculpture::pattern pattern : manager.get_all<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::is_enabled())) {
+    application.register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code));
   }
 
   try {
-    pixpq::tracking::location loc = manager.get<pixpq::tracking::location>("pixo-16.local");
-    updates_listener->update("pixo-16.local", loc);
+    pixpq::tracking::location loc = manager.get<pixpq::tracking::location>(pixpq::tracking::location::by_name(sculpture_name));
+    updates_listener->update(loc);
   } catch( const pqxx::unexpected_rows& e) {
-    pixpq::tracking::location loc(application.camera.Position.x, application.camera.Position.y, application.camera.Position.z);
-    manager.store<std::string, pixpq::tracking::location>(std::string("pixo-16.local") ,loc);
+    pixpq::tracking::location loc(sculpture_name, application.camera.Position.x, application.camera.Position.y, application.camera.Position.z);
+    manager.get<pixpq::tracking::location>(pixpq::tracking::location::upsert(loc));
   }
 
-  try {
-    pixpq::sculpture::settings settings = manager.get<pixpq::sculpture::settings>("pixo-16.local");
-    updates_listener->update("pixo-16.local", settings);
-  } catch( const pqxx::unexpected_rows& e) {
-    pixpq::sculpture::settings s(application.random_pattern(), 0.2, 1.0);
-    manager.store<std::string, pixpq::sculpture::settings>(std::string("pixo-16.local"), s);
-    updates_listener->update("pixo-16.local", s);
-  }
+  updates_listener->update(settings);
 
 
   glfwSetWindowUserPointer(window, &manager);
@@ -269,11 +269,10 @@ int main( int argc, char** argv )
   nanogui::Slider *brightness_slider = new nanogui::Slider(nanoguiWindow);
   brightness_slider->setValue(application.brightness);
   brightness_slider->setRange(std::pair<float, float>(0.0f, 1.0f));
-  brightness_slider->setCallback([](float value) {
+  brightness_slider->setCallback([&](float value) {
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
-      pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>("pixo-16.local");
       settings.brightness = value;
-      manager->store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
+      manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
   });
 
   gui->addWidget("Brightness", brightness_slider);
@@ -281,11 +280,10 @@ int main( int argc, char** argv )
   nanogui::Slider *gamma_slider = new nanogui::Slider(nanoguiWindow);
   gamma_slider->setValue(application.gamma);
   gamma_slider->setRange(std::pair<float, float>(1.0f, 3.0f));
-  gamma_slider->setCallback([](float value) {
+  gamma_slider->setCallback([&](float value) {
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
-      pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>("pixo-16.local");
       settings.gamma = value;
-      manager->store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
+      manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
   });
 
   gui->addWidget("Gamma", gamma_slider);
@@ -344,10 +342,11 @@ int main( int argc, char** argv )
             }
 
             PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
-            pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>("pixo-16.local");
+            pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::by_id(manager->sculpture_name));
 
             if(key == GLFW_KEY_ESCAPE) {
               glfwSetWindowShouldClose(window, GL_TRUE);
+              return;
             }
 
             if (key >= GLFW_KEY_0 && key <= GLFW_KEY_9) {
@@ -369,7 +368,7 @@ int main( int argc, char** argv )
             if (key == GLFW_KEY_P) {
               manager->app->paused = !manager->app->paused;
             }
-             manager->store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
+            manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
           }
       }
   );
@@ -429,10 +428,11 @@ int main( int argc, char** argv )
     manager.process_updates();
     if (application.tracking_camera) {
       pixpq::tracking::location loc(
+        sculpture_name,
         application.camera.Position.x,
         application.camera.Position.y,
         application.camera.Position.z);
-      manager.store<std::string, pixpq::tracking::location>("pixo-16.local", loc);
+      manager.get<pixpq::tracking::location>(pixpq::tracking::location::upsert(loc));
     }
 
     glfwPollEvents();
@@ -451,9 +451,8 @@ int main( int argc, char** argv )
     gamma_slider->setValue(application.gamma);
 
     if (application.get_pattern()->get_time_elapsed() > 10*60 ) {
-      pixpq::sculpture::settings settings = manager.get<pixpq::sculpture::settings>("pixo-16.local");
       settings.active_pattern = application.random_pattern();
-      manager.store<std::string, pixpq::sculpture::settings>("pixo-16.local", settings);
+      manager.get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
     }
 
     global_timer.end();
@@ -469,21 +468,21 @@ int main( int argc, char** argv )
 
   }
 
-  storage.sculpture.camera_perspective.yaw = application.camera.Yaw;
-  storage.sculpture.camera_perspective.pitch = application.camera.Pitch;
-  storage.sculpture.camera_perspective.zoom = application.camera.Zoom;
-  storage.sculpture.camera_perspective.scope = application.camera.scope;
+  // storage.sculpture.camera_perspective.yaw = application.camera.Yaw;
+  // storage.sculpture.camera_perspective.pitch = application.camera.Pitch;
+  // storage.sculpture.camera_perspective.zoom = application.camera.Zoom;
+  // storage.sculpture.camera_perspective.scope = application.camera.scope;
 
-  storage.sculpture.projection_perspective.yaw = application.viewed_from.Yaw;
-  storage.sculpture.projection_perspective.pitch = application.viewed_from.Pitch;
-  storage.sculpture.projection_perspective.zoom = application.viewed_from.Zoom;
-  storage.sculpture.projection_perspective.scope = application.viewed_from.scope;
+  // storage.sculpture.projection_perspective.yaw = application.viewed_from.Yaw;
+  // storage.sculpture.projection_perspective.pitch = application.viewed_from.Pitch;
+  // storage.sculpture.projection_perspective.zoom = application.viewed_from.Zoom;
+  // storage.sculpture.projection_perspective.scope = application.viewed_from.scope;
 
   // storage.sculpture.active_pattern_name = application.get_pattern().name;
   // storage.sculpture.brightness = application.brightness;
   // storage.sculpture.gamma = application.gamma;
   // storage.sculpture.rotation = application.rotation;
-  storage.save_app_state();
+  // storage.save_app_state();
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();

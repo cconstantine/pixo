@@ -125,8 +125,6 @@ namespace Pixlib {
     return defaultTexture;
   }
 
-  /*  Functions   */
-  // Loads a model with supported ASSIMP extensions from file and stores the resulting meshes in the meshes vector.
   void Cube::load_model()
   {
 

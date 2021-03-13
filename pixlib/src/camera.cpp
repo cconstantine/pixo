@@ -1,9 +1,8 @@
 #include <pixlib/camera.hpp>
 #include <glm/ext.hpp>
-
 // Std. Includes
 #include <vector>
-
+#include <glm/gtx/string_cast.hpp>
 namespace Pixlib {
 
   // Constructor with vectors
@@ -28,8 +27,7 @@ namespace Pixlib {
         height(1),
         Yaw(perspective.yaw),
         Pitch(perspective.pitch),
-        Zoom(perspective.zoom),
-        scope(perspective.scope)
+        Zoom(perspective.zoom)
   {
     this->update_camera_vectors();
   }

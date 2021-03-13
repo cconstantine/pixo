@@ -21,13 +21,14 @@
 #include <pixlib/renderer.hpp>
 #include <pixlib/timer.hpp>
 
+#include <list>
 
 
 namespace Pixlib {
 
   class LedCluster {
   public:
-    LedCluster(const LedGeometry& geometry);
+    LedCluster(const std::string& fadecandy_host, const std::list<glm::vec3>& leds);
 
     std::shared_ptr<Drawable> get_drawable();
 

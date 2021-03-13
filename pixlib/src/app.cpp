@@ -1,29 +1,49 @@
 #include <pixlib/app.hpp>
 #include <glm/ext.hpp>
-
 namespace Pixlib {
 
-  App::App(const Sculpture& sculpture) :
+  App::App() :
    scene(),
    focal_point(std::make_shared<Cube>()),
    target(glm::vec3(0.0f)), paused(false),
    tracking_camera(false)
   {
-    viewed_from = sculpture.projection_perspective;
-    camera      = sculpture.camera_perspective;
 
-    for(const LedGeometry& geom : sculpture.leds) {
-      std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom);
+    // viewed_from.Yaw = 108.0f;
+    // viewed_from.Pitch = 12.0f;
+    // viewed_from.Zoom = 2.4f;
+    // viewed_from.update_camera_vectors();
 
-      scene.add_cluster(lc->get_drawable());
-      led_clusters.push_back(lc);
-    }
+    // camera = viewed_from
+    // camera.update_camera_vectors();
+    // for(const LedGeometry& geom : sculpture.leds) {
+    //   std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(geom);
 
-    focal_point->add_instance(glm::vec3(0.0f), glm::vec2(0.0f), glm::vec3(0.0f));
+    //   scene.add_cluster(lc->get_drawable());
+    //   led_clusters.push_back(lc);
+
+    //   for(Point point : *geom.locations.get()) {
+    //     if (glm::length(viewed_from.scope) < glm::length(point)) {
+    //       viewed_from.scope = glm::abs(point);
+    //     }
+    //   }
+    // }
+
+    focal_point->add_instance(camera.Position, glm::vec2(0.0f), glm::vec3(0.0f));
     scene.add_cluster(focal_point);
   }
 
-  App::~App() {
+  void App::add_fadecandy(const std::string& hostname, const std::list<glm::vec3> leds) {
+    std::shared_ptr<LedCluster> lc = std::make_shared<LedCluster>(hostname, leds);
+    
+    scene.add_cluster(lc->get_drawable());
+    led_clusters.push_back(lc);
+
+    for(glm::vec3 point : leds) {
+      if (glm::length(viewed_from.scope) < glm::length(point)) {
+        viewed_from.scope = glm::abs(point);
+      }
+    }
   }
 
   float App::scene_fps() {
