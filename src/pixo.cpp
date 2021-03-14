@@ -269,8 +269,10 @@ int main( int argc, char** argv )
   nanogui::Slider *brightness_slider = new nanogui::Slider(nanoguiWindow);
   brightness_slider->setValue(application.brightness);
   brightness_slider->setRange(std::pair<float, float>(0.0f, 1.0f));
-  brightness_slider->setCallback([&](float value) {
+  brightness_slider->setCallback([](float value) {
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::by_id(manager->sculpture_name));
+
       settings.brightness = value;
       manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
   });
@@ -280,8 +282,10 @@ int main( int argc, char** argv )
   nanogui::Slider *gamma_slider = new nanogui::Slider(nanoguiWindow);
   gamma_slider->setValue(application.gamma);
   gamma_slider->setRange(std::pair<float, float>(1.0f, 3.0f));
-  gamma_slider->setCallback([&](float value) {
+  gamma_slider->setCallback([](float value) {
       PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      pixpq::sculpture::settings settings = manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::by_id(manager->sculpture_name));
+
       settings.gamma = value;
       manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
   });
