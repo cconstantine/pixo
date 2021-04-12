@@ -455,6 +455,7 @@ int main( int argc, char** argv )
     gamma_slider->setValue(application.gamma);
 
     if (application.get_pattern()->get_time_elapsed() > 10*60 ) {
+      pixpq::sculpture::settings settings = manager.get<pixpq::sculpture::settings>(pixpq::sculpture::settings::by_id(sculpture_name));
       settings.active_pattern = application.random_pattern();
       manager.get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
     }
