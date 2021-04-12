@@ -99,14 +99,9 @@ namespace Pixlib {
   // http://elvers.us/perception/visualAngle/
   float IsoCamera::get_zoom() const
   {
-    float zoom = 0.0f;
+    float object_size = 2*glm::length(scope);
 
-    float edge_distance = 2*(scope.x + scope.y + scope.z) / 3;
-    float position_distance = glm::length(Position) - edge_distance/3;
-
-    zoom = 2*glm::atan((edge_distance/2) / position_distance);
-
-    return zoom;
+    return 2*glm::atan((object_size/2) / glm::length(Position));
   }
 
   void IsoCamera::rotate(const float rads)
