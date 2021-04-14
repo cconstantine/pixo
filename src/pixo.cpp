@@ -387,6 +387,13 @@ int main( int argc, char** argv )
             if (key == GLFW_KEY_P) {
               manager->app->paused = !manager->app->paused;
             }
+
+            if (key == GLFW_KEY_O) {
+              std::string pattern_name     = manager->app->get_pattern()->name;
+              pixpq::sculpture::pattern p  = manager->get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::by_id(pattern_name));
+              p.overscan = !p.overscan;
+              manager->get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::upsert(p));
+            }
             manager->get<pixpq::sculpture::settings>(pixpq::sculpture::settings::update(settings));
           }
       }
