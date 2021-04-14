@@ -258,6 +258,21 @@ int main( int argc, char** argv )
     },
     false)->setValue("                 ");
 
+  gui->addVariable<bool>("Overscan",
+    [&](bool value) {
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      std::string pattern_name     = manager->app->get_pattern()->name;
+      pixpq::sculpture::pattern p  = manager->get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::by_id(pattern_name));
+      p.overscan = value;
+      manager->get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::upsert(p));
+    },
+    [&]() -> bool {
+      PixoSettingsManager* manager = (PixoSettingsManager*)glfwGetWindowUserPointer(window);
+      std::string pattern_name = manager->app->get_pattern()->name;
+      pixpq::sculpture::pattern p = manager->get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::by_id(pattern_name));
+      return p.overscan;
+    },
+    true);
   nanogui::ImageView *imageWidget = new nanogui::ImageView(nanoguiWindow, application.get_pattern_texture().id);
   imageWidget->setFixedSize(Eigen::Vector2i(160, 160));
   imageWidget->setFixedScale(true);

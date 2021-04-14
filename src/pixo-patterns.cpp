@@ -53,7 +53,7 @@ int main( int argc, char** argv )
         printf("Updating  %s\n", name.c_str());
         manager.get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::upsert(p));
       } catch (const pqxx::unexpected_rows &e) {
-        pixpq::sculpture::pattern p(name, code, enabled);\
+        pixpq::sculpture::pattern p(name, code, enabled, true);\
         printf("Inserting %s\n", name.c_str());
         manager.get<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::upsert(p));
       }
