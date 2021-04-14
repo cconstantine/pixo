@@ -12,7 +12,7 @@
 namespace Pixlib {
   class Pattern : public Shader {
   public:
-    Pattern(const std::string& name, const std::string& fragment_code);
+    Pattern(const std::string& name, const std::string& fragment_code, bool overscan);
 
     void render();
 
@@ -21,6 +21,7 @@ namespace Pixlib {
     void reset_start();
 
     std::string name;
+    bool overscan;
 
   private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start;

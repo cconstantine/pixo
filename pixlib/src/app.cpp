@@ -149,16 +149,17 @@ namespace Pixlib {
   }
 
   void App::render_leds() {
+    std::shared_ptr<Pattern> pattern = get_pattern();
     if (target != glm::vec3(0.0f)) {
       viewed_from.move_towards(target, scene.get_time_delta()*20.0);
     }
 
     if (!paused) {
-      get_pattern()->render();
+      pattern->render();
     }
 
     for (std::shared_ptr<LedCluster> led_cluster : led_clusters) {
-      led_cluster->render(*get_pattern(), viewed_from, brightness, gamma);
+      led_cluster->render(*pattern, viewed_from, brightness, gamma);
     }
 
     // camera.rotate(scene.get_time_delta()*rotation);

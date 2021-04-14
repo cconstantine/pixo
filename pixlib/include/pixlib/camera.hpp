@@ -58,7 +58,7 @@ namespace Pixlib {
     void move_towards(IsoCamera& camera, float timeScale);
     void move_towards(const glm::vec3, float timeScale);
 
-    float get_zoom() const;
+    float get_zoom(bool overscan) const;
 
     void rotate(const float rads);
   private:

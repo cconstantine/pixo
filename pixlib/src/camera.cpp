@@ -97,9 +97,9 @@ namespace Pixlib {
   }
 
   // http://elvers.us/perception/visualAngle/
-  float IsoCamera::get_zoom() const
+  float IsoCamera::get_zoom(bool overscan) const
   {
-    float object_size = 2*glm::length(scope);
+    float object_size = overscan ? 2*glm::length(scope) : 2*scope.x;
 
     return 2*glm::atan((object_size/2) / glm::length(Position));
   }

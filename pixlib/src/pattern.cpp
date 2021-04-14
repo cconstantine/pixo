@@ -3,7 +3,7 @@
 #include <fstream>
 
 namespace Pixlib {
-  Pattern::Pattern(const std::string& name, const std::string& fragment_code) :
+  Pattern::Pattern(const std::string& name, const std::string& fragment_code, bool overscan) :
    Shader::Shader(
      R"(
   layout (location = 0) in vec3 position;
@@ -16,6 +16,7 @@ namespace Pixlib {
     gl_Position = vec4( position, 1.0 );
   })",fragment_code.c_str()),
    name(name),
+   overscan(overscan),
    width(512),
    height(512),
    renderedTexture(512, 512),

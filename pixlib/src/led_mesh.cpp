@@ -66,7 +66,7 @@ namespace Pixlib {
   { }
 
   // Render the mesh
-  void LedMesh::draw(const Texture& texture, const IsoCamera& perspective, float brightness, float gamma) {
+  void LedMesh::draw(const Texture& texture, const IsoCamera& perspective, float brightness, float gamma, bool overscan) {
 
     shader.use();
 
@@ -74,7 +74,7 @@ namespace Pixlib {
     glUniform1f(glGetUniformLocation(shader.Program, "gamma"), gamma);
 
     // Transformation matrices
-    glm::mat4 led_projection = perspective.get_projection_matrix(perspective.get_zoom());
+    glm::mat4 led_projection = perspective.get_projection_matrix(perspective.get_zoom(overscan));
     glm::mat4 led_view = perspective.get_view_matrix();
     glm::vec3 camera_pos = perspective.Position;
 

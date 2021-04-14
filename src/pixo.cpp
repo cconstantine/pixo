@@ -49,7 +49,7 @@ public:
 
   virtual void update(const pixpq::sculpture::pattern& pattern) {
     if (pattern.enabled) {
-      app->register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code));
+      app->register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code, pattern.overscan));
     } else {
       app->disable_pattern(pattern.name);
     }
@@ -180,7 +180,7 @@ int main( int argc, char** argv )
   manager.set_listener<pixpq::tracking::location>(updates_listener);
 
   for(pixpq::sculpture::pattern pattern : manager.get_all<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::is_enabled())) {
-    application.register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code));
+    application.register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code, pattern.overscan));
   }
 
   try {
