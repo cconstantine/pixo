@@ -1,18 +1,12 @@
 cmake_minimum_required(VERSION 3.0)
 project(pixo)
 
-#set(CMAKE_C_COMPILER /usr/bin/gcc-8 CACHE BOOL " " FORCE)
-#set(CMAKE_CXX_COMPILER /usr/bin/g++-8 CACHE BOOL " " FORCE)
-
 if(NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE "Release" CACHE STRING
       "Choose the type of build, options are: Debug Release
 RelWithDebInfo MinSizeRel."
       FORCE)
 endif(NOT CMAKE_BUILD_TYPE)
-
-###################### DLIB     ###############################
-include(./ext/dlib/dlib/cmake)
 
 ###################### NANOGUI ###############################
 # Disable building extras we won't need (pure C++ project)
@@ -29,7 +23,6 @@ include_directories(ext/nanogui/include)
 include_directories(${NANOGUI_EXTRA_INCS})
 add_definitions(${NANOGUI_EXTRA_DEFS})
 
-
 ###################### GLM     ###############################
 include_directories( ext/glm/ )
 
@@ -39,7 +32,6 @@ set(glew-cmake_BUILD_SHARED              OFF CACHE BOOL " " FORCE)
 
 add_subdirectory(ext/glew EXCLUDE_FROM_ALL)
 include_directories(ext/glew/include lib/glew/src)
-
 
 ###################### PIXLIB   ###############################
 include_directories(src)
