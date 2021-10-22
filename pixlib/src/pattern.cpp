@@ -3,8 +3,31 @@
 #include <fstream>
 
 namespace Pixlib {
-  Pattern::Pattern(const std::string& name, const std::string& fragment_code, bool overscan) :
-   Shader::Shader(
+  Pattern::Pattern(const std::string& name, bool overscan) :
+   name(name),
+   overscan(overscan),
+   width(512),
+   height(512),
+   renderedTexture(512, 512),
+   start(std::chrono::high_resolution_clock::now())
+  {}
+
+  const Texture& Pattern::get_texture() const {
+    return renderedTexture;
+  }
+
+  float Pattern::get_time_elapsed() const {
+    std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - start;
+    return diff.count();
+  }
+
+  void Pattern::reset_start() {
+    start = std::chrono::high_resolution_clock::now();
+  }
+
+  DemoPattern::DemoPattern(const std::string& name, const std::string& fragment_code, bool overscan) :
+    Pattern(name, overscan),
+    shader(
      R"(
   layout (location = 0) in vec3 position;
   layout (location = 1) in vec2 surfacePosAttrib;
@@ -14,14 +37,7 @@ namespace Pixlib {
   void main() {
     surfacePosition = position.xy;
     gl_Position = vec4( position, 1.0 );
-  })",fragment_code.c_str()),
-   name(name),
-   overscan(overscan),
-   width(512),
-   height(512),
-   renderedTexture(512, 512),
-   start(std::chrono::high_resolution_clock::now())
-
+  })",fragment_code.c_str())
   {
     glGenVertexArrays(1, &VertexArrayID);
     glBindVertexArray(VertexArrayID);
@@ -67,19 +83,7 @@ namespace Pixlib {
     }
   }
 
-  const Texture& Pattern::get_texture() const {
-    return renderedTexture;
-  }
-
-  float Pattern::get_time_elapsed() const {
-    std::chrono::duration<float> diff = std::chrono::high_resolution_clock::now() - start;
-    return diff.count();
-  }
-  void Pattern::reset_start() {
-    start = std::chrono::high_resolution_clock::now();
-  }
-
-  void Pattern::render() {
+  void DemoPattern::render() {
 
     glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
     glViewport(0,0,width, height); // Render on the whole framebuffer, complete from the lower left corner to the upper right
@@ -87,16 +91,16 @@ namespace Pixlib {
     float time_elapsed = get_time_elapsed();
 
     // Use our shader
-    use();
+    shader.use();
 
 
-    GLuint time_id = glGetUniformLocation(Program, "time");
-    GLuint resolution_id = glGetUniformLocation(Program, "resolution");
-    GLuint mouse_id = glGetUniformLocation(Program, "mouse");
+    GLuint time_id = glGetUniformLocation(shader.Program, "time");
+    GLuint resolution_id = glGetUniformLocation(shader.Program, "resolution");
+    GLuint mouse_id = glGetUniformLocation(shader.Program, "mouse");
 
-    GLuint itime_id = glGetUniformLocation(Program, "iGlobalTime");
-    GLuint iresolution_id = glGetUniformLocation(Program, "iResolution");
-    GLuint imouse_id = glGetUniformLocation(Program, "iMouse");
+    GLuint itime_id = glGetUniformLocation(shader.Program, "iGlobalTime");
+    GLuint iresolution_id = glGetUniformLocation(shader.Program, "iResolution");
+    GLuint imouse_id = glGetUniformLocation(shader.Program, "iMouse");
 
 
     glUniform1f(time_id, time_elapsed );

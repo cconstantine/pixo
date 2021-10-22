@@ -10,11 +10,10 @@
 
 
 namespace Pixlib {
-  class Pattern : public Shader {
+  class Pattern {
   public:
-    Pattern(const std::string& name, const std::string& fragment_code, bool overscan);
-
-    void render();
+    Pattern(const std::string& name, bool overscan);
+    virtual void render() = 0;
 
     const Texture& get_texture() const;
     float get_time_elapsed() const;
@@ -22,16 +21,21 @@ namespace Pixlib {
 
     std::string name;
     bool overscan;
-
-  private:
+  protected:
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
-    GLuint VertexArrayID;
-    GLuint vertexbuffer;
-
     GLuint FramebufferName;
     Texture renderedTexture;
     int width, height;
+  };
 
+  class DemoPattern : public Pattern {
+  public:
+    DemoPattern(const std::string& name, const std::string& fragment_code, bool overscan);
+    virtual void render();
 
+  private:
+    Shader shader;
+    GLuint VertexArrayID;
+    GLuint vertexbuffer;
   };
 }

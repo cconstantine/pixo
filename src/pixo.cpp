@@ -49,7 +49,7 @@ public:
 
   virtual void update(const pixpq::sculpture::pattern& pattern) {
     if (pattern.enabled) {
-      app->register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code, pattern.overscan));
+      app->register_pattern(make_shared<Pixlib::DemoPattern>(pattern.name, pattern.glsl_code, pattern.overscan));
     } else {
       app->disable_pattern(pattern.name);
     }
@@ -178,9 +178,8 @@ int main( int argc, char** argv )
   manager.set_listener<pixpq::sculpture::settings>(updates_listener);
   manager.set_listener<pixpq::sculpture::pattern>(updates_listener);
   manager.set_listener<pixpq::tracking::location>(updates_listener);
-
   for(pixpq::sculpture::pattern pattern : manager.get_all<pixpq::sculpture::pattern>(pixpq::sculpture::pattern::is_enabled())) {
-    application.register_pattern(make_shared<Pixlib::Pattern>(pattern.name, pattern.glsl_code, pattern.overscan));
+    application.register_pattern(make_shared<Pixlib::DemoPattern>(pattern.name, pattern.glsl_code, pattern.overscan));
   }
 
   try {
@@ -494,22 +493,6 @@ int main( int argc, char** argv )
     }
 
   }
-
-  // storage.sculpture.camera_perspective.yaw = application.camera.Yaw;
-  // storage.sculpture.camera_perspective.pitch = application.camera.Pitch;
-  // storage.sculpture.camera_perspective.zoom = application.camera.Zoom;
-  // storage.sculpture.camera_perspective.scope = application.camera.scope;
-
-  // storage.sculpture.projection_perspective.yaw = application.viewed_from.Yaw;
-  // storage.sculpture.projection_perspective.pitch = application.viewed_from.Pitch;
-  // storage.sculpture.projection_perspective.zoom = application.viewed_from.Zoom;
-  // storage.sculpture.projection_perspective.scope = application.viewed_from.scope;
-
-  // storage.sculpture.active_pattern_name = application.get_pattern().name;
-  // storage.sculpture.brightness = application.brightness;
-  // storage.sculpture.gamma = application.gamma;
-  // storage.sculpture.rotation = application.rotation;
-  // storage.save_app_state();
 
   // Close OpenGL window and terminate GLFW
   glfwTerminate();
