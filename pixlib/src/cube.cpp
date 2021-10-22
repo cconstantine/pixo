@@ -22,6 +22,8 @@ namespace Pixlib {
   layout (location = 4) in mat4 positionOffset;
 
   out vec2 TexCoords;
+  out vec3 norm;
+  out vec3 pos;
 
   uniform mat4 view;
   uniform mat4 projection;
@@ -31,13 +33,21 @@ namespace Pixlib {
   void main()
   {
       gl_Position = projection * view  * positionOffset * vec4(position, 1.0f);
+      pos = position;
+      norm = normal;
   })",
   R"(
   out vec4 color;
+  in vec3 norm;
+  in vec3 pos;
 
   void main()
   {
-    color = vec4(1.0f);
+
+    vec3 norml = normalize(norm);
+    vec3 light_dir = normalize(  pos);
+    float diff = max(dot(norml, light_dir), 0.0);
+    color = vec4((diff * vec4(1.0f) + 0.05 * vec4(1.0f)).rgb, 1.0);
   })")
   {
     this->load_model();
@@ -66,7 +76,6 @@ namespace Pixlib {
   })",
   R"(
   in vec2 TexCoords;
-
   out vec4 color;
 
   uniform sampler2D texture0;
