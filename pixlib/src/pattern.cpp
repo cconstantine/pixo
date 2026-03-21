@@ -6,6 +6,7 @@ namespace Pixlib {
   Pattern::Pattern(const std::string& name, bool overscan) :
    name(name),
    overscan(overscan),
+   location(glm::vec3(0.0f)),
    width(512),
    height(512),
    renderedTexture(512, 512),
@@ -101,6 +102,7 @@ namespace Pixlib {
     GLuint itime_id = glGetUniformLocation(shader.Program, "iGlobalTime");
     GLuint iresolution_id = glGetUniformLocation(shader.Program, "iResolution");
     GLuint imouse_id = glGetUniformLocation(shader.Program, "iMouse");
+    GLuint location_id = glGetUniformLocation(shader.Program, "location");
 
 
     glUniform1f(time_id, time_elapsed );
@@ -110,6 +112,7 @@ namespace Pixlib {
     glUniform1f(itime_id, time_elapsed );
     glUniform2f(iresolution_id, width, height);
     glUniform2f(imouse_id, width/2, height/2);
+    glUniform3f(location_id, location.x, location.y, location.z);
 
      // Clear the screen
     glClearColor(0.00f, 0.00f, 0.00f, 1.0f);

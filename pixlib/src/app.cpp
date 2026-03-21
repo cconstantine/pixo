@@ -154,6 +154,8 @@ namespace Pixlib {
       viewed_from.move_towards(target, scene.get_time_delta()*20.0);
     }
 
+    pattern->location = viewed_from.Position;
+
     if (!paused) {
       pattern->render();
     }

@@ -21,6 +21,7 @@ namespace Pixlib {
 
     std::string name;
     bool overscan;
+    glm::vec3 location;
   protected:
     std::chrono::time_point<std::chrono::high_resolution_clock> start;
     GLuint FramebufferName;
